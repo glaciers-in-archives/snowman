@@ -1,0 +1,9 @@
+SELECT ?title ?workLabel WHERE {
+  BIND("Douglas Adams" AS ?title) .
+  ?work wdt:P50 wd:Q42 .
+  
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" .
+    ?work rdfs:label ?workLabel .
+  }
+}
