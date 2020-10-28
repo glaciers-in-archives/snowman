@@ -1,2 +1,4 @@
 ---
     output: "index.html"
+    query: "index.rq"
+    template: "index.html"

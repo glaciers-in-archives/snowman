@@ -34,9 +34,9 @@ func ErrorExit(message string, err error) {
 	os.Exit(1)
 }
 
-func DiscoverLayouts() (*template.Template, error) {
+func DiscoverIncludes() (*template.Template, error) {
 	var paths []string
-	err := filepath.Walk("layouts", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk("templates/includes", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -83,7 +83,7 @@ func main() {
 		ErrorExit("Failed to validate snowman.yaml.", err)
 	}
 
-	layouts, err := DiscoverLayouts()
+	layouts, err := DiscoverIncludes()
 	if err != nil {
 		ErrorExit("Failed to discover layouts.", err)
 	}
@@ -110,7 +110,7 @@ func main() {
 
 		results := res.Results.Bindings
 
-		if err := view.Template.ExecuteTemplate(f, view.TemplateFile, results); err != nil {
+		if err := view.Template.ExecuteTemplate(f, view.TemplateName, results); err != nil {
 			ErrorExit("Failed to render "+siteDir+view.ViewConfig.Output+".", err)
 		}
 		f.Close()
