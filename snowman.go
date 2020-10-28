@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/url"
 	"os"
+	"path/filepath"
 
 	"github.com/knakk/sparql"
 
@@ -30,6 +32,23 @@ func (c siteConfig) IsValid() error {
 func ErrorExit(message string, err error) {
 	fmt.Println(message, " Error:", err)
 	os.Exit(1)
+}
+
+func DiscoverLayouts() (*template.Template, error) {
+	var paths []string
+	err := filepath.Walk("layouts", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			paths = append(paths, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return template.New("").ParseFiles(paths...)
 }
 
 func main() {
@@ -64,7 +83,12 @@ func main() {
 		ErrorExit("Failed to validate snowman.yaml.", err)
 	}
 
-	views, err := DiscoverViews()
+	layouts, err := DiscoverLayouts()
+	if err != nil {
+		ErrorExit("Failed to discover layouts.", err)
+	}
+
+	views, err := DiscoverViews(layouts)
 	if err != nil {
 		ErrorExit("Failed to discover views.", err)
 	}
@@ -83,9 +107,10 @@ func main() {
 		if err != nil {
 			ErrorExit("Failed to create "+siteDir+view.ViewConfig.Output+" file.", err)
 		}
+
 		results := res.Results.Bindings
-		view.Template.Execute(os.Stdout, results)
-		if err := view.Template.Execute(f, results); err != nil {
+
+		if err := view.Template.ExecuteTemplate(f, view.TemplateFile, results); err != nil {
 			ErrorExit("Failed to render "+siteDir+view.ViewConfig.Output+".", err)
 		}
 		f.Close()

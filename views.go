@@ -13,10 +13,11 @@ import (
 )
 
 type View struct {
-	ViewName   string
-	ViewConfig viewConfig
-	Sparql     string
-	Template   *template.Template
+	ViewName     string
+	ViewConfig   viewConfig
+	Sparql       string
+	Template     *template.Template
+	TemplateFile string
 }
 
 type viewConfig struct {
@@ -27,7 +28,7 @@ func (c *viewConfig) Parse(data []byte) error {
 	return yaml.Unmarshal(data, &c)
 }
 
-func DiscoverViews() ([]View, error) {
+func DiscoverViews(layoutsTemplate *template.Template) ([]View, error) {
 	var views []View
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {
 		if info.Mode().IsRegular() {
@@ -58,16 +59,19 @@ func DiscoverViews() ([]View, error) {
 					return errors.New("Unable to find the HTML file for the " + viewName + " view.") // todo work with other formats than html, (check for extra var in config?)
 				}
 
-				HTMLTemplate, err := template.ParseFiles(viewName + ".html")
+				_, file := filepath.Split(viewName + ".html")
+
+				HTMLTemplate, err := layoutsTemplate.ParseFiles(viewName + ".html")
 				if err != nil {
 					return err
 				}
 
 				view := View{
-					ViewName:   viewName,
-					ViewConfig: vConfig,
-					Sparql:     string(sparqlBytes),
-					Template:   HTMLTemplate,
+					ViewName:     viewName,
+					ViewConfig:   vConfig,
+					Sparql:       string(sparqlBytes),
+					Template:     HTMLTemplate,
+					TemplateFile: file,
 				}
 				views = append(views, view)
 			}

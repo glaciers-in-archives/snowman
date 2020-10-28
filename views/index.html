@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>{{ (index (index . 0) "title").Value }}</title>
-    </head>
-    <body>
-        <ul>
-            {{range .}}
-            <li>{{ (index . "workLabel").Value }}</li>{{end}}
-        </ul>
-    </body>
-</html>
+{{ template "base" .}}
+{{ define "content" }}
+<ul>
+    {{range .}}
+    <li>{{ (index . "workLabel").Value }}</li>{{end}}
+</ul>
+{{ end }}
+
+{{ define "title" }}{{ (index (index . 0) "title").Value }}{{ end }}
