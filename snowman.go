@@ -54,12 +54,6 @@ func DiscoverIncludes() (*template.Template, error) {
 func main() {
 	fmt.Println("Welcome to Snowman - a static site generator for SPARQL backends.")
 
-	var siteDir string = "site/"
-	err := os.Mkdir("site", 0755)
-	if err != nil {
-		ErrorExit("Failed to create site directory.", err)
-	}
-
 	currentDirectory, err := os.Getwd()
 	if err != nil {
 		ErrorExit("Failed to get the current working directory.", err)
@@ -91,6 +85,12 @@ func main() {
 	views, err := DiscoverViews(layouts)
 	if err != nil {
 		ErrorExit("Failed to discover views.", err)
+	}
+
+	var siteDir string = "site/"
+	err = os.Mkdir("site", 0755)
+	if err != nil {
+		ErrorExit("Failed to create site directory.", err)
 	}
 
 	for _, view := range views {
