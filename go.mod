@@ -1,6 +1,6 @@
-module albin.fyi/snowman
+module github.com/abbe98/snowman
 
-go 1.13
+go 1.15
 
 require (
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
