@@ -1,0 +1,6 @@
+{{ template "base" .}}
+{{ define "content" }}
+<h1>{{ (index . "workLabel").Value }}</h1>
+{{ end }}
+
+{{ define "title" }}{{ (index . "workLabel").Value }}{{ end }}

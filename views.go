@@ -7,15 +7,36 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"gopkg.in/yaml.v2"
 )
 
 type View struct {
-	ViewConfig   viewConfig
-	Sparql       string
-	Template     *template.Template
-	TemplateName string
+	ViewConfig            viewConfig
+	Sparql                string
+	Template              *template.Template
+	TemplateName          string
+	MultipageVariableHook *string
+}
+
+func (v *View) RenderPage(path string, data interface{}) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
+		return err
+	}
+
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+
+	if err := v.Template.ExecuteTemplate(f, v.TemplateName, data); err != nil {
+		return err
+	}
+	f.Close()
+
+	fmt.Println("Rendered page at " + path)
+	return nil
 }
 
 type viewConfig struct {
@@ -28,8 +49,10 @@ func (c *viewConfig) Parse(data []byte) error {
 	return yaml.Unmarshal(data, &c)
 }
 
-func DiscoverViews(layoutsTemplate *template.Template) ([]View, error) {
+func DiscoverViews(includes []string) ([]View, error) {
 	var views []View
+	var multipageVariableHook *string
+
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {
 		if info.Mode().IsRegular() {
 			if filepath.Ext(path) == ".yaml" {
@@ -44,6 +67,11 @@ func DiscoverViews(layoutsTemplate *template.Template) ([]View, error) {
 				var vConfig viewConfig
 				if err := vConfig.Parse(data); err != nil {
 					return errors.New("Failed to parse" + viewPath)
+				}
+
+				re := regexp.MustCompile(`{{([\w\d_]+)}}`)
+				if re.Match([]byte(vConfig.Output)) {
+					multipageVariableHook = &re.FindAllStringSubmatch(vConfig.Output, 1)[0][1]
 				}
 
 				queryPath := "queries/" + vConfig.QueryFile
@@ -63,16 +91,19 @@ func DiscoverViews(layoutsTemplate *template.Template) ([]View, error) {
 
 				_, file := filepath.Split(templatePath)
 
-				HTMLTemplate, err := layoutsTemplate.ParseFiles(templatePath)
+				allTemplatePaths := includes
+				allTemplatePaths = append(allTemplatePaths, templatePath)
+				HTMLTemplate, err := template.New("").ParseFiles(allTemplatePaths...)
 				if err != nil {
 					return err
 				}
 
 				view := View{
-					ViewConfig:   vConfig,
-					Sparql:       string(sparqlBytes),
-					Template:     HTMLTemplate,
-					TemplateName: file,
+					ViewConfig:            vConfig,
+					Sparql:                string(sparqlBytes),
+					Template:              HTMLTemplate,
+					TemplateName:          file,
+					MultipageVariableHook: multipageVariableHook,
 				}
 				views = append(views, view)
 			}

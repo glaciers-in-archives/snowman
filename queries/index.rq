@@ -1,7 +1,9 @@
-SELECT ?title ?workLabel WHERE {
+SELECT ?qid ?title ?workLabel WHERE {
   BIND("Douglas Adams" AS ?title) .
   ?work wdt:P50 wd:Q42 .
   
+  BIND(REPLACE(STR(?work), "http://www.wikidata.org/entity/", "") AS ?qid)
+
   SERVICE wikibase:label {
     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" .
     ?work rdfs:label ?workLabel .

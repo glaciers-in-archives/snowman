@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/knakk/sparql"
 
@@ -34,7 +34,7 @@ func ErrorExit(message string, err error) {
 	os.Exit(1)
 }
 
-func DiscoverIncludes() (*template.Template, error) {
+func DiscoverIncludes() ([]string, error) {
 	var paths []string
 	err := filepath.Walk("templates/includes", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -48,7 +48,7 @@ func DiscoverIncludes() (*template.Template, error) {
 	if err != nil {
 		return nil, err
 	}
-	return template.New("").ParseFiles(paths...)
+	return paths, nil
 }
 
 func main() {
@@ -102,18 +102,21 @@ func main() {
 		if err != nil {
 			ErrorExit("SPARQL query failed.", err)
 		}
-
-		f, err := os.Create(siteDir + view.ViewConfig.Output)
-		if err != nil {
-			ErrorExit("Failed to create "+siteDir+view.ViewConfig.Output+" file.", err)
-		}
-
 		results := res.Results.Bindings
 
-		if err := view.Template.ExecuteTemplate(f, view.TemplateName, results); err != nil {
-			ErrorExit("Failed to render "+siteDir+view.ViewConfig.Output+".", err)
+		if view.MultipageVariableHook != nil {
+			for _, row := range results {
+				outputPath := siteDir + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", row[*view.MultipageVariableHook].Value, 1)
+				if err := view.RenderPage(outputPath, row); err != nil {
+					ErrorExit("Failed to render page at "+outputPath, err)
+				}
+			}
+		} else {
+			if err := view.RenderPage(siteDir+view.ViewConfig.Output, results); err != nil {
+				ErrorExit("Failed to render page at "+siteDir+view.ViewConfig.Output, err)
+			}
 		}
-		f.Close()
+
 	}
 
 }
