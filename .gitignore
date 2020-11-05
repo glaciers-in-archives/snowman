@@ -1,1 +1,8 @@
 site/
+
+# to support having a snowman site in the root for development purposes
+
+queries/*
+static/*
+templates/*
+views/*
