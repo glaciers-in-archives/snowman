@@ -1,0 +1,12 @@
+{{ template "base" . }}
+
+{{ define "title" }}{{ (index (index . 0) "title").Value }}{{ end }}
+
+{{ define "content" }}
+<h1>Works by {{ (index (index . 0) "title").Value }}</h1>
+<ul>
+    {{range .}}
+    <li><a href="works/{{ (index . "qid").Value }}.html">{{ (index . "workLabel").Value }}</a></li>
+    {{ end }}
+</ul>
+{{ end }}
