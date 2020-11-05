@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -51,6 +52,38 @@ func DiscoverIncludes() ([]string, error) {
 	return paths, nil
 }
 
+func CopyStatic() error {
+	// we know from prevous checks that the static folder must exist
+	err := filepath.Walk("static", func(path string, info os.FileInfo, err error) error {
+		if info.Mode().IsRegular() {
+			newPath := strings.Replace(path, "static/", "site/", 1)
+			if err := os.MkdirAll(filepath.Dir(newPath), 0770); err != nil {
+				return err
+			}
+
+			original, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer original.Close()
+
+			new, err := os.Create(newPath)
+			if err != nil {
+				return err
+			}
+			defer new.Close()
+
+			_, err = io.Copy(new, original)
+			if err != nil {
+				return err
+			}
+			fmt.Println("Copied static file to: " + newPath)
+		}
+		return err
+	})
+	return err
+}
+
 func main() {
 	fmt.Println("Welcome to Snowman - a static site generator for SPARQL backends.")
 
@@ -77,6 +110,20 @@ func main() {
 		ErrorExit("Failed to validate snowman.yaml.", err)
 	}
 
+	var siteDir string = "site/"
+	err = os.Mkdir("site", 0755)
+	if err != nil {
+		ErrorExit("Failed to create site directory.", err)
+	}
+
+	if _, err := os.Stat("static"); os.IsNotExist(err) {
+		fmt.Println("Failed to locate static files. Skipping...")
+	} else {
+		if err := CopyStatic(); err != nil {
+			ErrorExit("Failed to copy static files.", err)
+		}
+	}
+
 	layouts, err := DiscoverIncludes()
 	if err != nil {
 		ErrorExit("Failed to discover layouts.", err)
@@ -85,12 +132,6 @@ func main() {
 	views, err := DiscoverViews(layouts)
 	if err != nil {
 		ErrorExit("Failed to discover views.", err)
-	}
-
-	var siteDir string = "site/"
-	err = os.Mkdir("site", 0755)
-	if err != nil {
-		ErrorExit("Failed to create site directory.", err)
 	}
 
 	for _, view := range views {
