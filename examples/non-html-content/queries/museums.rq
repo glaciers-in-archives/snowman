@@ -1,0 +1,10 @@
+SELECT ?itemLabel ?lat ?lon WHERE {
+  ?item wdt:P31/wdt:P279* wd:Q33506 .
+  ?item wdt:P17 wd:Q34 .
+  ?item p:P625 ?coords .
+  ?coords psv:P625 ?coords_node .
+  ?coords_node wikibase:geoLatitude ?lat .
+  ?coords_node wikibase:geoLongitude ?lon .
+  
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+}

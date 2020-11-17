@@ -1,0 +1,20 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {{ range $i, $m := $ }}
+        {{ if $i }},{{ end }}{
+            "type": "Feature",
+            "properties": {
+                "name": "{{ (index $m "itemLabel").Value }}"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    {{ (index $m "lon").Value }},
+                    {{ (index $m "lat").Value }}
+                ]
+            }
+        }
+        {{ end }}
+    ]
+}

@@ -6,4 +6,4 @@ queries/*
 static/*
 templates/*
 views/*
-snowman.yaml
+/snowman.yaml
