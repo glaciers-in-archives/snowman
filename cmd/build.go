@@ -126,7 +126,8 @@ var buildCmd = &cobra.Command{
 
 		layouts, err := DiscoverIncludes()
 		if err != nil {
-			return utils.ErrorExit("Failed to discover layouts.", err)
+			fmt.Println("No includes discovered, skipping.")
+			layouts = nil
 		}
 
 		discoveredViews, err := views.DiscoverViews(layouts)
