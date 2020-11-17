@@ -11,7 +11,7 @@ For the time being you will need to build Snowman from source:
 ```bash
 git clone https://github.com/Glaciers-in-Archives/snowman
 cd snowman
-go build snowman.go views.go
+go build -o snowman
 ```
 
 This will generate a binary that you can place in the root of your new project.
