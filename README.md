@@ -9,7 +9,7 @@ Copyright (c) 2020 Albin Larsson. Snowman is made available under the GNU Lesser
 For the time being you will need to build Snowman from source:
 
 ```bash
-git clone https://github.com/Glaciers-in-Archives/snowman
+git clone https://github.com/glaciers-in-archives/snowman
 cd snowman
 go build -o snowman
 ```
