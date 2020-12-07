@@ -87,16 +87,12 @@ var buildCmd = &cobra.Command{
 	Short: "Builds a Snowman site in the current directory.",
 	Long:  `Tries to locate the Snowman configuration, views, queries, etc in the current directory. Then tries to build a Snowman site.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		currentDirectory, err := os.Getwd()
-		if err != nil {
-			return utils.ErrorExit("Failed to get the current working directory.", err)
-		}
 
-		if _, err := os.Stat(currentDirectory + "/snowman.yaml"); err != nil {
+		if _, err := os.Stat("snowman.yaml"); err != nil {
 			return utils.ErrorExit("Unable to locate snowman.yaml in the current working directory.", err)
 		}
 
-		data, err := ioutil.ReadFile(currentDirectory + "/snowman.yaml")
+		data, err := ioutil.ReadFile("snowman.yaml")
 		if err != nil {
 			return utils.ErrorExit("Failed to read snowman.yaml.", err)
 		}
