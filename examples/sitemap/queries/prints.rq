@@ -1,0 +1,13 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX jps: <https://jpsearch.go.jp/term/property#>
+PREFIX schema: <http://schema.org/>
+
+SELECT * WHERE {
+  ?cho jps:sourceInfo/schema:provider <https://jpsearch.go.jp/entity/chname/ヨーロピアナAPI> ;
+    rdfs:label ?label ;
+    schema:image ?image ;
+    jps:sourceInfo ?source .
+  ?source schema:relatedLink ?cultural_jp_link .
+  FILTER(CONTAINS(?label, "ukiyo-e"))
+  BIND(REPLACE(STR(?cho), "https://ld.cultural.jp/data/europeana-", "") AS ?safe_id)
+} LIMIT 50

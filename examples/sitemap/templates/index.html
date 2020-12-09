@@ -1,0 +1,12 @@
+{{ template "base" . }}
+
+{{ define "title" }}Ukiyo-e{{ end }}
+
+{{ define "content" }}
+<h1>Ukiyo-e</h1>
+<ul>
+    {{ range . }}
+    <li><a href="prints/{{ (index . "safe_id").Value }}.html">{{ (index . "label").Value }}</a></li>
+    {{ end }}
+</ul>
+{{ end }}

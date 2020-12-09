@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://www.example.com/</loc>
+        <lastmod>{{ now.Format "2006-01-02" }}</lastmod>
+    </url>
+    {{ range . }}
+    <url>
+        <loc>https://www.example.com/prints/{{ (index . "safe_id").Value }}.html</loc>
+        <lastmod>{{ now.Format "2006-01-02" }}</lastmod>
+    </url>
+    {{ end }}
+</urlset>

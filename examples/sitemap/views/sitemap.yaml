@@ -1,0 +1,4 @@
+---
+  output: "sitemap.xml"
+  query: "prints.rq"
+  template: "sitemap.xml"
