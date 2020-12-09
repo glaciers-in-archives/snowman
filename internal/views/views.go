@@ -52,7 +52,6 @@ func (c *viewConfig) Parse(data []byte) error {
 
 func DiscoverViews(includes []string) ([]View, error) {
 	var views []View
-	var multipageVariableHook *string
 
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {
 		if info.Mode().IsRegular() {
@@ -70,6 +69,7 @@ func DiscoverViews(includes []string) ([]View, error) {
 					return errors.New("Failed to parse" + viewPath)
 				}
 
+				var multipageVariableHook *string
 				re := regexp.MustCompile(`{{([\w\d_]+)}}`)
 				if re.Match([]byte(vConfig.Output)) {
 					multipageVariableHook = &re.FindAllStringSubmatch(vConfig.Output, 1)[0][1]
