@@ -103,3 +103,19 @@ Static files are placed in the `static` directory and will be copied to the root
 #### Layouts and child templates
 
 Child templates and layouts are just regular Go templates that use the `define`, `block`, and `template` statements. To make layouts and child templates discoverable to Snowman they should be placed under `views/includes`. You can see both layouts and child templates in the examples provided in the examples directory.
+
+#### Built in template functions
+
+##### Now
+
+Snowman exposes the [time.Now](https://golang.org/pkg/time/#Now) function in all templates it can be used as follows:
+
+```
+{{ now.Format "2006-01-02" }}
+```
+
+```
+{{ now.UTC.Year }}
+```
+
+For documentation on how to format dates see [the official Go documentation](https://golang.org/pkg/time/#pkg-constants).

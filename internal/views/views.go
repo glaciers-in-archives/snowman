@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -91,9 +92,13 @@ func DiscoverViews(includes []string) ([]View, error) {
 
 				_, file := filepath.Split(templatePath)
 
+				funcMap := template.FuncMap{
+					"now": time.Now,
+				}
+
 				allTemplatePaths := includes
 				allTemplatePaths = append(allTemplatePaths, templatePath)
-				HTMLTemplate, err := template.New("").ParseFiles(allTemplatePaths...)
+				HTMLTemplate, err := template.New("").Funcs(funcMap).ParseFiles(allTemplatePaths...)
 				if err != nil {
 					return err
 				}
