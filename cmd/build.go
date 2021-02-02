@@ -136,12 +136,12 @@ var buildCmd = &cobra.Command{
 		for _, view := range discoveredViews {
 			repo := sparql.Repository{Endpoint: config.Endpoint, Client: http.DefaultClient}
 
-			err := repo.QueryToFile(view.Sparql, ".snowman/cache/"+view.ViewConfig.QueryFile+".json")
+			err := repo.QueryToFile(view.Sparql, ".snowman/cache/"+view.QueryHash+".json")
 			if err != nil {
 				return utils.ErrorExit("SPARQL query failed.", err)
 			}
 
-			reader, err := os.Open(".snowman/cache/" + view.ViewConfig.QueryFile + ".json")
+			reader, err := os.Open(".snowman/cache/" + view.QueryHash + ".json")
 			if err != nil {
 				return utils.ErrorExit("Failed to read query result from the filesystem.", err)
 			}
