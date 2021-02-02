@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"github.com/glaciers-in-archives/snowman/internal/views"
-	"github.com/knakk/sparql"
+	knakk_sparql "github.com/knakk/sparql"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )
@@ -132,15 +134,24 @@ var buildCmd = &cobra.Command{
 		}
 
 		for _, view := range discoveredViews {
-			repo, err := sparql.NewRepo(config.Endpoint)
-			if err != nil {
-				return utils.ErrorExit("Failed to connect to SPARQL endpoint.", err)
-			}
-			res, err := repo.Query(view.Sparql)
+			repo := sparql.Repository{Endpoint: config.Endpoint, Client: http.DefaultClient}
+
+			err := repo.QueryToFile(view.Sparql, ".snowman/cache/"+view.ViewConfig.QueryFile+".json")
 			if err != nil {
 				return utils.ErrorExit("SPARQL query failed.", err)
 			}
-			results := res.Results.Bindings
+
+			reader, err := os.Open(".snowman/cache/" + view.ViewConfig.QueryFile + ".json")
+			if err != nil {
+				return utils.ErrorExit("Failed to read query result from the filesystem.", err)
+			}
+
+			parsed_response, err := knakk_sparql.ParseJSON(reader)
+			if err != nil {
+				return utils.ErrorExit("Failed to parse SPARQL JSON returned by query.", err)
+			}
+
+			results := parsed_response.Results.Bindings
 
 			if view.MultipageVariableHook != nil {
 				for _, row := range results {
