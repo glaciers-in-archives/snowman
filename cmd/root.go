@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var cached bool
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "snowman <command> [flags]",
@@ -23,4 +25,5 @@ func Execute() {
 
 func init() {
 	rootCmd.SilenceUsage = true
+	buildCmd.Flags().BoolVarP(&cached, "cached", "c", false, "Use cached SPARQL responses instead of preforming actual queries.")
 }
