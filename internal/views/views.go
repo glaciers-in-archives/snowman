@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -96,7 +97,8 @@ func DiscoverViews(includes []string) ([]View, error) {
 				_, file := filepath.Split(templatePath)
 
 				funcMap := template.FuncMap{
-					"now": time.Now,
+					"now":   time.Now,
+					"split": strings.Split,
 				}
 
 				allTemplatePaths := includes

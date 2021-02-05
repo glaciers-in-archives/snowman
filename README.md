@@ -119,3 +119,13 @@ Snowman exposes the [time.Now](https://golang.org/pkg/time/#Now) function in all
 ```
 
 For documentation on how to format dates see [the official Go documentation](https://golang.org/pkg/time/#pkg-constants).
+
+##### Split
+
+Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) function in all templates. The following example illustrates how to split a comma-separated in a range statement:
+
+```
+{{range split (index . "list_of_values").Value ","}}
+  {{ (index .) }}
+{{end}}
+```
