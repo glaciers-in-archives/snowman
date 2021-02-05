@@ -97,8 +97,9 @@ func DiscoverViews(includes []string) ([]View, error) {
 				_, file := filepath.Split(templatePath)
 
 				funcMap := template.FuncMap{
-					"now":   time.Now,
-					"split": strings.Split,
+					"now":     time.Now,
+					"split":   strings.Split,
+					"replace": strings.Replace,
 				}
 
 				allTemplatePaths := includes

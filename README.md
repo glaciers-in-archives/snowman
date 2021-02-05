@@ -129,3 +129,11 @@ Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) funct
   {{ (index .) }}
 {{end}}
 ```
+
+##### Replace
+
+Snowman exposes the [strings.Replace](https://golang.org/pkg/strings/#Replace) function in all templates. The following example illustrates how to replace a part of a string:
+
+```
+(index .) "https://en.wikipedia.org/wiki/" "" 1)
+```
