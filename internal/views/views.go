@@ -1,8 +1,6 @@
 package views
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"html/template"
@@ -19,7 +17,6 @@ import (
 type View struct {
 	ViewConfig            viewConfig
 	Sparql                string
-	QueryHash             string
 	Template              *template.Template
 	TemplateName          string
 	MultipageVariableHook *string
@@ -109,11 +106,9 @@ func DiscoverViews(includes []string) ([]View, error) {
 					return err
 				}
 
-				hash := sha256.Sum256(sparqlBytes)
 				view := View{
 					ViewConfig:            vConfig,
 					Sparql:                string(sparqlBytes),
-					QueryHash:             hex.EncodeToString(hash[:]),
 					Template:              HTMLTemplate,
 					TemplateName:          file,
 					MultipageVariableHook: multipageVariableHook,
