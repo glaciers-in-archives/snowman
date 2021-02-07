@@ -127,28 +127,26 @@ var buildCmd = &cobra.Command{
 			layouts = nil
 		}
 
-		discoveredViews, err := views.DiscoverViews(layouts)
+		repo := sparql.Repository{
+			Endpoint:     config.Endpoint,
+			Client:       http.DefaultClient,
+			CacheDefault: cached, // global CLI argument
+		}
+
+		discoveredViews, err := views.DiscoverViews(layouts, repo)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
 
 		for _, view := range discoveredViews {
-			repo := sparql.Repository{
-				Endpoint:     config.Endpoint,
-				Client:       http.DefaultClient,
-				CacheDefault: cached, // global CLI argument
-			}
-
-			parsedResponse, err := repo.Query(view.Sparql)
+			results, err := repo.Query(view.Sparql)
 			if err != nil {
 				return utils.ErrorExit("SPARQL query failed.", err)
 			}
 
-			results := parsedResponse.Results.Bindings
-
 			if view.MultipageVariableHook != nil {
 				for _, row := range results {
-					outputPath := siteDir + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", row[*view.MultipageVariableHook].Value, 1)
+					outputPath := siteDir + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", row[*view.MultipageVariableHook].String(), 1)
 					if err := view.RenderPage(outputPath, row); err != nil {
 						return utils.ErrorExit("Failed to render page at "+outputPath, err)
 					}

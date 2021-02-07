@@ -18,7 +18,7 @@ This will generate a binary that you can place in the root of your new project.
 
 ## Usage
 
-For the time being the easiest way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams various works. Run `snowman build` to generate the site.
+For the time being, the easiest way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams various works. Run `snowman build` to generate the site.
 
 ### From scratch
 
@@ -26,7 +26,7 @@ This is a tutorial. You can at anytime run `snowman --help` for a full list of o
 
 #### Defining target endpoint
 
-`snowman.yaml` should be located in the root of your project and define the URL of your SPARQL endpoint.
+`snowman.yaml` should be located at the root of your project. It defines the URL of your SPARQL endpoint.
 
 ```yaml
 ---
@@ -35,7 +35,7 @@ This is a tutorial. You can at anytime run `snowman --help` for a full list of o
 
 #### Defining queries
 
-SPARQL queries provides data to views but because a single query can be used for multiple views and even partial rendering all your SPARQL files should be located in the `queries` directory(or child directories) of your project. Let's put this in `queries/works.rq`.
+SPARQL queries provide data to views but because a single query can be used for multiple views and even partial rendering all your SPARQL files should be located in the `queries` directory(or child directories) of your project. Let's put this in `queries/works.rq`.
 
 ```sparql
 SELECT ?qid ?title ?workLabel WHERE {
@@ -53,15 +53,15 @@ SELECT ?qid ?title ?workLabel WHERE {
 
 #### Defining view templates
 
-Snowman templates are just [Go templates](https://golang.org/pkg/html/template/), a template can access a single SPARQL result or an entire resultset.
+Snowman templates are [Go templates](https://golang.org/pkg/html/template/), a template can access a single SPARQL result or an entire resultset.
 
 Let's start with an example demonstrating how to access data in a view template intended to access an entire resultset. Note that one needs to use the `index` and `range` keywords to access data. Let's put the following template in `templates/index.html`.
 
 ```html
-<h1>Works by {{ (index (index . 0) "title").Value }}</h1>
+<h1>Works by {{ (index (index . 0) "title") }}</h1>
 <ul>
     {{ range . }}
-    <li><a href="works/{{ (index . "qid").Value }}.html">{{ (index . "workLabel").Value }}</a></li>
+    <li><a href="works/{{ (index . "qid") }}.html">{{ (index . "workLabel") }}</a></li>
     {{ end }}
 </ul>
 ```
@@ -69,7 +69,7 @@ Let's start with an example demonstrating how to access data in a view template 
 Snowman can also use each result in a SPARQL resultset to create a file for each result. If a view has been configured for this only a given result is accessible from within a template. Put the following template in `templates/work.html`.
 
 ```html
-<h1>{{ (index . "workLabel").Value }}</h1>
+<h1>{{ (index . "workLabel") }}</h1>
 ```
 
 #### Turning templates and queries into views
@@ -106,6 +106,8 @@ Child templates and layouts are just regular Go templates that use the `define`,
 
 #### Built in template functions
 
+Note most functions do take strings and not RDF terms as arguments. You can access a string representation of an RDF term through rdfTerm.String.
+
 ##### Now
 
 Snowman exposes the [time.Now](https://golang.org/pkg/time/#Now) function in all templates it can be used as follows:
@@ -125,8 +127,8 @@ For documentation on how to format dates see [the official Go documentation](htt
 Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) function in all templates. The following example illustrates how to split a comma-separated in a range statement:
 
 ```
-{{range split (index . "list_of_values").Value ","}}
-  {{ (index .) }}
+{{range split (index . "list_of_values").String ","}}
+  {{ . }}
 {{end}}
 ```
 
@@ -135,5 +137,5 @@ Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) funct
 Snowman exposes the [strings.Replace](https://golang.org/pkg/strings/#Replace) function in all templates. The following example illustrates how to replace a part of a string:
 
 ```
-(index .) "https://en.wikipedia.org/wiki/" "" 1)
+replace . "https://en.wikipedia.org/wiki/" "" 1
 ```

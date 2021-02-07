@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"gopkg.in/yaml.v2"
 )
 
@@ -51,7 +52,7 @@ func (c *viewConfig) Parse(data []byte) error {
 	return yaml.Unmarshal(data, &c)
 }
 
-func DiscoverViews(includes []string) ([]View, error) {
+func DiscoverViews(includes []string, repo sparql.Repository) ([]View, error) {
 	var views []View
 
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {
@@ -97,6 +98,8 @@ func DiscoverViews(includes []string) ([]View, error) {
 					"now":     time.Now,
 					"split":   strings.Split,
 					"replace": strings.Replace,
+
+					"query": repo.DynamicQuery,
 				}
 
 				allTemplatePaths := includes

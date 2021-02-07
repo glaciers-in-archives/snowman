@@ -5,13 +5,16 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
+	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
 )
 
@@ -58,12 +61,12 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 	return &responseString, nil
 }
 
-func (r *Repository) Query(query string) (*sparql.Results, error) {
+func (r *Repository) Query(query string) ([]map[string]rdf.Term, error) {
 	hash := sha256.Sum256([]byte(query))
 	hashString := hex.EncodeToString(hash[:])
 	queryCacheLocation := CacheLocation + hashString + ".json"
 
-	if !r.CacheHashes[hashString] || !r.CacheDefault {
+	if !r.CacheDefault || (!r.CacheHashes[hashString] && !r.CacheDefault) {
 		jsonBody, err := r.QueryCall(query)
 		if err != nil {
 			return nil, err
@@ -91,6 +94,27 @@ func (r *Repository) Query(query string) (*sparql.Results, error) {
 	}
 
 	parsedResponse, err := sparql.ParseJSON(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return parsedResponse.Solutions(), nil
+}
+
+func (r *Repository) DynamicQuery(queryLocation string, argument string) ([]map[string]rdf.Term, error) {
+	fmt.Println("Issuing dynamic query " + queryLocation + " with argument " + argument)
+	queryPath := "queries/" + queryLocation + ".rq"
+	if _, err := os.Stat(queryPath); err != nil {
+		return nil, err
+	}
+
+	sparqlBytes, err := ioutil.ReadFile(queryPath)
+	if err != nil {
+		return nil, err
+	}
+
+	sparqlString := strings.Replace(string(sparqlBytes), "{{.}}", argument, 1)
+	parsedResponse, err := r.Query(sparqlString)
 	if err != nil {
 		return nil, err
 	}

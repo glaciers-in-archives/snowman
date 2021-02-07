@@ -5,13 +5,13 @@
         {{ if $i }},{{ end }}{
             "type": "Feature",
             "properties": {
-                "name": "{{ (index $m "itemLabel").Value }}"
+                "name": "{{ (index $m "itemLabel") }}"
             },
             "geometry": {
                 "type": "Point",
                 "coordinates": [
-                    {{ (index $m "lon").Value }},
-                    {{ (index $m "lat").Value }}
+                    {{ (index $m "lon") }},
+                    {{ (index $m "lat") }}
                 ]
             }
         }
