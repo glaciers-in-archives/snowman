@@ -98,6 +98,9 @@ func DiscoverViews(includes []string, repo sparql.Repository) ([]View, error) {
 					"now":     time.Now,
 					"split":   strings.Split,
 					"replace": strings.Replace,
+					"lcase":   strings.ToLower,
+					"ucase":   strings.ToUpper,
+					"tcase":   strings.ToTitle,
 
 					"query": repo.DynamicQuery,
 				}

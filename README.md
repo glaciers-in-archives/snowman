@@ -139,3 +139,11 @@ Snowman exposes the [strings.Replace](https://golang.org/pkg/strings/#Replace) f
 ```
 replace . "https://en.wikipedia.org/wiki/" "" 1
 ```
+
+##### Ucase, lcase, and tcase
+
+Snowman provides `ucase`, `lcase`, and `tcase` for changing strings into uppercase, lowercase, and title-case.
+
+```
+lcase .YourStringVariable
+```
