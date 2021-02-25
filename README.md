@@ -147,3 +147,11 @@ Snowman provides `ucase`, `lcase`, and `tcase` for changing strings into upperca
 ```
 lcase .YourStringVariable
 ```
+
+#### Query
+
+Snowman provides a `query` function which allows one to issue a parameterized SPARQL query during rendering. The function takes two inputs, first the name of the query(without the `.rq` file extension) and then the string value to inject into the SPARQL query. The location for the injected string is set with `{{.}}`.
+
+```
+$sparql_result := query "name_of_query" $var
+```
