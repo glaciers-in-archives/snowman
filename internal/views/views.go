@@ -61,7 +61,7 @@ func (c *viewConfig) Parse(data []byte) error {
 	return yaml.Unmarshal(data, &c)
 }
 
-func DiscoverViews(includes []string, repo sparql.Repository) ([]View, error) {
+func DiscoverViews(templates []string, repo sparql.Repository) ([]View, error) {
 	var views []View
 
 	var functionMap = map[string]interface{}{
@@ -114,17 +114,17 @@ func DiscoverViews(includes []string, repo sparql.Repository) ([]View, error) {
 
 				_, file := filepath.Split(templatePath)
 
-				allTemplatePaths := includes
-				allTemplatePaths = append(allTemplatePaths, templatePath)
+				// ParseFiles requries the base template as the last item therfore we add it again
+				templates = append(templates, templatePath)
 
 				var TextTemplateA *text_template.Template
 				var HTMLTemplateA *html_template.Template
 				if vConfig.Unsafe {
 					funcMap := text_template.FuncMap(functionMap)
-					TextTemplateA, err = text_template.New("").Funcs(funcMap).ParseFiles(allTemplatePaths...)
+					TextTemplateA, err = text_template.New("").Funcs(funcMap).ParseFiles(templates...)
 				} else {
 					funcMap := html_template.FuncMap(functionMap)
-					HTMLTemplateA, err = html_template.New("").Funcs(funcMap).ParseFiles(allTemplatePaths...)
+					HTMLTemplateA, err = html_template.New("").Funcs(funcMap).ParseFiles(templates...)
 				}
 
 				if err != nil {

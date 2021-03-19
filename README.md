@@ -102,7 +102,7 @@ Static files are placed in the `static` directory and will be copied to the root
 
 #### Layouts and child templates
 
-Child templates and layouts are just regular Go templates that use the `define`, `block`, and `template` statements. To make layouts and child templates discoverable to Snowman they should be placed under `views/includes`. You can see both layouts and child templates in the examples provided in the examples directory.
+Child templates and layouts are just regular Go templates that use the `define`, `block`, and `template` statements. To make layouts and child templates discoverable to Snowman they should be placed anywhere under `views`. You can see both layouts and child templates in the examples provided in the examples directory.
 
 #### Built in template functions
 

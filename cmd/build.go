@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -33,9 +34,9 @@ func (c siteConfig) IsValid() error {
 	return nil
 }
 
-func DiscoverIncludes() ([]string, error) {
+func DiscoverTemplates() ([]string, error) {
 	var paths []string
-	err := filepath.Walk("templates/includes", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk("templates", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -121,10 +122,13 @@ var buildCmd = &cobra.Command{
 			}
 		}
 
-		layouts, err := DiscoverIncludes()
+		templates, err := DiscoverTemplates()
 		if err != nil {
-			fmt.Println("No includes discovered, skipping.")
-			layouts = nil
+			return utils.ErrorExit("Failed to find any template files.", err)
+		}
+
+		if len(templates) == 0 {
+			return errors.New("Failed to find any template files.")
 		}
 
 		repo := sparql.Repository{
@@ -133,7 +137,7 @@ var buildCmd = &cobra.Command{
 			CacheDefault: cached, // global CLI argument
 		}
 
-		discoveredViews, err := views.DiscoverViews(layouts, repo)
+		discoveredViews, err := views.DiscoverViews(templates, repo)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
