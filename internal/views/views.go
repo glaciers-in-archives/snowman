@@ -3,12 +3,13 @@ package views
 import (
 	"errors"
 	"fmt"
-	"html/template"
+	html_template "html/template"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	text_template "text/template"
 	"time"
 
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
@@ -18,7 +19,8 @@ import (
 type View struct {
 	ViewConfig            viewConfig
 	Sparql                string
-	Template              *template.Template
+	TextTemplate          *text_template.Template
+	HTMLTemplate          *html_template.Template
 	TemplateName          string
 	MultipageVariableHook *string
 }
@@ -32,10 +34,16 @@ func (v *View) RenderPage(path string, data interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	if err := v.Template.ExecuteTemplate(f, v.TemplateName, data); err != nil {
-		return err
+	if v.ViewConfig.Unsafe {
+		if err := v.TextTemplate.ExecuteTemplate(f, v.TemplateName, data); err != nil {
+			return err
+		}
+	} else {
+		if err := v.HTMLTemplate.ExecuteTemplate(f, v.TemplateName, data); err != nil {
+			return err
+		}
 	}
+
 	f.Close()
 
 	fmt.Println("Rendered page at " + path)
@@ -46,6 +54,7 @@ type viewConfig struct {
 	Output       string `yaml:"output"`
 	QueryFile    string `yaml:"query"`
 	TemplateFile string `yaml:"template"`
+	Unsafe       bool   `yaml:"unsafe"`
 }
 
 func (c *viewConfig) Parse(data []byte) error {
@@ -54,6 +63,17 @@ func (c *viewConfig) Parse(data []byte) error {
 
 func DiscoverViews(includes []string, repo sparql.Repository) ([]View, error) {
 	var views []View
+
+	var functionMap = map[string]interface{}{
+		"now":     time.Now,
+		"split":   strings.Split,
+		"replace": strings.Replace,
+		"lcase":   strings.ToLower,
+		"ucase":   strings.ToUpper,
+		"tcase":   strings.ToTitle,
+
+		"query": repo.DynamicQuery,
+	}
 
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {
 		if info.Mode().IsRegular() {
@@ -94,20 +114,19 @@ func DiscoverViews(includes []string, repo sparql.Repository) ([]View, error) {
 
 				_, file := filepath.Split(templatePath)
 
-				funcMap := template.FuncMap{
-					"now":     time.Now,
-					"split":   strings.Split,
-					"replace": strings.Replace,
-					"lcase":   strings.ToLower,
-					"ucase":   strings.ToUpper,
-					"tcase":   strings.ToTitle,
-
-					"query": repo.DynamicQuery,
-				}
-
 				allTemplatePaths := includes
 				allTemplatePaths = append(allTemplatePaths, templatePath)
-				HTMLTemplate, err := template.New("").Funcs(funcMap).ParseFiles(allTemplatePaths...)
+
+				var TextTemplateA *text_template.Template
+				var HTMLTemplateA *html_template.Template
+				if vConfig.Unsafe {
+					funcMap := text_template.FuncMap(functionMap)
+					TextTemplateA, err = text_template.New("").Funcs(funcMap).ParseFiles(allTemplatePaths...)
+				} else {
+					funcMap := html_template.FuncMap(functionMap)
+					HTMLTemplateA, err = html_template.New("").Funcs(funcMap).ParseFiles(allTemplatePaths...)
+				}
+
 				if err != nil {
 					return err
 				}
@@ -115,7 +134,8 @@ func DiscoverViews(includes []string, repo sparql.Repository) ([]View, error) {
 				view := View{
 					ViewConfig:            vConfig,
 					Sparql:                string(sparqlBytes),
-					Template:              HTMLTemplate,
+					HTMLTemplate:          HTMLTemplateA,
+					TextTemplate:          TextTemplateA,
 					TemplateName:          file,
 					MultipageVariableHook: multipageVariableHook,
 				}
