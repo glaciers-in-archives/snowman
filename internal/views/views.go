@@ -8,11 +8,9 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	text_template "text/template"
-	"time"
 
-	"github.com/glaciers-in-archives/snowman/internal/sparql"
+	"github.com/glaciers-in-archives/snowman/internal/templates"
 	"gopkg.in/yaml.v2"
 )
 
@@ -46,7 +44,7 @@ func (v *View) RenderPage(path string, data interface{}) error {
 
 	f.Close()
 
-	fmt.Println("Rendered page at " + path)
+	fmt.Println("Rendered page at " + path + " with temlate name: " + v.TemplateName)
 	return nil
 }
 
@@ -61,19 +59,8 @@ func (c *viewConfig) Parse(data []byte) error {
 	return yaml.Unmarshal(data, &c)
 }
 
-func DiscoverViews(templates []string, repo sparql.Repository) ([]View, error) {
+func DiscoverViews(templateCollection templates.TemplateCollection) ([]View, error) {
 	var views []View
-
-	var functionMap = map[string]interface{}{
-		"now":     time.Now,
-		"split":   strings.Split,
-		"replace": strings.Replace,
-		"lcase":   strings.ToLower,
-		"ucase":   strings.ToUpper,
-		"tcase":   strings.ToTitle,
-
-		"query": repo.DynamicQuery,
-	}
 
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {
 		if info.Mode().IsRegular() {
@@ -107,25 +94,14 @@ func DiscoverViews(templates []string, repo sparql.Repository) ([]View, error) {
 					return err
 				}
 
+				// #todo this only exists here to raise a good error,
+				// one should check for the path in the template collection instead
 				templatePath := "templates/" + vConfig.TemplateFile
 				if _, err := os.Stat(templatePath); err != nil {
 					return errors.New("Unable to find the template file for the " + viewPath + " view.")
 				}
 
 				_, file := filepath.Split(templatePath)
-
-				// ParseFiles requries the base template as the last item therfore we add it again
-				templates = append(templates, templatePath)
-
-				var TextTemplateA *text_template.Template
-				var HTMLTemplateA *html_template.Template
-				if vConfig.Unsafe {
-					funcMap := text_template.FuncMap(functionMap)
-					TextTemplateA, err = text_template.New("").Funcs(funcMap).ParseFiles(templates...)
-				} else {
-					funcMap := html_template.FuncMap(functionMap)
-					HTMLTemplateA, err = html_template.New("").Funcs(funcMap).ParseFiles(templates...)
-				}
 
 				if err != nil {
 					return err
@@ -134,8 +110,8 @@ func DiscoverViews(templates []string, repo sparql.Repository) ([]View, error) {
 				view := View{
 					ViewConfig:            vConfig,
 					Sparql:                string(sparqlBytes),
-					HTMLTemplate:          HTMLTemplateA,
-					TextTemplate:          TextTemplateA,
+					HTMLTemplate:          templateCollection.ParsedHTMLTemplates,
+					TextTemplate:          templateCollection.ParsedTextTemplates,
 					TemplateName:          file,
 					MultipageVariableHook: multipageVariableHook,
 				}

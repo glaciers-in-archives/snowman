@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
+	"github.com/glaciers-in-archives/snowman/internal/templates"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"github.com/glaciers-in-archives/snowman/internal/views"
 	"github.com/spf13/cobra"
@@ -32,23 +33,6 @@ func (c siteConfig) IsValid() error {
 		return err
 	}
 	return nil
-}
-
-func DiscoverTemplates() ([]string, error) {
-	var paths []string
-	err := filepath.Walk("templates", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			paths = append(paths, path)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return paths, nil
 }
 
 func CopyStatic() error {
@@ -122,22 +106,22 @@ var buildCmd = &cobra.Command{
 			}
 		}
 
-		templates, err := DiscoverTemplates()
-		if err != nil {
-			return utils.ErrorExit("Failed to find any template files.", err)
-		}
-
-		if len(templates) == 0 {
-			return errors.New("Failed to find any template files.")
-		}
-
 		repo := sparql.Repository{
 			Endpoint:     config.Endpoint,
 			Client:       http.DefaultClient,
 			CacheDefault: cached, // global CLI argument
 		}
 
-		discoveredViews, err := views.DiscoverViews(templates, repo)
+		templateCollection, err := templates.DiscoverAndParseTemplates(repo)
+		if err != nil {
+			return utils.ErrorExit("Failed to find any template files.", err)
+		}
+
+		if len(templateCollection.TemplatePaths) == 0 {
+			return errors.New("Failed to find any template files.")
+		}
+
+		discoveredViews, err := views.DiscoverViews(*templateCollection)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
