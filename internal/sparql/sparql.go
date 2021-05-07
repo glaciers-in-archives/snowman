@@ -27,6 +27,31 @@ type Repository struct {
 	CacheHashes  map[string]bool
 }
 
+func NewRepository(endpoint string, client *http.Client, cacheDefault bool) (*Repository, error) {
+	repo := Repository{
+		Endpoint:     endpoint,
+		Client:       http.DefaultClient,
+		CacheDefault: cacheDefault,
+	}
+
+	// cache hashes are used even if caching is turned off to avoid issuing duplicate queries during build.
+	repo.CacheHashes = make(map[string]bool)
+
+	if cacheDefault {
+		cacheFiles, err := ioutil.ReadDir(CacheLocation)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, f := range cacheFiles {
+			fileCacheHash := strings.Replace(f.Name(), ".json", "", 1)
+			repo.CacheHashes[fileCacheHash] = true
+		}
+	}
+
+	return &repo, nil
+}
+
 func (r *Repository) QueryCall(query string) (*string, error) {
 	form := url.Values{}
 	form.Set("query", query)
@@ -66,7 +91,8 @@ func (r *Repository) Query(query string) ([]map[string]rdf.Term, error) {
 	hashString := hex.EncodeToString(hash[:])
 	queryCacheLocation := CacheLocation + hashString + ".json"
 
-	if !r.CacheDefault || (!r.CacheHashes[hashString] && !r.CacheDefault) {
+	// only issue queries if cache is disabled or if the query can't be found in the the cache hashes
+	if !r.CacheDefault || !r.CacheHashes[hashString] {
 		jsonBody, err := r.QueryCall(query)
 		if err != nil {
 			return nil, err
@@ -86,6 +112,8 @@ func (r *Repository) Query(query string) ([]map[string]rdf.Term, error) {
 		}
 		defer f.Close()
 		f.Sync()
+
+		r.CacheHashes[hashString] = true
 	}
 
 	reader, err := os.Open(queryCacheLocation)

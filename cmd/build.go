@@ -131,13 +131,12 @@ var buildCmd = &cobra.Command{
 			return errors.New("Failed to find any template files.")
 		}
 
-		repo := sparql.Repository{
-			Endpoint:     config.Endpoint,
-			Client:       http.DefaultClient,
-			CacheDefault: cached, // global CLI argument
+		repo, err := sparql.NewRepository(config.Endpoint, http.DefaultClient, cached)
+		if err != nil {
+			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
 
-		discoveredViews, err := views.DiscoverViews(templates, repo)
+		discoveredViews, err := views.DiscoverViews(templates, *repo)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
