@@ -143,6 +143,7 @@ var buildCmd = &cobra.Command{
 		}
 
 		for _, view := range discoveredViews {
+			fmt.Println("Issuing query " + view.ViewConfig.QueryFile)
 			results, err := repo.Query(view.Sparql)
 			if err != nil {
 				return utils.ErrorExit("SPARQL query failed.", err)
