@@ -1,11 +1,11 @@
 {{ template "base" . }}
 
-{{ define "title" }}{{ (index . "label") }}{{ end }}
+{{ define "title" }}{{ .label }}{{ end }}
 
 {{ define "content" }}
-<h1>{{ (index . "label") }}</h1>
+<h1>{{ .label }}</h1>
 
-<img src="{{ (index . "image") }}" alt="{{ (index . "label") }}"/>
+<img src="{{ .image }}" alt="{{ .label }}"/>
 
-<a href="{{ (index . "cultural_jp_link") }}">Open in Cultural Japan</a>
+<a href="{{ .cultural_jp_link }}">Open in Cultural Japan</a>
 {{ end }}

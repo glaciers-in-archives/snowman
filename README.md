@@ -61,15 +61,15 @@ Let's start with an example demonstrating how to access data in a view template 
 <h1>Works by {{ (index (index . 0) "title") }}</h1>
 <ul>
     {{ range . }}
-    <li><a href="works/{{ (index . "qid") }}.html">{{ (index . "workLabel") }}</a></li>
+    <li><a href="works/{{ .qid }}.html">{{ .workLabel }}</a></li>
     {{ end }}
 </ul>
 ```
 
-Snowman can also use each result in a SPARQL resultset to create a file for each result. If a view has been configured for this only a given result is accessible from within a template. Put the following template in `templates/work.html`.
+Snowman can also use each result in a SPARQL resultset to create a file for each result. If a view has been configured for this only a given result will be accessible from within a template. Put the following template in `templates/work.html`.
 
 ```html
-<h1>{{ (index . "workLabel") }}</h1>
+<h1>{{ .workLabel }}</h1>
 ```
 
 #### Turning templates and queries into views
@@ -127,9 +127,9 @@ For documentation on how to format dates see [the official Go documentation](htt
 Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) function in all templates. The following example illustrates how to split a comma-separated in a range statement:
 
 ```
-{{range split (index . "list_of_values").String ","}}
+{{ range split .list_of_values "," }}
   {{ . }}
-{{end}}
+{{ end }}
 ```
 
 ##### Replace

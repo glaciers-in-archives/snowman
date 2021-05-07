@@ -6,7 +6,7 @@
     </url>
     {{ range . }}
     <url>
-        <loc>https://www.example.com/prints/{{ (index . "safe_id") }}.html</loc>
+        <loc>https://www.example.com/prints/{{ .safe_id }}.html</loc>
         <lastmod>{{ now.Format "2006-01-02" }}</lastmod>
     </url>
     {{ end }}

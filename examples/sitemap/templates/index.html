@@ -6,7 +6,7 @@
 <h1>Ukiyo-e</h1>
 <ul>
     {{ range . }}
-    <li><a href="prints/{{ (index . "safe_id") }}.html">{{ (index . "label") }}</a></li>
+    <li><a href="prints/{{ .safe_id }}.html">{{ .label }}</a></li>
     {{ end }}
 </ul>
 {{ end }}
