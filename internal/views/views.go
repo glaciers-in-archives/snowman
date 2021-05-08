@@ -70,7 +70,7 @@ func DiscoverViews(templates []string, repo sparql.Repository) ([]View, error) {
 		"replace": strings.Replace,
 		"lcase":   strings.ToLower,
 		"ucase":   strings.ToUpper,
-		"tcase":   strings.ToTitle,
+		"tcase":   strings.Title,
 
 		"query": repo.DynamicQuery,
 	}
