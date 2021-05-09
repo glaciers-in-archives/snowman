@@ -144,6 +144,14 @@ Snowman exposes the [strings.Replace](https://golang.org/pkg/strings/#Replace) f
 replace . "https://en.wikipedia.org/wiki/" "" 1
 ```
 
+##### Env
+
+`env` allows you to access enviroment variables from within your templates. `env` returns the value of an enviroment as a string.
+
+```
+env "PATH"
+```
+
 ##### Ucase, lcase, and tcase
 
 Snowman provides `ucase`, `lcase`, and `tcase` for changing strings into uppercase, lowercase, and title-case.
