@@ -97,14 +97,17 @@ func DiscoverViews(templates []string, repo sparql.Repository) ([]View, error) {
 					multipageVariableHook = &re.FindAllStringSubmatch(vConfig.Output, 1)[0][1]
 				}
 
-				queryPath := "queries/" + vConfig.QueryFile
-				if _, err := os.Stat(queryPath); err != nil {
-					return errors.New("Unable to find the SPARQL file for the " + viewPath + " view.")
-				}
+				var sparqlBytes []byte
+				if vConfig.QueryFile != "" {
+					queryPath := "queries/" + vConfig.QueryFile
+					if _, err := os.Stat(queryPath); err != nil {
+						return errors.New("Unable to find the SPARQL file for the " + viewPath + " view.")
+					}
 
-				sparqlBytes, err := ioutil.ReadFile(queryPath)
-				if err != nil {
-					return err
+					sparqlBytes, err = ioutil.ReadFile(queryPath)
+					if err != nil {
+						return err
+					}
 				}
 
 				templatePath := "templates/" + vConfig.TemplateFile

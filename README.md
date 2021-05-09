@@ -104,6 +104,10 @@ Static files are placed in the `static` directory and will be copied to the root
 
 Child templates and layouts are just regular Go templates that use the `define`, `block`, and `template` statements. To make layouts and child templates discoverable to Snowman they should be placed anywhere under `views`. You can see both layouts and child templates in the examples provided in the examples directory.
 
+#### Static files with templates
+
+If you want to use layouts and templates within a static file you need to create a view and a template for it but in the view configuration you exclude the `query` option.
+
 #### Built in template functions
 
 Note most functions do take strings and not RDF terms as arguments. You can access a string representation of an RDF term through rdfTerm.String.

@@ -14,6 +14,7 @@ import (
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"github.com/glaciers-in-archives/snowman/internal/views"
+	"github.com/knakk/rdf"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )
@@ -142,10 +143,13 @@ var buildCmd = &cobra.Command{
 		}
 
 		for _, view := range discoveredViews {
-			fmt.Println("Issuing query " + view.ViewConfig.QueryFile)
-			results, err := repo.Query(view.Sparql)
-			if err != nil {
-				return utils.ErrorExit("SPARQL query failed.", err)
+			results := make([]map[string]rdf.Term, 0)
+			if view.Sparql != "" {
+				fmt.Println("Issuing query " + view.ViewConfig.QueryFile)
+				results, err = repo.Query(view.Sparql)
+				if err != nil {
+					return utils.ErrorExit("SPARQL query failed.", err)
+				}
 			}
 
 			if view.MultipageVariableHook != nil {
