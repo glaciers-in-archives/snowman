@@ -132,7 +132,7 @@ var buildCmd = &cobra.Command{
 			return errors.New("Failed to find any template files.")
 		}
 
-		repo, err := sparql.NewRepository(config.Endpoint, http.DefaultClient, cached)
+		repo, err := sparql.NewRepository(config.Endpoint, http.DefaultClient, cache)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
@@ -146,7 +146,7 @@ var buildCmd = &cobra.Command{
 			results := make([]map[string]rdf.Term, 0)
 			if view.Sparql != "" {
 				fmt.Println("Issuing query " + view.ViewConfig.QueryFile)
-				results, err = repo.Query(view.Sparql)
+				results, err = repo.Query(view.ViewConfig.QueryFile, view.Sparql)
 				if err != nil {
 					return utils.ErrorExit("SPARQL query failed.", err)
 				}

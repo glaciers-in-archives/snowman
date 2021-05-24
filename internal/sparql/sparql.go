@@ -2,52 +2,39 @@ package sparql
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
+	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
 )
 
-var CacheLocation string = ".snowman/cache/"
-
 type Repository struct {
 	Endpoint     string
 	Client       *http.Client
-	CacheDefault bool
-	CacheHashes  map[string]bool
+	CacheManager *cache.CacheManager
 }
 
-func NewRepository(endpoint string, client *http.Client, cacheDefault bool) (*Repository, error) {
+func NewRepository(endpoint string, client *http.Client, cacheStrategy string) (*Repository, error) {
 	repo := Repository{
-		Endpoint:     endpoint,
-		Client:       http.DefaultClient,
-		CacheDefault: cacheDefault,
+		Endpoint: endpoint,
+		Client:   http.DefaultClient,
 	}
 
-	// cache hashes are used even if caching is turned off to avoid issuing duplicate queries during build.
-	repo.CacheHashes = make(map[string]bool)
-
-	if cacheDefault {
-		cacheFiles, err := ioutil.ReadDir(CacheLocation)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, f := range cacheFiles {
-			fileCacheHash := strings.Replace(f.Name(), ".json", "", 1)
-			repo.CacheHashes[fileCacheHash] = true
-		}
+	cm, err := cache.NewCacheManager("available")
+	if err != nil {
+		return nil, errors.New("Failed initiate cache handler. " + " Error: " + err.Error())
 	}
+
+	repo.CacheManager = cm
 
 	return &repo, nil
 }
@@ -72,7 +59,6 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 	}
 	defer resp.Body.Close()
 
-	var responseString string
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("Received bad response from SPARQL endpoint.")
 	}
@@ -81,47 +67,37 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	responseString = string(bodyBytes)
+	responseString := string(bodyBytes)
 
 	return &responseString, nil
 }
 
-func (r *Repository) Query(query string) ([]map[string]rdf.Term, error) {
-	hash := sha256.Sum256([]byte(query))
-	hashString := hex.EncodeToString(hash[:])
-	queryCacheLocation := CacheLocation + hashString + ".json"
-
-	// only issue queries if cache is disabled or if the query can't be found in the the cache hashes
-	if !r.CacheDefault || !r.CacheHashes[hashString] {
-		jsonBody, err := r.QueryCall(query)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := os.MkdirAll(filepath.Dir(queryCacheLocation), 0770); err != nil {
-			return nil, err
-		}
-
-		f, err := os.Create(queryCacheLocation)
-		if err != nil {
-			return nil, err
-		}
-		_, err = f.WriteString(*jsonBody)
-		if err != nil {
-			return nil, err
-		}
-		defer f.Close()
-		f.Sync()
-
-		r.CacheHashes[hashString] = true
-	}
-
-	reader, err := os.Open(queryCacheLocation)
+func (r *Repository) Query(queryLocation string, query string) ([]map[string]rdf.Term, error) {
+	file, err := r.CacheManager.GetCache(queryLocation, query)
 	if err != nil {
 		return nil, err
 	}
 
-	parsedResponse, err := sparql.ParseJSON(reader)
+	if file != nil {
+		parsedResponse, err := sparql.ParseJSON(file)
+		if err != nil {
+			return nil, err
+		}
+
+		return parsedResponse.Solutions(), nil
+	}
+
+	jsonString, err := r.QueryCall(query)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.CacheManager.SetCache(queryLocation, query, *jsonString); err != nil {
+		return nil, err
+	}
+
+	var parsedResponse sparql.Results
+	err = json.Unmarshal([]byte(*jsonString), &parsedResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +118,7 @@ func (r *Repository) DynamicQuery(queryLocation string, argument string) ([]map[
 	}
 
 	sparqlString := strings.Replace(string(sparqlBytes), "{{.}}", argument, 1)
-	parsedResponse, err := r.Query(sparqlString)
+	parsedResponse, err := r.Query(sparqlString, queryLocation)
 	if err != nil {
 		return nil, err
 	}

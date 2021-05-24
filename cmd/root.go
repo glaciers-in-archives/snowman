@@ -7,7 +7,7 @@ import (
 )
 
 // CLI ARGUMENTS
-var cached bool
+var cache string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -26,5 +26,5 @@ func Execute() {
 
 func init() {
 	rootCmd.SilenceUsage = true
-	buildCmd.Flags().BoolVarP(&cached, "cached", "c", false, "Use cached SPARQL responses instead of preforming actual queries.")
+	buildCmd.Flags().StringVarP(&cache, "cache", "c", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
 }
