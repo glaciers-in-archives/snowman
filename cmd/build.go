@@ -132,7 +132,7 @@ var buildCmd = &cobra.Command{
 			return errors.New("Failed to find any template files.")
 		}
 
-		repo, err := sparql.NewRepository(config.Endpoint, http.DefaultClient, cache)
+		repo, err := sparql.NewRepository(config.Endpoint, http.DefaultClient, cacheBuildOption)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}

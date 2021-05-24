@@ -11,6 +11,11 @@ import (
 
 var CacheLocation string = ".snowman/cache/"
 
+func Hash(value string) string {
+	hash := sha256.Sum256([]byte(value))
+	return hex.EncodeToString(hash[:])
+}
+
 type CacheManager struct {
 	CacheStrategy string // "available", "never"
 	CacheHashes   map[string]bool
@@ -49,7 +54,7 @@ func NewCacheManager(strategy string) (*CacheManager, error) {
 }
 
 func (cm *CacheManager) GetCache(location string, query string) (*os.File, error) {
-	fullQueryHash := hash(location) + "/" + hash(query)
+	fullQueryHash := Hash(location) + "/" + Hash(query)
 
 	if !cm.CacheHashes[fullQueryHash] || cm.CacheStrategy == "never" {
 		return nil, nil
@@ -65,7 +70,7 @@ func (cm *CacheManager) SetCache(location string, query string, content string) 
 		return nil
 	}
 
-	fullQueryHash := hash(location) + "/" + hash(query)
+	fullQueryHash := Hash(location) + "/" + Hash(query)
 	queryCacheLocation := CacheLocation + fullQueryHash + ".json"
 
 	if err := os.MkdirAll(filepath.Dir(queryCacheLocation), 0770); err != nil {
@@ -88,9 +93,4 @@ func (cm *CacheManager) SetCache(location string, query string, content string) 
 	cm.CacheHashes[fullQueryHash] = true
 
 	return nil
-}
-
-func hash(value string) string {
-	hash := sha256.Sum256([]byte(value))
-	return hex.EncodeToString(hash[:])
 }
