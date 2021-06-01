@@ -19,6 +19,9 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// CLI FLAGS
+var cacheBuildOption string
+
 type siteConfig struct {
 	Endpoint string `yaml:"sparql_endpoint"`
 }
@@ -173,4 +176,5 @@ var buildCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
+	buildCmd.Flags().StringVarP(&cacheBuildOption, "cache", "c", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
 }

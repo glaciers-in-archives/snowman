@@ -6,9 +6,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CLI ARGUMENTS
-var cacheBuildOption string
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "snowman <command> [flags]",
@@ -26,5 +23,4 @@ func Execute() {
 
 func init() {
 	rootCmd.SilenceUsage = true
-	buildCmd.Flags().StringVarP(&cacheBuildOption, "cache", "c", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
 }
