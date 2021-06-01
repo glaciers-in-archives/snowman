@@ -1,6 +1,6 @@
 module github.com/glaciers-in-archives/snowman
 
-go 1.15
+go 1.16
 
 require (
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
