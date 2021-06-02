@@ -167,3 +167,33 @@ Snowman provides a `query` function which allows one to issue a parameterized SP
 ```
 $sparql_result := query "name_of_query" $var
 ```
+
+### Working with cache
+
+#### Default behaviour
+
+By default, Snowman will only issue SPARQL queries when the result of a query is not found in the cache. To ignore the cache nor update it you can use the `cache` flag when running the `build` command to set a cache strategy:
+
+```bash
+snowman build --cache never
+```
+
+#### Inspect cache
+
+Snowman allows you to inspect the cached data for a particular query or dynamic query using the `cache` command. The cache command takes one-two arguments, first the path of your query and optionally the argument used in a dynamic query.
+
+```bash
+snowman cache list-of-icecream.rq
+
+snowman cache icecream.rq "your parameter"
+```
+
+#### Invalidate cache
+
+Especially when you build very large sites or use expensive SPARQL queries it can be useful to invalidate specific portions of the cache. You can do so using the `cache` command. Specify the query or dynamic query for which you want to invalidate the cache and add the flag `invalidate`.
+
+```bash
+snowman cache list-of-icecream.rq --invalidate
+
+snowman cache icecream.rq "your parameter" --invalidate
+```

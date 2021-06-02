@@ -29,7 +29,7 @@ func NewRepository(endpoint string, client *http.Client, cacheStrategy string) (
 		Client:   http.DefaultClient,
 	}
 
-	cm, err := cache.NewCacheManager("available")
+	cm, err := cache.NewCacheManager(cacheStrategy)
 	if err != nil {
 		return nil, errors.New("Failed initiate cache handler. " + " Error: " + err.Error())
 	}
