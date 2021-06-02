@@ -118,7 +118,7 @@ func (r *Repository) DynamicQuery(queryLocation string, argument string) ([]map[
 	}
 
 	sparqlString := strings.Replace(string(sparqlBytes), "{{.}}", argument, 1)
-	parsedResponse, err := r.Query(sparqlString, queryLocation)
+	parsedResponse, err := r.Query(queryLocation, sparqlString)
 	if err != nil {
 		return nil, err
 	}
