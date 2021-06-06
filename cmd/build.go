@@ -27,10 +27,10 @@ type siteConfig struct {
 }
 
 func (c *siteConfig) Parse(data []byte) error {
-	return yaml.Unmarshal(data, c)
-}
+	if err := yaml.Unmarshal(data, c); err != nil {
+		return err
+	}
 
-func (c siteConfig) IsValid() error {
 	_, err := url.ParseRequestURI(c.Endpoint) // #TODO why is https://example valid?
 	if err != nil {
 		return err
@@ -106,10 +106,6 @@ var buildCmd = &cobra.Command{
 		var config siteConfig
 		if err := config.Parse(data); err != nil {
 			return utils.ErrorExit("Failed to parse snowman.yaml.", err)
-		}
-
-		if err := config.IsValid(); err != nil {
-			return utils.ErrorExit("Failed to validate snowman.yaml.", err)
 		}
 
 		var siteDir string = "site/"
