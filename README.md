@@ -141,7 +141,7 @@ Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) funct
 Snowman exposes the [strings.Replace](https://golang.org/pkg/strings/#Replace) function in all templates. The following example illustrates how to replace a part of a string:
 
 ```
-replace . "https://en.wikipedia.org/wiki/" "" 1
+{{ replace . "https://en.wikipedia.org/wiki/" "" 1 }}
 ```
 
 ##### Env
@@ -149,7 +149,7 @@ replace . "https://en.wikipedia.org/wiki/" "" 1
 `env` allows you to access environment variables from within your templates. `env` returns the value of an environment as a string.
 
 ```
-env "PATH"
+{{ env "PATH" }}
 ```
 
 ##### Ucase, lcase, and tcase
@@ -157,7 +157,7 @@ env "PATH"
 Snowman provides `ucase`, `lcase`, and `tcase` for changing strings into uppercase, lowercase, and title-case.
 
 ```
-lcase .YourStringVariable
+{{ lcase .YourStringVariable }}
 ```
 
 ##### Query
@@ -165,15 +165,16 @@ lcase .YourStringVariable
 Snowman provides a `query` function which allows one to issue a parameterized SPARQL query during rendering. The function takes two inputs, first the name of the query(without the `.rq` file extension) and then the string value to inject into the SPARQL query. The location for the injected string is set with `{{.}}`.
 
 ```
-$sparql_result := query "name_of_query" $var
+{{ $sparql_result := query "name_of_query" $var }}
 ```
 
 ##### Config
 
-Snowman exposes your site's configuration through the function `config`. You can for example, retrieve your SPARQL endpoint with `$yourVariable.Endpoint`.
+Snowman exposes your site's configuration through the function `config`. The following example illustrates how to retrieve your SPARQL endpoint:
 
 ```
-$yourVariable := config
+{{ $yourVariable := config }}
+{{ $yourVariable.Endpoint }}
 ```
 
 ##### Metadata
@@ -181,7 +182,7 @@ $yourVariable := config
 The `metadata` function is a shortcut for accessing the metadata defined in your site's configuration.
 
 ```
-$yourVariable := metadata
+{{ $yourVariable := metadata }}
 ```
 
 ### Working with cache
