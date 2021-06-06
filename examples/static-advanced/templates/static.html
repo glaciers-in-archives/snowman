@@ -1,0 +1,13 @@
+{{ template "layout" . }}
+
+{{ define "title" }}Your static page using templates{{ end }}
+
+{{ define "content" }}
+    <h1>Your static page using templates</h1>
+    <p>No queries were executed during the rendering of this page.</p>>
+
+    {{ $config := config }}
+    <p>You can still access data from your config file, here is your endpoint: <code>{{ config.Endpoint }}</code></p>
+
+    <p>Here is some more data from <code>metadata.about</code>: "{{ config.Metadata.about }}"</p>
+{{ end }}

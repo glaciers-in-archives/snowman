@@ -1,0 +1,5 @@
+---
+  sparql_endpoint: "https://dbpedia.org/sparql"
+  metadata:
+    # whatever data you might need as long as it's valid YAML
+    about: "Custom data for your site."
