@@ -105,8 +105,8 @@ func (r *Repository) Query(queryLocation string, query string) ([]map[string]rdf
 	return parsedResponse.Solutions(), nil
 }
 
-func (r *Repository) DynamicQuery(queryLocation string, argument string) ([]map[string]rdf.Term, error) {
-	fmt.Println("Issuing dynamic query " + queryLocation + " with argument " + argument)
+func (r *Repository) ParameterizedQuery(queryLocation string, argument string) ([]map[string]rdf.Term, error) {
+	fmt.Println("Issuing parameterized query " + queryLocation + " with argument " + argument)
 	queryPath := "queries/" + queryLocation + ".rq"
 	if _, err := os.Stat(queryPath); err != nil {
 		return nil, err

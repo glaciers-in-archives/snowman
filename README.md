@@ -197,7 +197,7 @@ snowman build --cache never
 
 #### Inspect cache
 
-Snowman allows you to inspect the cached data for a particular query or dynamic query using the `cache` command. The cache command takes one-two arguments, first the path of your query and optionally the argument used in a dynamic query.
+Snowman allows you to inspect the cached data for a particular query or parameterized query using the `cache` command. The cache command takes one-two arguments, first the path of your query and optionally the argument used in a parameterized query.
 
 ```bash
 snowman cache list-of-icecream.rq
@@ -207,7 +207,7 @@ snowman cache icecream.rq "your parameter"
 
 #### Invalidate cache
 
-Especially when you build very large sites or use expensive SPARQL queries it can be useful to invalidate specific portions of the cache. You can do so using the `cache` command. Specify the query or dynamic query for which you want to invalidate the cache and add the flag `invalidate`.
+Especially when you build very large sites or use expensive SPARQL queries it can be useful to invalidate specific portions of the cache. You can do so using the `cache` command. Specify the query or parameterized query for which you want to invalidate the cache and add the flag `invalidate`.
 
 ```bash
 snowman cache list-of-icecream.rq --invalidate

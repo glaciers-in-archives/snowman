@@ -74,7 +74,7 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 		"tcase":   strings.Title,
 		"env":     os.Getenv,
 
-		"query":    repo.DynamicQuery,
+		"query":    repo.ParameterizedQuery,
 		"config":   siteConfig.Get,
 		"metadata": siteConfig.GetMetadata,
 	}

@@ -39,7 +39,7 @@ func printFileContents(path string) error {
 var cacheCmd = &cobra.Command{
 	Use:   "cache",
 	Short: "Invalidates cache",
-	Long:  `Removes all or specified parts of the query cache. Provide no argument to clear all cache. To clear the cache for a particular query provide an argument with the name of the query. To clear the cache for a dynamic query provide a second argument with its parameter value.`,
+	Long:  `Removes all or specified parts of the query cache. Provide no argument to clear all cache. To clear the cache for a particular query provide an argument with the name of the query. To clear the cache for a parameterized query provide a second argument with its parameter value.`,
 	Args:  cobra.RangeArgs(0, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
@@ -69,7 +69,7 @@ var cacheCmd = &cobra.Command{
 			}
 
 			if len(files) > 1 {
-				fmt.Println(args[0] + " represents a dynamic query with " + fmt.Sprint(len(files)) + " cache items.")
+				fmt.Println(args[0] + " represents a parameterized query with " + fmt.Sprint(len(files)) + " cache items.")
 				return nil
 			}
 
