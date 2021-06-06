@@ -12,6 +12,7 @@ import (
 	text_template "text/template"
 	"time"
 
+	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"gopkg.in/yaml.v2"
 )
@@ -61,7 +62,7 @@ func (c *viewConfig) Parse(data []byte) error {
 	return yaml.Unmarshal(data, &c)
 }
 
-func DiscoverViews(templates []string, repo sparql.Repository) ([]View, error) {
+func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config.SiteConfig) ([]View, error) {
 	var views []View
 
 	var functionMap = map[string]interface{}{
@@ -73,7 +74,9 @@ func DiscoverViews(templates []string, repo sparql.Repository) ([]View, error) {
 		"tcase":   strings.Title,
 		"env":     os.Getenv,
 
-		"query": repo.DynamicQuery,
+		"query":    repo.DynamicQuery,
+		"config":   siteConfig.Get,
+		"metadata": siteConfig.GetMetadata,
 	}
 
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {

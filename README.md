@@ -146,7 +146,7 @@ replace . "https://en.wikipedia.org/wiki/" "" 1
 
 ##### Env
 
-`env` allows you to access enviroment variables from within your templates. `env` returns the value of an enviroment as a string.
+`env` allows you to access environment variables from within your templates. `env` returns the value of an environment as a string.
 
 ```
 env "PATH"
@@ -166,6 +166,22 @@ Snowman provides a `query` function which allows one to issue a parameterized SP
 
 ```
 $sparql_result := query "name_of_query" $var
+```
+
+##### Config
+
+Snowman exposes your site's configuration through the function `config`. You can for example, retrieve your SPARQL endpoint with `$yourVariable.Endpoint`.
+
+```
+$yourVariable := config
+```
+
+##### Metadata
+
+The `metadata` function is a shortcut for accessing the metadata defined in your site's configuration.
+
+```
+$yourVariable := metadata
 ```
 
 ### Working with cache

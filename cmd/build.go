@@ -6,37 +6,20 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"github.com/glaciers-in-archives/snowman/internal/views"
 	"github.com/knakk/rdf"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 )
 
 // CLI FLAGS
 var cacheBuildOption string
-
-type siteConfig struct {
-	Endpoint string `yaml:"sparql_endpoint"`
-}
-
-func (c *siteConfig) Parse(data []byte) error {
-	if err := yaml.Unmarshal(data, c); err != nil {
-		return err
-	}
-
-	_, err := url.ParseRequestURI(c.Endpoint) // #TODO why is https://example valid?
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 func DiscoverTemplates() ([]string, error) {
 	var paths []string
@@ -103,8 +86,8 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to read snowman.yaml.", err)
 		}
 
-		var config siteConfig
-		if err := config.Parse(data); err != nil {
+		var siteConfig config.SiteConfig
+		if err := siteConfig.Parse(data); err != nil {
 			return utils.ErrorExit("Failed to parse snowman.yaml.", err)
 		}
 
@@ -131,12 +114,12 @@ var buildCmd = &cobra.Command{
 			return errors.New("Failed to find any template files.")
 		}
 
-		repo, err := sparql.NewRepository(config.Endpoint, http.DefaultClient, cacheBuildOption)
+		repo, err := sparql.NewRepository(siteConfig.Endpoint, http.DefaultClient, cacheBuildOption)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
 
-		discoveredViews, err := views.DiscoverViews(templates, *repo)
+		discoveredViews, err := views.DiscoverViews(templates, *repo, siteConfig)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
