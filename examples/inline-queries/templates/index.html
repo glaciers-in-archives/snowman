@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Cats</title>
+    </head>
+    <body>
+        <h1>Cat Professions</h1>
+
+        {{ $count_restult := query "profession-count" }}
+        <p>These cats has a total of {{ (index $count_restult 0).professionCount }} professions.</p>
+
+        {{ range . }}
+            <h2>{{ .professionLabel }}</h2>
+            {{ template "cats.html" query "cats-per-profession" .profession.String }}
+        {{ end }}
+    </body>
+</html>

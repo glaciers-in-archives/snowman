@@ -1,0 +1,6 @@
+SELECT DISTINCT ?profession ?professionLabel WHERE {
+  ?cat wdt:P31 wd:Q146 ;
+       wdt:P106 ?profession .
+
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" . }
+}
