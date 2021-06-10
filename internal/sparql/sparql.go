@@ -105,8 +105,10 @@ func (r *Repository) Query(queryLocation string, query string) ([]map[string]rdf
 	return parsedResponse.Solutions(), nil
 }
 
-func (r *Repository) ParameterizedQuery(queryLocation string, argument string) ([]map[string]rdf.Term, error) {
-	fmt.Println("Issuing parameterized query " + queryLocation + " with argument " + argument)
+func (r *Repository) InlineQuery(queryLocation string, arguments ...string) ([]map[string]rdf.Term, error) {
+	// #TODO
+	// instead of doing this all the time for each query which requries filesystem io
+	// index all queries and their locations once and store it in memory using a map (map[string]string).
 	queryPath := "queries/" + queryLocation + ".rq"
 	if _, err := os.Stat(queryPath); err != nil {
 		return nil, err
@@ -117,11 +119,14 @@ func (r *Repository) ParameterizedQuery(queryLocation string, argument string) (
 		return nil, err
 	}
 
-	sparqlString := strings.Replace(string(sparqlBytes), "{{.}}", argument, 1)
-	parsedResponse, err := r.Query(queryLocation, sparqlString)
-	if err != nil {
-		return nil, err
+	switch len(arguments) {
+	case 0:
+		return r.Query(queryLocation, string(sparqlBytes))
+	case 1:
+		fmt.Println("Issuing parameterized query " + queryLocation + " with argument \"" + arguments[0] + "\".")
+		sparqlString := strings.Replace(string(sparqlBytes), "{{.}}", arguments[0], 1)
+		return r.Query(queryLocation, sparqlString)
 	}
 
-	return parsedResponse, nil
+	return nil, errors.New("Invalid arguments.")
 }
