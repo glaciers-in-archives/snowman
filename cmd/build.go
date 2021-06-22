@@ -38,6 +38,30 @@ func DiscoverTemplates() ([]string, error) {
 	return paths, nil
 }
 
+func DiscoverQueries() (map[string]string, error) {
+	var index = make(map[string]string)
+
+	err := filepath.Walk("queries", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			sparqlBytes, err := ioutil.ReadFile(path)
+			if err != nil {
+				return err
+			}
+
+			index[strings.Replace(path, "queries/", "", 1)] = string(sparqlBytes)
+
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return index, nil
+}
+
 func CopyStatic() error {
 	// we know from prevous checks that the static folder must exist
 	err := filepath.Walk("static", func(path string, info os.FileInfo, err error) error {
@@ -114,7 +138,12 @@ var buildCmd = &cobra.Command{
 			return errors.New("Failed to find any template files.")
 		}
 
-		repo, err := sparql.NewRepository(siteConfig.Endpoint, http.DefaultClient, cacheBuildOption)
+		queries, err := DiscoverQueries()
+		if err != nil {
+			return utils.ErrorExit("Failed to find any query files.", err)
+		}
+
+		repo, err := sparql.NewRepository(siteConfig.Endpoint, http.DefaultClient, cacheBuildOption, queries)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
@@ -126,9 +155,9 @@ var buildCmd = &cobra.Command{
 
 		for _, view := range discoveredViews {
 			results := make([]map[string]rdf.Term, 0)
-			if view.Sparql != "" {
+			if view.ViewConfig.QueryFile != "" {
 				fmt.Println("Issuing query " + view.ViewConfig.QueryFile)
-				results, err = repo.Query(view.ViewConfig.QueryFile, view.Sparql)
+				results, err = repo.Query(view.ViewConfig.QueryFile)
 				if err != nil {
 					return utils.ErrorExit("SPARQL query failed.", err)
 				}

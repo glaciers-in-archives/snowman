@@ -19,7 +19,6 @@ import (
 
 type View struct {
 	ViewConfig            viewConfig
-	Sparql                string
 	TextTemplate          *text_template.Template
 	HTMLTemplate          *html_template.Template
 	TemplateName          string
@@ -101,19 +100,6 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 					multipageVariableHook = &re.FindAllStringSubmatch(vConfig.Output, 1)[0][1]
 				}
 
-				var sparqlBytes []byte
-				if vConfig.QueryFile != "" {
-					queryPath := "queries/" + vConfig.QueryFile
-					if _, err := os.Stat(queryPath); err != nil {
-						return errors.New("Unable to find the SPARQL file for the " + viewPath + " view.")
-					}
-
-					sparqlBytes, err = ioutil.ReadFile(queryPath)
-					if err != nil {
-						return err
-					}
-				}
-
 				templatePath := "templates/" + vConfig.TemplateFile
 				if _, err := os.Stat(templatePath); err != nil {
 					return errors.New("Unable to find the template file for the " + viewPath + " view.")
@@ -140,7 +126,6 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 
 				view := View{
 					ViewConfig:            vConfig,
-					Sparql:                string(sparqlBytes),
 					HTMLTemplate:          HTMLTemplateA,
 					TextTemplate:          TextTemplateA,
 					TemplateName:          file,

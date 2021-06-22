@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 
@@ -21,12 +20,14 @@ type Repository struct {
 	Endpoint     string
 	Client       *http.Client
 	CacheManager *cache.CacheManager
+	QueryIndex   map[string]string
 }
 
-func NewRepository(endpoint string, client *http.Client, cacheStrategy string) (*Repository, error) {
+func NewRepository(endpoint string, client *http.Client, cacheStrategy string, queryIndex map[string]string) (*Repository, error) {
 	repo := Repository{
-		Endpoint: endpoint,
-		Client:   http.DefaultClient,
+		Endpoint:   endpoint,
+		Client:     http.DefaultClient,
+		QueryIndex: queryIndex,
 	}
 
 	cm, err := cache.NewCacheManager(cacheStrategy)
@@ -72,7 +73,17 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 	return &responseString, nil
 }
 
-func (r *Repository) Query(queryLocation string, query string) ([]map[string]rdf.Term, error) {
+func (r *Repository) Query(queryLocation string, queryOverride ...string) ([]map[string]rdf.Term, error) {
+
+	query, exists := r.QueryIndex[queryLocation] // QueryIndex includes query/, wanted or not? not?
+	if !exists {
+		return nil, errors.New("The given query could not be found. " + queryLocation)
+	}
+
+	if len(queryOverride) > 0 {
+		query = queryOverride[0]
+	}
+
 	file, err := r.CacheManager.GetCache(queryLocation, query)
 	if err != nil {
 		return nil, err
@@ -106,25 +117,21 @@ func (r *Repository) Query(queryLocation string, query string) ([]map[string]rdf
 }
 
 func (r *Repository) InlineQuery(queryLocation string, arguments ...string) ([]map[string]rdf.Term, error) {
-	// #TODO
-	// instead of doing this all the time for each query which requries filesystem io
-	// index all queries and their locations once and store it in memory using a map (map[string]string).
-	queryPath := "queries/" + queryLocation + ".rq"
-	if _, err := os.Stat(queryPath); err != nil {
-		return nil, err
+	if !strings.HasSuffix(queryLocation, ".rq") {
+		queryLocation += ".rq"
 	}
 
-	sparqlBytes, err := ioutil.ReadFile(queryPath)
-	if err != nil {
-		return nil, err
+	query, exists := r.QueryIndex[queryLocation]
+	if !exists {
+		return nil, errors.New("The given query could not be found. " + queryLocation)
 	}
 
 	switch len(arguments) {
 	case 0:
-		return r.Query(queryLocation, string(sparqlBytes))
+		return r.Query(queryLocation)
 	case 1:
 		fmt.Println("Issuing parameterized query " + queryLocation + " with argument \"" + arguments[0] + "\".")
-		sparqlString := strings.Replace(string(sparqlBytes), "{{.}}", arguments[0], 1)
+		sparqlString := strings.Replace(query, "{{.}}", arguments[0], 1)
 		return r.Query(queryLocation, sparqlString)
 	}
 
