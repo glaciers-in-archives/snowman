@@ -12,23 +12,24 @@ import (
 	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
+	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
 )
 
 type Repository struct {
-	Endpoint     string
-	Client       *http.Client
+	client       config.ClientConfig
+	httpClient   *http.Client
 	CacheManager *cache.CacheManager
 	QueryIndex   map[string]string
 }
 
-func NewRepository(endpoint string, client *http.Client, cacheStrategy string, queryIndex map[string]string) (*Repository, error) {
+func NewRepository(client config.ClientConfig, cacheStrategy string, queryIndex map[string]string) (*Repository, error) {
 	repo := Repository{
-		Endpoint:   endpoint,
-		Client:     http.DefaultClient,
+		client:     client,
 		QueryIndex: queryIndex,
 	}
+	repo.httpClient = http.DefaultClient
 
 	cm, err := cache.NewCacheManager(cacheStrategy)
 	if err != nil {
@@ -45,7 +46,7 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 	form.Set("query", query)
 	b := form.Encode()
 
-	req, err := http.NewRequest("POST", r.Endpoint, bytes.NewBufferString(b))
+	req, err := http.NewRequest("POST", r.client.Endpoint, bytes.NewBufferString(b))
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +55,11 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 	req.Header.Set("Content-Length", strconv.Itoa(len(b)))
 	req.Header.Set("Accept", "application/sparql-results+json")
 
-	resp, err := r.Client.Do(req)
+	for header, content := range r.client.Headers {
+		req.Header.Set(header, content)
+	}
+
+	resp, err := r.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

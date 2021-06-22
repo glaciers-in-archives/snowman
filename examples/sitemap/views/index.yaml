@@ -1,4 +1,3 @@
----
-  output: "index.html"
-  query: "prints.rq"
-  template: "index.html"
+output: "index.html"
+query: "prints.rq"
+template: "index.html"

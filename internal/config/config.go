@@ -6,9 +6,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type ClientConfig struct {
+	Endpoint string            `yaml:"endpoint"`
+	Headers  map[string]string `yaml:"http_headers"`
+}
+
 type SiteConfig struct {
-	Endpoint string `yaml:"sparql_endpoint"`
-	Metadata map[string]interface{}
+	ClientConfig ClientConfig `yaml:"sparql_client"`
+	Metadata     map[string]interface{}
 }
 
 func (c *SiteConfig) Parse(data []byte) error {
@@ -16,7 +21,7 @@ func (c *SiteConfig) Parse(data []byte) error {
 		return err
 	}
 
-	_, err := url.ParseRequestURI(c.Endpoint) // #TODO why is https://example valid?
+	_, err := url.ParseRequestURI(c.ClientConfig.Endpoint) // #TODO why is https://example valid?
 	if err != nil {
 		return err
 	}

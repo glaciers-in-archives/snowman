@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -96,7 +95,7 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to find any query files.", err)
 		}
 
-		repo, err := sparql.NewRepository(siteConfig.Endpoint, http.DefaultClient, cacheBuildOption, queries)
+		repo, err := sparql.NewRepository(siteConfig.ClientConfig, cacheBuildOption, queries)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}

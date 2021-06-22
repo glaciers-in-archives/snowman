@@ -1,2 +1,2 @@
----
-  sparql_endpoint: "https://ld.cultural.jp/sparql"
+sparql_client:
+  endpoint: "https://ld.cultural.jp/sparql"

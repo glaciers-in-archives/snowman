@@ -1,4 +1,3 @@
----
-    output: "works/{{qid}}.html"
-    query: "index.rq"
-    template: "work.html"
+output: "works/{{qid}}.html"
+query: "index.rq"
+template: "work.html"

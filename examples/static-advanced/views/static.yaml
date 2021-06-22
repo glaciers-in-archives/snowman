@@ -1,3 +1,2 @@
----
-  output: "static.html"
-  template: "static.html"
+output: "static.html"
+template: "static.html"

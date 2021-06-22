@@ -26,11 +26,13 @@ This is a tutorial. You can at anytime run `snowman --help` for a full list of o
 
 #### Defining target endpoint
 
-`snowman.yaml` should be located at the root of your project. It defines the URL of your SPARQL endpoint.
+`snowman.yaml` should be located at the root of your project. It defines the URL of your SPARQL endpoint as well as optional HTTP headers and custom metadata.
 
 ```yaml
----
-  sparql_endpoint: "https://query.wikidata.org/sparql"
+sparql_client:
+  endpoint: "https://query.wikidata.org/sparql"
+  http_headers: 
+    User-Agent: "Snowman build example. https://github.com/glaciers-in-archives/snowman"
 ```
 
 #### Defining queries
@@ -77,10 +79,9 @@ Snowman can also use each result in a SPARQL resultset to create a file for each
 By design, both templates and queries can be used across various views. For example, one can use the single query defined above in both of our templates. The following view will use the mentioned query and template to generate a file named `index.html` in your site's root. Views are placed in the `views` directory, name the following `index.yaml`.
 
 ```yaml
----
-    output: "index.html"
-    query: "works.rq"
-    template: "index.html"
+output: "index.html"
+query: "works.rq"
+template: "index.html"
 ```
 
 While the above view takes all the results from the works query and forwards them to the template we can also generate a file from each result. We do this by wrapping the SPARQL variable we want to use in the resulting filename with double curly brackets in the `output` option. Note that the variable therefor needs to be unique.
@@ -88,10 +89,9 @@ While the above view takes all the results from the works query and forwards the
 The following view should generate a file for each result and use the `qid` SPARQL variable as the filename. You can name this view `work.yaml`.
 
 ```yaml
----
-    output: "works/{{qid}}.html"
-    query: "works.rq"
-    template: "work.html"
+output: "works/{{qid}}.html"
+query: "works.rq"
+template: "work.html"
 ```
 
 Now you can generate the site by running `snowman build`. Your static site should appear in the `site` directory in your project's root. `snowman clean` deletes the `site` directory so that you can regenerate the site when you have made changes to your code.
