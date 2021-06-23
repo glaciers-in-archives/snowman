@@ -60,7 +60,7 @@ Snowman templates are [Go templates](https://golang.org/pkg/html/template/), a t
 Let's start with an example demonstrating how to access data in a view template intended to access an entire resultset. Note that one needs to use the `index` and `range` keywords to access data. Let's put the following template in `templates/index.html`.
 
 ```html
-<h1>Works by {{ (index (index . 0) "title") }}</h1>
+<h1>Works by {{ (index . 0).title }}</h1>
 <ul>
     {{ range . }}
     <li><a href="works/{{ .qid }}.html">{{ .workLabel }}</a></li>
