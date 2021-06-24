@@ -38,8 +38,8 @@ func printFileContents(path string) error {
 // cahceCmd represents the cache command
 var cacheCmd = &cobra.Command{
 	Use:   "cache",
-	Short: "Invalidates cache",
-	Long:  `Removes all or specified parts of the query cache. Provide no argument to clear all cache. To clear the cache for a particular query provide an argument with the name of the query. To clear the cache for a parameterized query provide a second argument with its parameter value.`,
+	Short: "Show the contents of cached queries",
+	Long:  `This command allows you to inspect the cache for any cached query. The first argument should be the name of the SPARQL query. To inspect the cache of a parameterized query provide a second argument with its parameter value.`,
 	Args:  cobra.RangeArgs(0, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
@@ -91,5 +91,5 @@ var cacheCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(cacheCmd)
-	buildCmd.Flags().BoolVarP(&invalidateCacheOption, "invalidate", "i", false, "Removes/clears specified parts of the query cache.")
+	cacheCmd.Flags().BoolVarP(&invalidateCacheOption, "invalidate", "i", false, "Removes/clears the specified parts of the query cache.")
 }
