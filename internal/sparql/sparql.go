@@ -65,15 +65,17 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New("Received bad response from SPARQL endpoint.")
-	}
-
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 	responseString := string(bodyBytes)
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println("Received bad(HTTP: " + resp.Status + ") response from SPARQL endpoint:")
+		fmt.Println(responseString)
+		return nil, errors.New("Received bad response from SPARQL endpoint")
+	}
 
 	return &responseString, nil
 }
