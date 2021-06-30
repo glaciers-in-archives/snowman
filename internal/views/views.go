@@ -8,12 +8,9 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	text_template "text/template"
-	"time"
 
-	"github.com/glaciers-in-archives/snowman/internal/config"
-	"github.com/glaciers-in-archives/snowman/internal/sparql"
+	"github.com/glaciers-in-archives/snowman/internal/templates"
 	"gopkg.in/yaml.v2"
 )
 
@@ -35,11 +32,19 @@ func (v *View) RenderPage(path string, data interface{}) error {
 		return err
 	}
 	if v.ViewConfig.Unsafe {
-		if err := v.TextTemplate.ExecuteTemplate(f, v.TemplateName, data); err != nil {
+		textTemplateCopy, err := v.TextTemplate.Clone()
+		if err != nil {
+			return err
+		}
+		if err := textTemplateCopy.ExecuteTemplate(f, v.TemplateName, data); err != nil {
 			return err
 		}
 	} else {
-		if err := v.HTMLTemplate.ExecuteTemplate(f, v.TemplateName, data); err != nil {
+		HTMLTemplateCopy, err := v.HTMLTemplate.Clone()
+		if err != nil {
+			return err
+		}
+		if err := HTMLTemplateCopy.ExecuteTemplate(f, v.TemplateName, data); err != nil {
 			return err
 		}
 	}
@@ -61,22 +66,8 @@ func (c *viewConfig) Parse(data []byte) error {
 	return yaml.Unmarshal(data, &c)
 }
 
-func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config.SiteConfig) ([]View, error) {
+func DiscoverViews(templateCollection templates.TemplateCollection) ([]View, error) {
 	var views []View
-
-	var functionMap = map[string]interface{}{
-		"now":     time.Now,
-		"split":   strings.Split,
-		"replace": strings.Replace,
-		"lcase":   strings.ToLower,
-		"ucase":   strings.ToUpper,
-		"tcase":   strings.Title,
-		"env":     os.Getenv,
-
-		"query":    repo.InlineQuery,
-		"config":   siteConfig.Get,
-		"metadata": siteConfig.GetMetadata,
-	}
 
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {
 		if info.Mode().IsRegular() {
@@ -100,6 +91,8 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 					multipageVariableHook = &re.FindAllStringSubmatch(vConfig.Output, 1)[0][1]
 				}
 
+				// #todo this only exists here to raise a good error,
+				// one should check for the path in the template collection instead
 				templatePath := "templates/" + vConfig.TemplateFile
 				if _, err := os.Stat(templatePath); err != nil {
 					return errors.New("Unable to find the template file for the " + viewPath + " view.")
@@ -107,27 +100,10 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 
 				_, file := filepath.Split(templatePath)
 
-				// ParseFiles requries the base template as the last item therfore we add it again
-				templates = append(templates, templatePath)
-
-				var TextTemplateA *text_template.Template
-				var HTMLTemplateA *html_template.Template
-				if vConfig.Unsafe {
-					funcMap := text_template.FuncMap(functionMap)
-					TextTemplateA, err = text_template.New("").Funcs(funcMap).ParseFiles(templates...)
-				} else {
-					funcMap := html_template.FuncMap(functionMap)
-					HTMLTemplateA, err = html_template.New("").Funcs(funcMap).ParseFiles(templates...)
-				}
-
-				if err != nil {
-					return err
-				}
-
 				view := View{
 					ViewConfig:            vConfig,
-					HTMLTemplate:          HTMLTemplateA,
-					TextTemplate:          TextTemplateA,
+					HTMLTemplate:          templateCollection.ParsedHTMLTemplates,
+					TextTemplate:          templateCollection.ParsedTextTemplates,
 					TemplateName:          file,
 					MultipageVariableHook: multipageVariableHook,
 				}

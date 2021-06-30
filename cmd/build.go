@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
+	"github.com/glaciers-in-archives/snowman/internal/templates"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"github.com/glaciers-in-archives/snowman/internal/views"
 	"github.com/knakk/rdf"
@@ -81,15 +81,6 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to parse snowman.yaml.", err)
 		}
 
-		templates, err := DiscoverTemplates()
-		if err != nil {
-			return utils.ErrorExit("Failed to find any template files.", err)
-		}
-
-		if len(templates) == 0 {
-			return errors.New("Failed to find any template files.")
-		}
-
 		queries, err := DiscoverQueries()
 		if err != nil {
 			return utils.ErrorExit("Failed to find any query files.", err)
@@ -100,7 +91,12 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
 
-		discoveredViews, err := views.DiscoverViews(templates, *repo, siteConfig)
+		templateCollection, err := templates.DiscoverAndParseTemplates(*repo, siteConfig)
+		if len(templateCollection.TemplatePaths) == 0 {
+			return utils.ErrorExit("Failed to find any template files.", err)
+		}
+
+		discoveredViews, err := views.DiscoverViews(*templateCollection)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
