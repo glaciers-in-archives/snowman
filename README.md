@@ -198,6 +198,14 @@ The `metadata` function is a shortcut for accessing the metadata defined in your
 {{ $yourVariable := metadata }}
 ```
 
+##### Safe HTML
+
+The `safe_html` function allows you to render a HTML string as it is whithout the default escaping preformed in unsafe templates. **Note that you should never trust third party HTML.**
+
+```
+{{ safe_html "<p>This renders as HTML</p>" }}
+```
+
 ### Working with cache
 
 #### Default behaviour

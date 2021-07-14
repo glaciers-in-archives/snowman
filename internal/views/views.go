@@ -14,6 +14,7 @@ import (
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
+	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"gopkg.in/yaml.v2"
 )
 
@@ -74,9 +75,10 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 		"env":     os.Getenv,
 		"join":    utils.Join,
 
-		"query":    repo.InlineQuery,
-		"config":   siteConfig.Get,
-		"metadata": siteConfig.GetMetadata,
+		"safe_html": utils.StringToHTML,
+		"query":     repo.InlineQuery,
+		"config":    siteConfig.Get,
+		"metadata":  siteConfig.GetMetadata,
 	}
 
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {

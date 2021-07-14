@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"html/template"
 	"io"
 	"os"
 	"path/filepath"
@@ -41,6 +42,10 @@ func CopyDir(from string, to string) error {
 		return err
 	})
 	return err
+}
+
+func StringToHTML(str string) template.HTML {
+	return template.HTML(str)
 }
 
 func Join(sep string, strs ...string) string {
