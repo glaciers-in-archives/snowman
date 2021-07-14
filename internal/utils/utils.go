@@ -42,3 +42,7 @@ func CopyDir(from string, to string) error {
 	})
 	return err
 }
+
+func Join(sep string, strs ...string) string {
+	return strings.Join(strs, sep)
+}

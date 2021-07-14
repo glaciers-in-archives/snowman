@@ -72,6 +72,7 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 		"ucase":   strings.ToUpper,
 		"tcase":   strings.Title,
 		"env":     os.Getenv,
+		"join":    utils.Join,
 
 		"query":    repo.InlineQuery,
 		"config":   siteConfig.Get,

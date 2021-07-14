@@ -136,6 +136,18 @@ Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) funct
 {{ end }}
 ```
 
+##### Join
+
+Snowman exposes a ´join´ function which can take a separator and any number of strings and merge them. The following example illustrates how to join three strings together with and without a separator:
+
+```
+{{ join "," "comma" "separated" }}
+```
+
+```
+{{ join "" "Hello" " " "World" }}
+```
+
 ##### Replace
 
 Snowman exposes the [strings.Replace](https://golang.org/pkg/strings/#Replace) function in all templates. The following example illustrates how to replace a part of a string:
