@@ -5,6 +5,7 @@ import (
 	"fmt"
 	html_template "html/template"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -15,6 +16,7 @@ import (
 	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
+	"github.com/spf13/cast"
 	"gopkg.in/yaml.v2"
 )
 
@@ -79,6 +81,26 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 		"query":     repo.InlineQuery,
 		"config":    siteConfig.Get,
 		"metadata":  siteConfig.GetMetadata,
+
+		"add1": func(i interface{}) int64 { return cast.ToInt64(i) + 1 },
+		"add": func(i ...interface{}) int64 {
+			var a int64 = 0
+			for _, b := range i {
+				a += cast.ToInt64(b)
+			}
+			return a
+		},
+		"sub": func(a, b interface{}) int64 { return cast.ToInt64(a) - cast.ToInt64(b) },
+		"div": func(a, b interface{}) int64 { return cast.ToInt64(a) / cast.ToInt64(b) },
+		"mod": func(a, b interface{}) int64 { return cast.ToInt64(a) % cast.ToInt64(b) },
+		"mul": func(a interface{}, v ...interface{}) int64 {
+			val := cast.ToInt64(a)
+			for _, b := range v {
+				val = val * cast.ToInt64(b)
+			}
+			return val
+		},
+		"rand": func(min, max int) int { return rand.Intn(max-min) + min },
 	}
 
 	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {

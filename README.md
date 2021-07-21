@@ -200,10 +200,66 @@ The `metadata` function is a shortcut for accessing the metadata defined in your
 
 ##### Safe HTML
 
-The `safe_html` function allows you to render a HTML string as it is whithout the default escaping preformed in unsafe templates. **Note that you should never trust third party HTML.**
+The `safe_html` function allows you to render a HTML string as it is without the default escaping performed in unsafe templates. **Note that you should never trust third party HTML.**
 
 ```
 {{ safe_html "<p>This renders as HTML</p>" }}
+```
+
+##### Add
+
+The `add` function sums integer values, it can take any number of arguments beyond two.
+
+```
+{{ add 5 6 7 }}
+```
+
+##### Sub
+
+The `sub` function subtract integer values, it must take two arguments.
+
+```
+{{ sub 10 5 }}
+```
+
+##### Div
+
+The `div` function divides integer values, it must take two arguments.
+
+```
+{{ div 10 2 }}
+```
+
+##### Mul
+
+The `mul` function multiplies integer values, it can take any number of arguments beyond two.
+
+```
+{{ mul 5 6 7 }}
+```
+
+##### Mod
+
+The `mod` function returns the modulus of two given values.
+
+```
+{{ div 5 2 }}
+```
+
+##### Rand
+
+The `rand` function returns a random integer between the two given values.
+
+```
+{{ rand 5 10 }}
+```
+
+##### Add1
+
+The `add1` function increments the given integer by 1.
+
+```
+{{ add1 $your_intreger }}
 ```
 
 ### Working with cache
