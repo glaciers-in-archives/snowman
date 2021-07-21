@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/knakk/rdf"
 )
 
 func ErrorExit(message string, err error) error {
@@ -50,4 +52,8 @@ func StringToHTML(str string) template.HTML {
 
 func Join(sep string, strs ...string) string {
 	return strings.Join(strs, sep)
+}
+
+func ToURI(value string) (rdf.IRI, error) {
+	return rdf.NewIRI(value)
 }

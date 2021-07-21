@@ -206,6 +206,14 @@ The `safe_html` function allows you to render a HTML string as it is without the
 {{ safe_html "<p>This renders as HTML</p>" }}
 ```
 
+##### URI
+
+The `uri` function takes a string and tries to cast it to a URI, if it fails it will produce an error.
+
+```
+{{ uri "https://schema.org/Person" }}
+```
+
 ##### Add
 
 The `add` function sums integer values, it can take any number of arguments beyond two.
