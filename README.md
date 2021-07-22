@@ -94,7 +94,7 @@ query: "works.rq"
 template: "work.html"
 ```
 
-Now you can generate the site by running `snowman build`. Your static site should appear in the `site` directory in your project's root. `snowman clean` deletes the `site` directory so that you can regenerate the site when you have made changes to your code.
+Now you can generate the site by running `snowman build`. Your static site should appear in the `site` directory in your project's root.
 
 #### Static files
 

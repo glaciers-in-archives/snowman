@@ -105,7 +105,11 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
 
-		var siteDir string = "site/"
+		if _, err := os.Stat("site"); err != nil {
+			if err := os.RemoveAll("site"); err != nil {
+				return utils.ErrorExit("Failed to remove the existing site directory.", err)
+			}
+		}
 
 		if _, err := os.Stat("static"); os.IsNotExist(err) {
 			fmt.Println("Failed to locate static files. Skipping...")
@@ -128,14 +132,14 @@ var buildCmd = &cobra.Command{
 
 			if view.MultipageVariableHook != nil {
 				for _, row := range results {
-					outputPath := siteDir + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", row[*view.MultipageVariableHook].String(), 1)
+					outputPath := "site/" + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", row[*view.MultipageVariableHook].String(), 1)
 					if err := view.RenderPage(outputPath, row); err != nil {
 						return utils.ErrorExit("Failed to render page at "+outputPath, err)
 					}
 				}
 			} else {
-				if err := view.RenderPage(siteDir+view.ViewConfig.Output, results); err != nil {
-					return utils.ErrorExit("Failed to render page at "+siteDir+view.ViewConfig.Output, err)
+				if err := view.RenderPage("site/"+view.ViewConfig.Output, results); err != nil {
+					return utils.ErrorExit("Failed to render page at "+"site/"+view.ViewConfig.Output, err)
 				}
 			}
 
