@@ -18,7 +18,7 @@ This will generate a binary that you can place in the root of your new project.
 
 ## Usage
 
-For the time being, the easiest way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams various works. Run `snowman build` to generate the site.
+For the time being, the easiest way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams various works. Run `snowman build` to generate the site. The `snowman server` command can then be used to serve the site with Snowman's built-in development server.
 
 ### From scratch
 
