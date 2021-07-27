@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	text_template "text/template"
 	"time"
@@ -19,6 +20,21 @@ import (
 	"github.com/spf13/cast"
 	"gopkg.in/yaml.v2"
 )
+
+type viewConfigList struct {
+	Views []viewConfig `yaml:"views"`
+}
+
+func (c *viewConfigList) Parse(data []byte) error {
+	return yaml.Unmarshal(data, &c)
+}
+
+type viewConfig struct {
+	Output       string `yaml:"output"`
+	QueryFile    string `yaml:"query"`
+	TemplateFile string `yaml:"template"`
+	Unsafe       bool   `yaml:"unsafe"`
+}
 
 type View struct {
 	ViewConfig            viewConfig
@@ -51,17 +67,6 @@ func (v *View) RenderPage(path string, data interface{}) error {
 
 	fmt.Println("Rendered page at " + path)
 	return nil
-}
-
-type viewConfig struct {
-	Output       string `yaml:"output"`
-	QueryFile    string `yaml:"query"`
-	TemplateFile string `yaml:"template"`
-	Unsafe       bool   `yaml:"unsafe"`
-}
-
-func (c *viewConfig) Parse(data []byte) error {
-	return yaml.Unmarshal(data, &c)
 }
 
 func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config.SiteConfig) ([]View, error) {
@@ -104,63 +109,57 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 		"rand": func(min, max int) int { return rand.Intn(max-min) + min },
 	}
 
-	err := filepath.Walk("views", func(path string, info os.FileInfo, err error) error {
-		if info.Mode().IsRegular() {
-			if filepath.Ext(path) == ".yaml" {
-				viewPath := path
-				fmt.Println("Discovered view: ", viewPath)
+	data, err := ioutil.ReadFile("views.yaml")
+	if err != nil {
+		return nil, errors.New("Failed to read views.yaml")
+	}
 
-				data, err := ioutil.ReadFile(viewPath)
-				if err != nil {
-					return errors.New("Failed to read " + viewPath)
-				}
+	var vConfigs viewConfigList
+	if err := vConfigs.Parse(data); err != nil {
+		return nil, errors.New("Failed to parse views.yaml")
+	}
 
-				var vConfig viewConfig
-				if err := vConfig.Parse(data); err != nil {
-					return errors.New("Failed to parse" + viewPath)
-				}
+	fmt.Println("Found " + strconv.Itoa(len(vConfigs.Views)) + " views.")
 
-				var multipageVariableHook *string
-				re := regexp.MustCompile(`{{([\w\d_]+)}}`)
-				if re.Match([]byte(vConfig.Output)) {
-					multipageVariableHook = &re.FindAllStringSubmatch(vConfig.Output, 1)[0][1]
-				}
-
-				templatePath := "templates/" + vConfig.TemplateFile
-				if _, err := os.Stat(templatePath); err != nil {
-					return errors.New("Unable to find the template file for the " + viewPath + " view.")
-				}
-
-				_, file := filepath.Split(templatePath)
-
-				// ParseFiles requries the base template as the last item therfore we add it again
-				templates = append(templates, templatePath)
-
-				var TextTemplateA *text_template.Template
-				var HTMLTemplateA *html_template.Template
-				if vConfig.Unsafe {
-					funcMap := text_template.FuncMap(functionMap)
-					TextTemplateA, err = text_template.New("").Funcs(funcMap).ParseFiles(templates...)
-				} else {
-					funcMap := html_template.FuncMap(functionMap)
-					HTMLTemplateA, err = html_template.New("").Funcs(funcMap).ParseFiles(templates...)
-				}
-
-				if err != nil {
-					return err
-				}
-
-				view := View{
-					ViewConfig:            vConfig,
-					HTMLTemplate:          HTMLTemplateA,
-					TextTemplate:          TextTemplateA,
-					TemplateName:          file,
-					MultipageVariableHook: multipageVariableHook,
-				}
-				views = append(views, view)
-			}
+	for _, viewConf := range vConfigs.Views {
+		var multipageVariableHook *string
+		re := regexp.MustCompile(`{{([\w\d_]+)}}`)
+		if re.Match([]byte(viewConf.Output)) {
+			multipageVariableHook = &re.FindAllStringSubmatch(viewConf.Output, 1)[0][1]
 		}
-		return err
-	})
-	return views, err
+
+		templatePath := "templates/" + viewConf.TemplateFile
+		if _, err := os.Stat(templatePath); err != nil {
+			return nil, errors.New("Unable to find the template file " + viewConf.TemplateFile)
+		}
+
+		_, file := filepath.Split(templatePath)
+
+		// ParseFiles requries the base template as the last item therfore we add it again
+		templates = append(templates, templatePath)
+
+		var TextTemplateA *text_template.Template
+		var HTMLTemplateA *html_template.Template
+		if viewConf.Unsafe {
+			funcMap := text_template.FuncMap(functionMap)
+			TextTemplateA, err = text_template.New("").Funcs(funcMap).ParseFiles(templates...)
+		} else {
+			funcMap := html_template.FuncMap(functionMap)
+			HTMLTemplateA, err = html_template.New("").Funcs(funcMap).ParseFiles(templates...)
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		view := View{
+			ViewConfig:            viewConf,
+			HTMLTemplate:          HTMLTemplateA,
+			TextTemplate:          TextTemplateA,
+			TemplateName:          file,
+			MultipageVariableHook: multipageVariableHook,
+		}
+		views = append(views, view)
+	}
+	return views, nil
 }

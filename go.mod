@@ -8,5 +8,5 @@ require (
 	github.com/knakk/sparql v0.0.0-20200914044602-05f8b3d450be
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.1.1
-	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 )
