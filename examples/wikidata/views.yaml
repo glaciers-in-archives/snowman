@@ -1,0 +1,7 @@
+views:
+  - output: "index.html"
+    query: "index.rq"
+    template: "index.html"
+  - output: "works/{{qid}}.html"
+    query: "index.rq"
+    template: "work.html"

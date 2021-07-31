@@ -1,0 +1,3 @@
+views:
+  - output: "static.html"
+    template: "static.html"
