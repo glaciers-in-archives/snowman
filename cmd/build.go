@@ -39,6 +39,11 @@ func DiscoverTemplates() ([]string, error) {
 func DiscoverQueries() (map[string]string, error) {
 	var index = make(map[string]string)
 
+	if _, err := os.Stat("queries"); os.IsNotExist(err) {
+		fmt.Println("Failed to locate query files. Skipping...")
+		return index, nil
+	}
+
 	err := filepath.Walk("queries", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -92,7 +97,7 @@ var buildCmd = &cobra.Command{
 
 		queries, err := DiscoverQueries()
 		if err != nil {
-			return utils.ErrorExit("Failed to find any query files.", err)
+			return utils.ErrorExit("Failed to index query files.", err)
 		}
 
 		repo, err := sparql.NewRepository(siteConfig.ClientConfig, cacheBuildOption, queries)
