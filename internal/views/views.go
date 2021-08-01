@@ -80,7 +80,6 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 		"safe_html": utils.StringToHTML,
 		"query":     repo.InlineQuery,
 		"config":    siteConfig.Get,
-		"metadata":  siteConfig.GetMetadata,
 		"uri":       utils.ToURI,
 
 		"add1": func(i interface{}) int64 { return cast.ToInt64(i) + 1 },

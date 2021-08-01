@@ -100,7 +100,7 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to index query files.", err)
 		}
 
-		repo, err := sparql.NewRepository(siteConfig.ClientConfig, cacheBuildOption, queries)
+		repo, err := sparql.NewRepository(siteConfig.Client, cacheBuildOption, queries)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
