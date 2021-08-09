@@ -18,7 +18,7 @@ This will generate a binary that you can place in the root of your new project.
 
 ## Usage
 
-For the time being, the easiest way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams various works. Run `snowman build` to generate the site.
+For the time being, the easiest way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams various works. Run `snowman build` to generate the site. The `snowman server` command can then be used to serve the site with Snowman's built-in development server.
 
 ### From scratch
 
@@ -94,7 +94,7 @@ query: "works.rq"
 template: "work.html"
 ```
 
-Now you can generate the site by running `snowman build`. Your static site should appear in the `site` directory in your project's root. `snowman clean` deletes the `site` directory so that you can regenerate the site when you have made changes to your code.
+Now you can generate the site by running `snowman build`. Your static site should appear in the `site` directory in your project's root.
 
 #### Static files
 
@@ -134,6 +134,18 @@ Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) funct
 {{ range split .list_of_values "," }}
   {{ . }}
 {{ end }}
+```
+
+##### Join
+
+Snowman exposes a ´join´ function which can take a separator and any number of strings and merge them. The following example illustrates how to join three strings together with and without a separator:
+
+```
+{{ join "," "comma" "separated" }}
+```
+
+```
+{{ join "" "Hello" " " "World" }}
 ```
 
 ##### Replace
@@ -178,12 +190,76 @@ Snowman exposes your site's configuration through the function `config`. The fol
 {{ $yourVariable.Endpoint }}
 ```
 
-##### Metadata
+##### Safe HTML
 
-The `metadata` function is a shortcut for accessing the metadata defined in your site's configuration.
+The `safe_html` function allows you to render a HTML string as it is without the default escaping performed in unsafe templates. **Note that you should never trust third party HTML.**
 
 ```
-{{ $yourVariable := metadata }}
+{{ safe_html "<p>This renders as HTML</p>" }}
+```
+
+##### URI
+
+The `uri` function takes a string and tries to cast it to a URI, if it fails it will produce an error.
+
+```
+{{ uri "https://schema.org/Person" }}
+```
+
+##### Add
+
+The `add` function sums integer values, it can take any number of arguments beyond two.
+
+```
+{{ add 5 6 7 }}
+```
+
+##### Sub
+
+The `sub` function subtract integer values, it must take two arguments.
+
+```
+{{ sub 10 5 }}
+```
+
+##### Div
+
+The `div` function divides integer values, it must take two arguments.
+
+```
+{{ div 10 2 }}
+```
+
+##### Mul
+
+The `mul` function multiplies integer values, it can take any number of arguments beyond two.
+
+```
+{{ mul 5 6 7 }}
+```
+
+##### Mod
+
+The `mod` function returns the modulus of two given values.
+
+```
+{{ div 5 2 }}
+```
+
+##### Rand
+
+The `rand` function returns a random integer between the two given values.
+
+```
+{{ rand 5 10 }}
+```
+
+##### Add1
+
+The `add1` function increments the given integer by 1.
+
+```
+{{ add1 $your_intreger }}
 ```
 
 ### Working with cache
@@ -215,3 +291,7 @@ snowman cache list-of-icecream.rq --invalidate
 
 snowman cache icecream.rq "your parameter" --invalidate
 ```
+
+### Timing your builds
+
+Sometimes when you work on large sites it can be useful to time your builds to mesuare the impcat of various changes. All Snowman commands therefore got a flag named `timeit`. "Time it" will once the command finishes executing print its execuation time. While this is mostly useful for mesuaring built times all Snowman commands support it.

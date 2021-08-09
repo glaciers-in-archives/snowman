@@ -5,11 +5,11 @@ import (
 	"fmt"
 	html_template "html/template"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"regexp"
 	text_template "text/template"
-
 	"github.com/glaciers-in-archives/snowman/internal/templates"
 	"gopkg.in/yaml.v2"
 )
@@ -101,7 +101,7 @@ func DiscoverViews(templateCollection templates.TemplateCollection) ([]View, err
 				_, file := filepath.Split(templatePath)
 
 				view := View{
-					ViewConfig:            vConfig,
+					ViewConfig:     <      vConfig,
 					HTMLTemplate:          templateCollection.ParsedHTMLTemplates,
 					TextTemplate:          templateCollection.ParsedTextTemplates,
 					TemplateName:          file,

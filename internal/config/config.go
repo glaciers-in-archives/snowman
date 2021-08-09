@@ -12,8 +12,8 @@ type ClientConfig struct {
 }
 
 type SiteConfig struct {
-	ClientConfig ClientConfig `yaml:"sparql_client"`
-	Metadata     map[string]interface{}
+	Client   ClientConfig `yaml:"sparql_client"`
+	Metadata map[string]interface{}
 }
 
 func (c *SiteConfig) Parse(data []byte) error {
@@ -21,7 +21,7 @@ func (c *SiteConfig) Parse(data []byte) error {
 		return err
 	}
 
-	_, err := url.ParseRequestURI(c.ClientConfig.Endpoint) // #TODO why is https://example valid?
+	_, err := url.ParseRequestURI(c.Client.Endpoint) // #TODO why is https://example valid?
 	if err != nil {
 		return err
 	}
@@ -30,8 +30,4 @@ func (c *SiteConfig) Parse(data []byte) error {
 
 func (c *SiteConfig) Get() SiteConfig {
 	return *c
-}
-
-func (c *SiteConfig) GetMetadata() map[string]interface{} {
-	return c.Metadata
 }
