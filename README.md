@@ -291,3 +291,7 @@ snowman cache list-of-icecream.rq --invalidate
 
 snowman cache icecream.rq "your parameter" --invalidate
 ```
+
+### Timing your builds
+
+Sometimes when you work on large sites it can be useful to time your builds to mesuare the impcat of various changes. All Snowman commands therefore got a flag named `timeit`. "Time it" will once the command finishes executing print its execuation time. While this is mostly useful for mesuaring built times all Snowman commands support it.
