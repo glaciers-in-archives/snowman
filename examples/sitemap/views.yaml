@@ -1,0 +1,11 @@
+views:
+  - output: "index.html"
+    query: "prints.rq"
+    template: "index.html"
+  - output: "prints/{{safe_id}}.html"
+    query: "prints.rq"
+    template: "prints.html"
+  - output: "sitemap.xml"
+    query: "prints.rq"
+    template: "sitemap.xml"
+    unsafe: true

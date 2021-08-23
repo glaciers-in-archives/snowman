@@ -74,27 +74,28 @@ Snowman can also use each result in a SPARQL resultset to create a file for each
 <h1>{{ .workLabel }}</h1>
 ```
 
-#### Turning templates and queries into views
+#### Connecting templates and queries with views
 
-By design, both templates and queries can be used across various views. For example, one can use the single query defined above in both of our templates. The following view will use the mentioned query and template to generate a file named `index.html` in your site's root. Views are placed in the `views` directory, name the following `index.yaml`.
+By design, both templates and queries can be used across various views. For example, one can use the single query defined above in both of our templates. The following view will use the mentioned query and template to generate a file named `index.html` in your site's root. Views are defined in a file named `views.yaml` which should be placed in your project's root folder.
 
 ```yaml
-output: "index.html"
-query: "works.rq"
-template: "index.html"
+views:
+  - output: "index.html"
+    query: "works.rq"
+    template: "index.html"
 ```
 
 While the above view takes all the results from the works query and forwards them to the template we can also generate a file from each result. We do this by wrapping the SPARQL variable we want to use in the resulting filename with double curly brackets in the `output` option. Note that the variable therefor needs to be unique.
 
-The following view should generate a file for each result and use the `qid` SPARQL variable as the filename. You can name this view `work.yaml`.
+The following view should generate a file for each result and use the `qid` SPARQL variable as the filename. You should append the following YAML to `views.yaml`
 
 ```yaml
-output: "works/{{qid}}.html"
-query: "works.rq"
-template: "work.html"
+  - output: "works/{{qid}}.html"
+    query: "works.rq"
+    template: "work.html"
 ```
 
-Now you can generate the site by running `snowman build`. Your static site should appear in the `site` directory in your project's root.
+Now you can generate the site by running `snowman build`. Your static site should appear in the `site` directory in your project's root. To run the site you can use the `snowman server` command.
 
 #### Static files
 

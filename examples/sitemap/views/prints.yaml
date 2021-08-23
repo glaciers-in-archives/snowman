@@ -1,3 +1,0 @@
-output: "prints/{{safe_id}}.html"
-query: "prints.rq"
-template: "prints.html"

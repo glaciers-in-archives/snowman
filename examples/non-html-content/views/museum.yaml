@@ -1,4 +1,0 @@
-output: "museums.json"
-query: "museums.rq"
-template: "museums.json"
-unsafe: true
