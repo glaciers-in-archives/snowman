@@ -1,10 +1,23 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
+
+var timeit bool
+
+func elapsed() func() {
+	start := time.Now()
+	return func() {
+		if timeit {
+			fmt.Println("Finished in " + time.Since(start).String())
+		}
+	}
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -16,6 +29,8 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	defer elapsed()()
+
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -23,4 +38,5 @@ func Execute() {
 
 func init() {
 	rootCmd.SilenceUsage = true
+	rootCmd.PersistentFlags().BoolVarP(&timeit, "timeit", "t", false, "")
 }
