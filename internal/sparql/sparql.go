@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/config"
@@ -125,26 +124,4 @@ func (r *Repository) Query(queryLocation string, queryOverride ...string) ([]map
 	}
 
 	return parsedResponse.Solutions(), nil
-}
-
-func (r *Repository) InlineQuery(queryLocation string, arguments ...string) ([]map[string]rdf.Term, error) {
-	if !strings.HasSuffix(queryLocation, ".rq") {
-		queryLocation += ".rq"
-	}
-
-	query, exists := r.QueryIndex[queryLocation]
-	if !exists {
-		return nil, errors.New("The given query could not be found. " + queryLocation)
-	}
-
-	switch len(arguments) {
-	case 0:
-		return r.Query(queryLocation)
-	case 1:
-		fmt.Println("Issuing parameterized query " + queryLocation + " with argument \"" + arguments[0] + "\".")
-		sparqlString := strings.Replace(query, "{{.}}", arguments[0], 1)
-		return r.Query(queryLocation, sparqlString)
-	}
-
-	return nil, errors.New("Invalid arguments.")
 }

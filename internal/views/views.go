@@ -11,8 +11,6 @@ import (
 	"strconv"
 	text_template "text/template"
 
-	"github.com/glaciers-in-archives/snowman/internal/config"
-	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/glaciers-in-archives/snowman/internal/template/function"
 	"gopkg.in/yaml.v2"
 )
@@ -97,20 +95,12 @@ func DiscoverViews(templates []string) ([]View, error) {
 		// ParseFiles requries the base template as the last item therfore we add it again
 		templates = append(templates, templatePath)
 
-		// these functions are dependent on repo and site instances so we define them here for now
-		var dynamicFuncs = map[string]interface{}{
-			"query":  sparql.CurrentRepository.InlineQuery,
-			"config": config.CurrentSiteConfig.Get,
-		}
-
 		var TextTemplateA *text_template.Template
 		var HTMLTemplateA *html_template.Template
 		if viewConf.Unsafe {
-			funcMap := text_template.FuncMap(dynamicFuncs)
-			TextTemplateA, err = text_template.New("").Funcs(funcMap).Funcs(function.GetTextStringFuncs()).Funcs(function.GetTextMathFuncs()).Funcs(function.GetTextUtilsFuncs()).ParseFiles(templates...)
+			TextTemplateA, err = text_template.New("").Funcs(function.GetTextQueryFuncs()).Funcs(function.GetTextStringFuncs()).Funcs(function.GetTextMathFuncs()).Funcs(function.GetTextUtilsFuncs()).ParseFiles(templates...)
 		} else {
-			funcMap := html_template.FuncMap(dynamicFuncs)
-			HTMLTemplateA, err = html_template.New("").Funcs(funcMap).Funcs(function.GetHTMLStringFuncs()).Funcs(function.GetHTMLMathFuncs()).Funcs(function.GetHTMLUtilsFuncs()).ParseFiles(templates...)
+			HTMLTemplateA, err = html_template.New("").Funcs(function.GetHTMLQueryFuncs()).Funcs(function.GetHTMLStringFuncs()).Funcs(function.GetHTMLMathFuncs()).Funcs(function.GetHTMLUtilsFuncs()).ParseFiles(templates...)
 		}
 
 		if err != nil {

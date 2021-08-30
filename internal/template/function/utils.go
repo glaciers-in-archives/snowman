@@ -7,6 +7,7 @@ import (
 	text_template "text/template"
 	"time"
 
+	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/knakk/rdf"
 )
 
@@ -18,6 +19,9 @@ var utilFuncs = map[string]interface{}{
 	},
 	"uri": func(value string) (rdf.IRI, error) {
 		return rdf.NewIRI(value)
+	},
+	"config": func() config.SiteConfig {
+		return config.CurrentSiteConfig
 	},
 }
 

@@ -33,10 +33,6 @@ func (c *SiteConfig) Parse(data []byte) error {
 	return nil
 }
 
-func (c *SiteConfig) Get() SiteConfig {
-	return *c
-}
-
 func LoadConfig() error {
 	if _, err := os.Stat("snowman.yaml"); err != nil {
 		return utils.ErrorExit("Unable to locate snowman.yaml in the current working directory.", err)
