@@ -13,7 +13,7 @@ import (
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
-	"github.com/glaciers-in-archives/snowman/internal/templates/functions"
+	"github.com/glaciers-in-archives/snowman/internal/template/function"
 	"gopkg.in/yaml.v2"
 )
 
@@ -107,10 +107,10 @@ func DiscoverViews(templates []string) ([]View, error) {
 		var HTMLTemplateA *html_template.Template
 		if viewConf.Unsafe {
 			funcMap := text_template.FuncMap(dynamicFuncs)
-			TextTemplateA, err = text_template.New("").Funcs(funcMap).Funcs(functions.GetTextStringFuncs()).Funcs(functions.GetTextMathFuncs()).Funcs(functions.GetTextUtilsFuncs()).ParseFiles(templates...)
+			TextTemplateA, err = text_template.New("").Funcs(funcMap).Funcs(function.GetTextStringFuncs()).Funcs(function.GetTextMathFuncs()).Funcs(function.GetTextUtilsFuncs()).ParseFiles(templates...)
 		} else {
 			funcMap := html_template.FuncMap(dynamicFuncs)
-			HTMLTemplateA, err = html_template.New("").Funcs(funcMap).Funcs(functions.GetHTMLStringFuncs()).Funcs(functions.GetHTMLMathFuncs()).Funcs(functions.GetHTMLUtilsFuncs()).ParseFiles(templates...)
+			HTMLTemplateA, err = html_template.New("").Funcs(funcMap).Funcs(function.GetHTMLStringFuncs()).Funcs(function.GetHTMLMathFuncs()).Funcs(function.GetHTMLUtilsFuncs()).ParseFiles(templates...)
 		}
 
 		if err != nil {

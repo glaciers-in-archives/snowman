@@ -1,4 +1,4 @@
-package functions
+package function
 
 import (
 	html_template "html/template"
