@@ -24,7 +24,9 @@ type Repository struct {
 	QueryIndex   map[string]string
 }
 
-func NewRepository(cacheStrategy string, queryIndex map[string]string) (*Repository, error) {
+var CurrentRepository Repository
+
+func NewRepository(cacheStrategy string, queryIndex map[string]string) error {
 	repo := Repository{
 		client:     config.CurrentSiteConfig.Client,
 		QueryIndex: queryIndex,
@@ -33,12 +35,14 @@ func NewRepository(cacheStrategy string, queryIndex map[string]string) (*Reposit
 
 	cm, err := cache.NewCacheManager(cacheStrategy)
 	if err != nil {
-		return nil, errors.New("Failed initiate cache handler. " + " Error: " + err.Error())
+		return errors.New("Failed to initiate cache handler. " + " Error: " + err.Error())
 	}
 
 	repo.CacheManager = cm
 
-	return &repo, nil
+	CurrentRepository = repo
+
+	return nil
 }
 
 func (r *Repository) QueryCall(query string) (*string, error) {

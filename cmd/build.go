@@ -91,12 +91,12 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to index query files.", err)
 		}
 
-		repo, err := sparql.NewRepository(cacheBuildOption, queries)
+		err = sparql.NewRepository(cacheBuildOption, queries)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
 
-		discoveredViews, err := views.DiscoverViews(templates, *repo)
+		discoveredViews, err := views.DiscoverViews(templates)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
@@ -120,7 +120,7 @@ var buildCmd = &cobra.Command{
 			results := make([]map[string]rdf.Term, 0)
 			if view.ViewConfig.QueryFile != "" {
 				fmt.Println("Issuing query " + view.ViewConfig.QueryFile)
-				results, err = repo.Query(view.ViewConfig.QueryFile)
+				results, err = sparql.CurrentRepository.Query(view.ViewConfig.QueryFile)
 				if err != nil {
 					return utils.ErrorExit("SPARQL query failed.", err)
 				}
