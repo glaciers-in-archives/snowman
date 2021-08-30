@@ -5,19 +5,15 @@ import (
 	"fmt"
 	html_template "html/template"
 	"io/ioutil"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
-	"strings"
 	text_template "text/template"
-	"time"
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
-	"github.com/glaciers-in-archives/snowman/internal/utils"
-	"github.com/spf13/cast"
+	"github.com/glaciers-in-archives/snowman/internal/templates/functions"
 	"gopkg.in/yaml.v2"
 )
 
@@ -72,42 +68,6 @@ func (v *View) RenderPage(path string, data interface{}) error {
 func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config.SiteConfig) ([]View, error) {
 	var views []View
 
-	var functionMap = map[string]interface{}{
-		"now":     time.Now,
-		"split":   strings.Split,
-		"replace": strings.Replace,
-		"lcase":   strings.ToLower,
-		"ucase":   strings.ToUpper,
-		"tcase":   strings.Title,
-		"env":     os.Getenv,
-		"join":    utils.Join,
-
-		"safe_html": utils.StringToHTML,
-		"query":     repo.InlineQuery,
-		"config":    siteConfig.Get,
-		"uri":       utils.ToURI,
-
-		"add1": func(i interface{}) int64 { return cast.ToInt64(i) + 1 },
-		"add": func(i ...interface{}) int64 {
-			var a int64 = 0
-			for _, b := range i {
-				a += cast.ToInt64(b)
-			}
-			return a
-		},
-		"sub": func(a, b interface{}) int64 { return cast.ToInt64(a) - cast.ToInt64(b) },
-		"div": func(a, b interface{}) int64 { return cast.ToInt64(a) / cast.ToInt64(b) },
-		"mod": func(a, b interface{}) int64 { return cast.ToInt64(a) % cast.ToInt64(b) },
-		"mul": func(a interface{}, v ...interface{}) int64 {
-			val := cast.ToInt64(a)
-			for _, b := range v {
-				val = val * cast.ToInt64(b)
-			}
-			return val
-		},
-		"rand": func(min, max int) int { return rand.Intn(max-min) + min },
-	}
-
 	data, err := ioutil.ReadFile("views.yaml")
 	if err != nil {
 		return nil, errors.New("Failed to read views.yaml")
@@ -137,14 +97,20 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 		// ParseFiles requries the base template as the last item therfore we add it again
 		templates = append(templates, templatePath)
 
+		// these functions are dependent on repo and site instances so we define them here for now
+		var dynamicFuncs = map[string]interface{}{
+			"query":  repo.InlineQuery,
+			"config": siteConfig.Get,
+		}
+
 		var TextTemplateA *text_template.Template
 		var HTMLTemplateA *html_template.Template
 		if viewConf.Unsafe {
-			funcMap := text_template.FuncMap(functionMap)
-			TextTemplateA, err = text_template.New("").Funcs(funcMap).ParseFiles(templates...)
+			funcMap := text_template.FuncMap(dynamicFuncs)
+			TextTemplateA, err = text_template.New("").Funcs(funcMap).Funcs(functions.GetTextStringFuncs()).Funcs(functions.GetTextMathFuncs()).Funcs(functions.GetTextUtilsFuncs()).ParseFiles(templates...)
 		} else {
-			funcMap := html_template.FuncMap(functionMap)
-			HTMLTemplateA, err = html_template.New("").Funcs(funcMap).ParseFiles(templates...)
+			funcMap := html_template.FuncMap(dynamicFuncs)
+			HTMLTemplateA, err = html_template.New("").Funcs(funcMap).Funcs(functions.GetHTMLStringFuncs()).Funcs(functions.GetHTMLMathFuncs()).Funcs(functions.GetHTMLUtilsFuncs()).ParseFiles(templates...)
 		}
 
 		if err != nil {
