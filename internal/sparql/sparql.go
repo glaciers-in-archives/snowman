@@ -24,9 +24,9 @@ type Repository struct {
 	QueryIndex   map[string]string
 }
 
-func NewRepository(client config.ClientConfig, cacheStrategy string, queryIndex map[string]string) (*Repository, error) {
+func NewRepository(cacheStrategy string, queryIndex map[string]string) (*Repository, error) {
 	repo := Repository{
-		client:     client,
+		client:     config.CurrentSiteConfig.Client,
 		QueryIndex: queryIndex,
 	}
 	repo.httpClient = http.DefaultClient

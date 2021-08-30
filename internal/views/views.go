@@ -65,7 +65,7 @@ func (v *View) RenderPage(path string, data interface{}) error {
 	return nil
 }
 
-func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config.SiteConfig) ([]View, error) {
+func DiscoverViews(templates []string, repo sparql.Repository) ([]View, error) {
 	var views []View
 
 	data, err := ioutil.ReadFile("views.yaml")
@@ -100,7 +100,7 @@ func DiscoverViews(templates []string, repo sparql.Repository, siteConfig config
 		// these functions are dependent on repo and site instances so we define them here for now
 		var dynamicFuncs = map[string]interface{}{
 			"query":  repo.InlineQuery,
-			"config": siteConfig.Get,
+			"config": config.CurrentSiteConfig.Get,
 		}
 
 		var TextTemplateA *text_template.Template

@@ -72,18 +72,9 @@ var buildCmd = &cobra.Command{
 	Long:  `Tries to locate the Snowman configuration, views, queries, etc in the current directory. Then tries to build a Snowman site.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		if _, err := os.Stat("snowman.yaml"); err != nil {
-			return utils.ErrorExit("Unable to locate snowman.yaml in the current working directory.", err)
-		}
-
-		data, err := ioutil.ReadFile("snowman.yaml")
+		err := config.LoadConfig()
 		if err != nil {
-			return utils.ErrorExit("Failed to read snowman.yaml.", err)
-		}
-
-		var siteConfig config.SiteConfig
-		if err := siteConfig.Parse(data); err != nil {
-			return utils.ErrorExit("Failed to parse snowman.yaml.", err)
+			return err
 		}
 
 		templates, err := DiscoverTemplates()
@@ -100,12 +91,12 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to index query files.", err)
 		}
 
-		repo, err := sparql.NewRepository(siteConfig.Client, cacheBuildOption, queries)
+		repo, err := sparql.NewRepository(cacheBuildOption, queries)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
 
-		discoveredViews, err := views.DiscoverViews(templates, *repo, siteConfig)
+		discoveredViews, err := views.DiscoverViews(templates, *repo)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
