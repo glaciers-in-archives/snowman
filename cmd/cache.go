@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
@@ -75,7 +76,15 @@ var cacheCmd = &cobra.Command{
 
 			return printFileContents(dirPath + "/" + files[0].Name())
 		} else if len(args) == 2 {
-			filePath := cache.CacheLocation + cache.Hash(args[0]) + "/" + cache.Hash(args[1]) + ".json"
+
+			sparqlBytes, err := ioutil.ReadFile("queries/" + args[0])
+			if err != nil {
+				return utils.ErrorExit("Failed to remove find query file.", err)
+			}
+
+			queryString := strings.Replace(string(sparqlBytes), "{{.}}", args[1], 1)
+
+			filePath := cache.CacheLocation + cache.Hash(args[0]) + "/" + cache.Hash(queryString) + ".json"
 			if invalidateCacheOption {
 				if err := os.Remove(filePath); err != nil {
 					return utils.ErrorExit("Failed to remove the cache file.", err)
