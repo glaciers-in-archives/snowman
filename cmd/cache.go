@@ -89,6 +89,8 @@ var cacheCmd = &cobra.Command{
 				if err := os.Remove(filePath); err != nil {
 					return utils.ErrorExit("Failed to remove the cache file.", err)
 				}
+
+				return nil
 			}
 
 			return printFileContents((filePath))
