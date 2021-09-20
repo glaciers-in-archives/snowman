@@ -21,19 +21,7 @@ func CopyDir(from string, to string) error {
 				return err
 			}
 
-			original, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer original.Close()
-
-			new, err := os.Create(newPath)
-			if err != nil {
-				return err
-			}
-			defer new.Close()
-
-			_, err = io.Copy(new, original)
+			err := CopyFile(path, newPath)
 			if err != nil {
 				return err
 			}
@@ -41,4 +29,26 @@ func CopyDir(from string, to string) error {
 		return err
 	})
 	return err
+}
+
+func CopyFile(srcFile, dstFile string) error {
+	out, err := os.Create(dstFile)
+	if err != nil {
+		return err
+	}
+
+	defer out.Close()
+
+	in, err := os.Open(srcFile)
+	defer in.Close()
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
