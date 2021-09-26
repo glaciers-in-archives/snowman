@@ -13,10 +13,6 @@ import (
 
 var queryFuncs = map[string]interface{}{
 	"query": func(queryLocation string, arguments ...string) ([]map[string]rdf.Term, error) {
-		if !strings.HasSuffix(queryLocation, ".rq") {
-			queryLocation += ".rq"
-		}
-
 		query, exists := sparql.CurrentRepository.QueryIndex[queryLocation]
 		if !exists {
 			return nil, errors.New("The given query could not be found. " + queryLocation)

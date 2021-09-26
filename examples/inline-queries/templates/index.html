@@ -6,12 +6,12 @@
     <body>
         <h1>Cat Professions</h1>
 
-        {{ $count_restult := query "profession-count" }}
+        {{ $count_restult := query "profession-count.rq" }}
         <p>These cats has a total of {{ (index $count_restult 0).professionCount }} professions.</p>
 
         {{ range . }}
             <h2>{{ .professionLabel }}</h2>
-            {{ include "cats.html" (query "cats-per-profession" .profession.String) }}
+            {{ include "cats.html" (query "cats-per-profession.rq" .profession.String) }}
         {{ end }}
     </body>
 </html>
