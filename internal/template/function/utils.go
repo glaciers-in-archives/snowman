@@ -1,7 +1,6 @@
 package function
 
 import (
-	"html/template"
 	html_template "html/template"
 	"os"
 	text_template "text/template"
@@ -14,8 +13,8 @@ import (
 var utilFuncs = map[string]interface{}{
 	"now": time.Now,
 	"env": os.Getenv,
-	"safe_html": func(str string) template.HTML {
-		return template.HTML(str)
+	"safe_html": func(str string) html_template.HTML {
+		return html_template.HTML(str)
 	},
 	"uri": func(value string) (rdf.IRI, error) {
 		return rdf.NewIRI(value)

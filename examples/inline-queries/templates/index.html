@@ -11,7 +11,7 @@
 
         {{ range . }}
             <h2>{{ .professionLabel }}</h2>
-            {{ template "cats.html" query "cats-per-profession" .profession.String }}
+            {{ include "cats.html" (query "cats-per-profession" .profession.String) }}
         {{ end }}
     </body>
 </html>

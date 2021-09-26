@@ -63,7 +63,7 @@ func (v *View) RenderPage(path string, data interface{}) error {
 	return nil
 }
 
-func DiscoverViews(templates []string) ([]View, error) {
+func DiscoverViews(layouts []string) ([]View, error) {
 	var views []View
 
 	data, err := ioutil.ReadFile("views.yaml")
@@ -92,15 +92,14 @@ func DiscoverViews(templates []string) ([]View, error) {
 
 		_, file := filepath.Split(templatePath)
 
-		// ParseFiles requries the base template as the last item therfore we add it again
-		templates = append(templates, templatePath)
+		templates := append(layouts, templatePath)
 
 		var TextTemplateA *text_template.Template
 		var HTMLTemplateA *html_template.Template
 		if viewConf.Unsafe {
-			TextTemplateA, err = text_template.New("").Funcs(function.GetTextQueryFuncs()).Funcs(function.GetTextStringFuncs()).Funcs(function.GetTextMathFuncs()).Funcs(function.GetTextUtilsFuncs()).ParseFiles(templates...)
+			TextTemplateA, err = text_template.New("").Funcs(function.GetTextQueryFuncs()).Funcs(function.GetTextStringFuncs()).Funcs(function.GetTextMathFuncs()).Funcs(function.GetTextUtilsFuncs()).Funcs(function.GetTextIncludeFuncs()).ParseFiles(templates...)
 		} else {
-			HTMLTemplateA, err = html_template.New("").Funcs(function.GetHTMLQueryFuncs()).Funcs(function.GetHTMLStringFuncs()).Funcs(function.GetHTMLMathFuncs()).Funcs(function.GetHTMLUtilsFuncs()).ParseFiles(templates...)
+			HTMLTemplateA, err = html_template.New("").Funcs(function.GetHTMLQueryFuncs()).Funcs(function.GetHTMLStringFuncs()).Funcs(function.GetHTMLMathFuncs()).Funcs(function.GetHTMLUtilsFuncs()).Funcs(function.GetHTMLIncludeFuncs()).ParseFiles(templates...)
 		}
 
 		if err != nil {

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -19,9 +18,9 @@ import (
 // CLI FLAGS
 var cacheBuildOption string
 
-func DiscoverTemplates() ([]string, error) {
+func DiscoverLayouts() ([]string, error) {
 	var paths []string
-	err := filepath.Walk("templates", func(path string, info os.FileInfo, err error) error {
+	filepath.Walk("templates/layouts", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -30,9 +29,6 @@ func DiscoverTemplates() ([]string, error) {
 		}
 		return nil
 	})
-	if err != nil {
-		return nil, err
-	}
 	return paths, nil
 }
 
@@ -77,13 +73,9 @@ var buildCmd = &cobra.Command{
 			return err
 		}
 
-		templates, err := DiscoverTemplates()
+		layouts, err := DiscoverLayouts()
 		if err != nil {
 			return utils.ErrorExit("Failed to find any template files.", err)
-		}
-
-		if len(templates) == 0 {
-			return errors.New("Failed to find any template files.")
 		}
 
 		queries, err := DiscoverQueries()
@@ -96,7 +88,7 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
 
-		discoveredViews, err := views.DiscoverViews(templates)
+		discoveredViews, err := views.DiscoverViews(layouts)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}

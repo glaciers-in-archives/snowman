@@ -6,7 +6,7 @@ Copyright (c) 2020 Albin Larsson. Snowman is made available under the GNU Lesser
 
 ## Installation
 
-For the time being you will need to build Snowman from source:
+For the time being, you will need to build Snowman from source:
 
 ```bash
 git clone https://github.com/glaciers-in-archives/snowman
@@ -85,7 +85,7 @@ views:
     template: "index.html"
 ```
 
-While the above view takes all the results from the works query and forwards them to the template we can also generate a file from each result. We do this by wrapping the SPARQL variable we want to use in the resulting filename with double curly brackets in the `output` option. Note that the variable therefor needs to be unique.
+While the above view takes all the results from the works query and forwards them to the template, we can also generate a file from each result. We do this by wrapping the SPARQL variable we want to use in the resulting filename with double curly brackets in the `output` option. Note that the variable, therefore, needs to be unique.
 
 The following view should generate a file for each result and use the `qid` SPARQL variable as the filename. You should append the following YAML to `views.yaml`
 
@@ -101,10 +101,15 @@ Now you can generate the site by running `snowman build`. Your static site shoul
 
 Static files are placed in the `static` directory and will be copied to the root of your built site. For example, the file `static/css/buttons.css` would be copied to `site/css/buttons.css`.
 
-#### Layouts and child templates
+#### Child templates
 
-Child templates and layouts are just regular Go templates that use the `define`, `block`, and `template` statements. To make layouts and child templates discoverable to Snowman they should be placed anywhere under `views`. You can see both layouts and child templates in the examples provided in the examples directory.
+While child templates are regular Go templates, they are invoked with Snowman's `include` or `include_text` functions with the full path to a template rather than a Go template name.
 
+`include` will expect HTML templates while `include_text` will treat the rendered content like text and might escape it if the parent template is an HTML template.
+
+#### Layouts
+
+Layouts in Snowman are regular Go templates that are defined with `define` and `block` statements and used with the `template` statement. Layout files must, however, be placed under `templates/layouts` to be discovered by Snowman.
 #### Static files with templates
 
 If you want to use layouts and templates within a static file you need to create a view and a template for it but in the view configuration you exclude the `query` option.
@@ -125,7 +130,7 @@ Snowman exposes the [time.Now](https://golang.org/pkg/time/#Now) function in all
 {{ now.UTC.Year }}
 ```
 
-For documentation on how to format dates see [the official Go documentation](https://golang.org/pkg/time/#pkg-constants).
+For documentation on how to format dates, see [the official Go documentation](https://golang.org/pkg/time/#pkg-constants).
 
 ##### Split
 
