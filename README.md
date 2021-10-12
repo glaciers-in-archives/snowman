@@ -2,11 +2,13 @@
 
 ![go version badge](https://img.shields.io/github/go-mod/go-version/glaciers-in-archives/snowman) [![codeclimate badge](https://img.shields.io/codeclimate/maintainability/glaciers-in-archives/snowman)](https://codeclimate.com/github/glaciers-in-archives/snowman/maintainability) ![license badge](https://img.shields.io/github/license/glaciers-in-archives/snowman)
 
-Snowman is designed to allow RDF-based projects to use SPARQL in the user-facing parts of their stack, even at scale. Snowman powers projects rendering simple SKOS vocabularies as well as projects rendering entire knowledge bases.
+Snowman is designed to allow RDF-based projects to use SPARQL in the user-facing parts of their stack, even at scale. Snowman powers projects rendering simple SKOS vocabularies as well as projects rendering entire knowledge bases. Snowman's templating system comes with RDF and SPARQL tailored functions and features and takes its data from SPARQL queries. 
 
 ## Installation
 
-For the time being, you will need to build Snowman from source:
+[Download the latest release for your OS/architecture](https://github.com/glaciers-in-archives/snowman/releases).
+
+If your OS/architecture combination is not available, you will need to build Snowman from source:
 
 ```bash
 git clone https://github.com/glaciers-in-archives/snowman
@@ -14,11 +16,9 @@ cd snowman
 go build -o snowman
 ```
 
-This will generate a binary that you can place in the root of your new project.
-
 ## Usage
 
-For the time being, the easiest way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams various works. Run `snowman build` to generate the site. The `snowman server` command can then be used to serve the site with Snowman's built-in development server.
+One way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams various works. Run `snowman build` to generate the site. The `snowman server` command can then be used to serve the site with Snowman's built-in development server.
 
 ### From scratch
 
@@ -68,7 +68,7 @@ Let's start with an example demonstrating how to access data in a view template 
 </ul>
 ```
 
-Snowman can also use each result in a SPARQL resultset to create a file for each result. If a view has been configured for this only a given result will be accessible from within a template. Put the following template in `templates/work.html`.
+Snowman can also use each result in a SPARQL resultset to create a file for each result. If a view has been configured for this, only a given result will be accessible from within a template. Put the following template in `templates/work.html`.
 
 ```html
 <h1>{{ .workLabel }}</h1>
@@ -97,24 +97,25 @@ The following view should generate a file for each result and use the `qid` SPAR
 
 Now you can generate the site by running `snowman build`. Your static site should appear in the `site` directory in your project's root. To run the site you can use the `snowman server` command.
 
-#### Static files
+## Documentation
+### Static files
 
 Static files are placed in the `static` directory and will be copied to the root of your built site. For example, the file `static/css/buttons.css` would be copied to `site/css/buttons.css`.
 
-#### Child templates
+### Child templates
 
 While child templates are regular Go templates, they are invoked with Snowman's `include` or `include_text` functions with the full path to a template rather than a Go template name.
 
 `include` will expect HTML templates while `include_text` will treat the rendered content like text and might escape it if the parent template is an HTML template.
 
-#### Layouts
+### Layouts
 
 Layouts in Snowman are regular Go templates that are defined with `define` and `block` statements and used with the `template` statement. Layout files must, however, be placed under `templates/layouts` to be discovered by Snowman.
-#### Static files with templates
+### Static files with templates
 
 If you want to use layouts and templates within a static file you need to create a view and a template for it but in the view configuration you exclude the `query` option.
 
-#### Built in template functions
+### Built in template functions
 
 Note most functions do take strings and not RDF terms as arguments. You can access a string representation of an RDF term through rdfTerm.String.
 
@@ -272,7 +273,7 @@ The `add1` function increments the given integer by 1.
 
 #### Default behaviour
 
-By default, Snowman will only issue SPARQL queries when the result of a query is not found in the cache. To ignore the cache nor update it you can use the `cache` flag when running the `build` command to set a cache strategy:
+By default, Snowman will only issue SPARQL queries when the result of a query is not found in the cache. To ignore the cache nor update it, you can use the `cache` flag when running the `build` command to set a cache strategy:
 
 ```bash
 snowman build --cache never
@@ -280,7 +281,7 @@ snowman build --cache never
 
 #### Inspect cache
 
-Snowman allows you to inspect the cached data for a particular query or parameterized query using the `cache` command. The cache command takes one-two arguments, first the path of your query and optionally the argument used in a parameterized query.
+Snowman allows you to inspect the cached data for a particular query or parameterized query using the `cache` command. The cache command takes one to two arguments, first the path of your query and optionally the argument used in a parameterized query.
 
 ```bash
 snowman cache list-of-icecream.rq
@@ -300,7 +301,7 @@ snowman cache icecream.rq "your parameter" --invalidate
 
 ### Timing your builds
 
-Sometimes when you work on large sites it can be useful to time your builds to mesuare the impcat of various changes. All Snowman commands therefore got a flag named `timeit`. "Time it" will once the command finishes executing print its execuation time. While this is mostly useful for mesuaring built times all Snowman commands support it.
+Sometimes when you work on large sites, it can be useful to time your builds to measure the impact of various changes. All Snowman commands, therefore, got a flag named `timeit`. The `timeit` flag will once the command finishes executing print its execution time. While this is mostly useful for measuring built times all Snowman commands support it.
 
 ## License
 
