@@ -108,6 +108,7 @@ var buildCmd = &cobra.Command{
 			fmt.Println("Finished copying static files.")
 		}
 
+		var renderedPaths = make(map[string]bool)
 		for _, view := range discoveredViews {
 			results := make([]map[string]rdf.Term, 0)
 			if view.ViewConfig.QueryFile != "" {
@@ -121,14 +122,25 @@ var buildCmd = &cobra.Command{
 			if view.MultipageVariableHook != nil {
 				for _, row := range results {
 					outputPath := "site/" + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", row[*view.MultipageVariableHook].String(), 1)
+
+					if renderedPaths[outputPath] {
+						fmt.Println("Warning: Writing to " + outputPath + " for the second time.")
+					}
+
 					if err := view.RenderPage(outputPath, row); err != nil {
 						return utils.ErrorExit("Failed to render page at "+outputPath, err)
 					}
+					renderedPaths[outputPath] = true
 				}
 			} else {
+				if renderedPaths["site/"+view.ViewConfig.Output] {
+					fmt.Println("Warning: Writing to " + "site/" + view.ViewConfig.Output + " for the second time.")
+				}
+
 				if err := view.RenderPage("site/"+view.ViewConfig.Output, results); err != nil {
 					return utils.ErrorExit("Failed to render page at "+"site/"+view.ViewConfig.Output, err)
 				}
+				renderedPaths["site/"+view.ViewConfig.Output] = true
 			}
 
 		}
