@@ -268,6 +268,13 @@ The `add1` function increments the given integer by 1.
 ```
 {{ add1 $your_intreger }}
 ```
+##### Type
+
+The `type` function returns the given variable's type as a string.
+
+```
+{{ type $uri_html_string_or_anything_else }}
+```
 
 ### Working with cache
 

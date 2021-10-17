@@ -1,6 +1,7 @@
 package function
 
 import (
+	"fmt"
 	html_template "html/template"
 	"os"
 	text_template "text/template"
@@ -21,6 +22,9 @@ var utilFuncs = map[string]interface{}{
 	},
 	"config": func() config.SiteConfig {
 		return config.CurrentSiteConfig
+	},
+	"type": func(variable interface{}) string {
+		return fmt.Sprintf("%T", variable)
 	},
 }
 
