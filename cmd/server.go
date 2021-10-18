@@ -34,7 +34,10 @@ var serverCmd = &cobra.Command{
 		fs := http.FileServer(http.Dir("site/"))
 		address := serverInterface + ":" + strconv.Itoa(port)
 		fmt.Println("Serving site at http://" + address + ". Hold ctrl+c to exit.")
-		http.ListenAndServe(address, loggingHandler(fs))
+		if err := http.ListenAndServe(address, loggingHandler(fs)); err != nil {
+			// utils.ErrorExit() wont work here has
+			log.Println(err) // #TODO shutdown gracefully
+		}
 		// #TODO shutdown gracefully
 
 		return nil
