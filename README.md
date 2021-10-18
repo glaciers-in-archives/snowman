@@ -314,6 +314,16 @@ snowman cache list-of-icecream.rq --invalidate
 snowman cache icecream.rq "your parameter" --invalidate
 ```
 
+### Using the built-in server
+
+Snowman comes with a built-in development server exposed through the `server` command. The `server` command has two optional arguments `port` and `address` which one can use to bind Snowman to specified IP addresses and ports.
+
+```bash
+snowman server
+
+snowman server --port 4000 --address 0.0.0.0
+```
+
 ### Timing your builds
 
 Sometimes when you work on large sites, it can be useful to time your builds to measure the impact of various changes. All Snowman commands, therefore, got a flag named `timeit`. The `timeit` flag will once the command finishes executing print its execution time. While this is mostly useful for measuring built times all Snowman commands support it.
