@@ -97,9 +97,9 @@ func DiscoverViews(layouts []string) ([]View, error) {
 		var TextTemplateA *text_template.Template
 		var HTMLTemplateA *html_template.Template
 		if viewConf.Unsafe {
-			TextTemplateA, err = text_template.New("").Funcs(function.GetTextQueryFuncs()).Funcs(function.GetTextStringFuncs()).Funcs(function.GetTextMathFuncs()).Funcs(function.GetTextUtilsFuncs()).Funcs(function.GetTextIncludeFuncs()).ParseFiles(templates...)
+			TextTemplateA, err = text_template.New("").Funcs(function.GetTextQueryFuncs()).Funcs(function.GetTextStringFuncs()).Funcs(function.GetTextMathFuncs()).Funcs(function.GetTextUtilsFuncs()).Funcs(function.GetTextIncludeFuncs()).Funcs(function.GetTextJSONFuncs()).ParseFiles(templates...)
 		} else {
-			HTMLTemplateA, err = html_template.New("").Funcs(function.GetHTMLQueryFuncs()).Funcs(function.GetHTMLStringFuncs()).Funcs(function.GetHTMLMathFuncs()).Funcs(function.GetHTMLUtilsFuncs()).Funcs(function.GetHTMLIncludeFuncs()).ParseFiles(templates...)
+			HTMLTemplateA, err = html_template.New("").Funcs(function.GetHTMLQueryFuncs()).Funcs(function.GetHTMLStringFuncs()).Funcs(function.GetHTMLMathFuncs()).Funcs(function.GetHTMLUtilsFuncs()).Funcs(function.GetHTMLIncludeFuncs()).Funcs(function.GetHTMLJSONFuncs()).ParseFiles(templates...)
 		}
 
 		if err != nil {

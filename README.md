@@ -276,6 +276,14 @@ The `type` function returns the given variable's type as a string.
 {{ type $uri_html_string_or_anything_else }}
 ```
 
+##### To JSON
+
+The `to_json` converts a given argument to a JSON-formatted string.
+
+```
+{{ to_json $your_variable }}
+```
+
 ### Working with cache
 
 #### Default behaviour
