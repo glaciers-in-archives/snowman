@@ -21,7 +21,7 @@ func Hash(value string) string {
 type CacheManager struct {
 	CacheStrategy          string // "available", "never"
 	StoredCacheHashes      map[string]bool
-	CacheHashesUsedInBuild map[string]bool
+	CacheHashesUsedInBuild []string
 }
 
 func NewCacheManager(strategy string) (*CacheManager, error) {
@@ -29,7 +29,6 @@ func NewCacheManager(strategy string) (*CacheManager, error) {
 		CacheStrategy: strategy,
 	}
 	cm.StoredCacheHashes = make(map[string]bool)
-	cm.CacheHashesUsedInBuild = make(map[string]bool)
 
 	if err := os.MkdirAll(CacheLocation, 0770); err != nil {
 		return nil, err
@@ -67,7 +66,7 @@ func (cm *CacheManager) readStoredHashes() error {
 
 func (cm *CacheManager) GetCache(location string, query string) (*os.File, error) {
 	fullQueryHash := Hash(location) + "/" + Hash(query)
-	cm.CacheHashesUsedInBuild[fullQueryHash] = true
+	cm.CacheHashesUsedInBuild = append(cm.CacheHashesUsedInBuild, fullQueryHash)
 
 	if !cm.StoredCacheHashes[fullQueryHash] || cm.CacheStrategy == "never" {
 		return nil, nil

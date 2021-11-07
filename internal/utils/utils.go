@@ -36,7 +36,7 @@ func CopyFile(srcFile, dstFile string) error {
 	return nil
 }
 
-func WriteLineSeperatedFile(data map[string]bool, path string) error {
+func WriteLineSeperatedFile(data []string, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err
@@ -44,13 +44,10 @@ func WriteLineSeperatedFile(data map[string]bool, path string) error {
 
 	writer := bufio.NewWriter(file)
 
-	// maps got no order...
-	first := true
-	for value := range data {
+	for i, value := range data {
 		var line string = "\n" + value
-		if first {
+		if i == 0 {
 			line = value
-			first = false
 		}
 		_, err := writer.WriteString(line)
 		if err != nil {

@@ -25,7 +25,7 @@ func ClearStatic() error {
 }
 
 func CopyIn() error {
-	writtenFiles := make(map[string]bool)
+	var writtenFiles []string
 	// This does not include checking if the "from" directory exists
 	err := filepath.Walk("static", func(path string, info os.FileInfo, err error) error {
 		if info.Mode().IsRegular() {
@@ -38,7 +38,7 @@ func CopyIn() error {
 			if err != nil {
 				return err
 			}
-			writtenFiles[newPath] = true
+			writtenFiles = append(writtenFiles, newPath)
 		}
 		return err
 	})
