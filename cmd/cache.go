@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
@@ -12,6 +13,7 @@ import (
 )
 
 var invalidateCacheOption bool
+var unusedOption bool
 
 func printFileContents(path string) error {
 	fmt.Println(path)
@@ -43,26 +45,45 @@ var cacheCmd = &cobra.Command{
 	Long:  `This command allows you to inspect the cache for any cached query. The first argument should be the name of the SPARQL query. To inspect the cache of a parameterized query provide a second argument with its parameter value.`,
 	Args:  cobra.RangeArgs(0, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			if invalidateCacheOption {
-				err := os.RemoveAll(cache.CacheLocation)
-				if err != nil {
-					return utils.ErrorExit("Failed to remove directory.", err)
-				}
-				return nil
+		var selectedCacheItems []string
+
+		if len(args) == 0 && !unusedOption {
+			totFiles, err := utils.CountFilesRecursive(cache.CacheLocation)
+			if err != nil {
+				return utils.ErrorExit("Failed to retrive cache info.", err)
 			}
 
-			fmt.Println("No arguments or flags given.")
+			fmt.Println("There are " + fmt.Sprint(totFiles) + " cache items.")
+
+			selectedCacheItems = append(selectedCacheItems, cache.CacheLocation)
+		} else if len(args) == 0 && unusedOption {
+			usedItems, err := utils.ReadLineSeperatedFile(".snowman/last_build_queries.txt")
+			if err != nil {
+				return utils.ErrorExit("Failed to read last unused cache items: ", err)
+			}
+
+			err = filepath.Walk(cache.CacheLocation, func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+
+				pathAsCacheItem := strings.Replace(strings.Replace(path, ".json", "", 1), ".snowman/cache/", "", 1)
+				isUsed := false
+				for _, used := range usedItems {
+					if pathAsCacheItem == used || strings.HasPrefix(used, pathAsCacheItem) {
+						isUsed = true
+					}
+				}
+
+				if !isUsed {
+					selectedCacheItems = append(selectedCacheItems, path)
+				}
+				return nil
+			})
+
+			fmt.Println("Found " + fmt.Sprint(len(selectedCacheItems)) + " unused cache items.")
 		} else if len(args) == 1 {
 			dirPath := cache.CacheLocation + cache.Hash(args[0])
-
-			if invalidateCacheOption {
-				err := os.RemoveAll(dirPath)
-				if err != nil {
-					return utils.ErrorExit("Failed to remove directory.", err)
-				}
-				return nil
-			}
 
 			files, err := os.ReadDir(dirPath)
 			if err != nil {
@@ -71,10 +92,11 @@ var cacheCmd = &cobra.Command{
 
 			if len(files) > 1 {
 				fmt.Println(args[0] + " represents a parameterized query with " + fmt.Sprint(len(files)) + " cache items.")
-				return nil
+			} else {
+				printFileContents(dirPath + "/" + files[0].Name())
 			}
 
-			return printFileContents(dirPath + "/" + files[0].Name())
+			selectedCacheItems = append(selectedCacheItems, dirPath)
 		} else if len(args) == 2 {
 
 			sparqlBytes, err := ioutil.ReadFile("queries/" + args[0])
@@ -85,15 +107,18 @@ var cacheCmd = &cobra.Command{
 			queryString := strings.Replace(string(sparqlBytes), "{{.}}", args[1], 1)
 
 			filePath := cache.CacheLocation + cache.Hash(args[0]) + "/" + cache.Hash(queryString) + ".json"
-			if invalidateCacheOption {
-				if err := os.Remove(filePath); err != nil {
+			selectedCacheItems = append(selectedCacheItems, filePath)
+
+			printFileContents((filePath))
+		}
+
+		if invalidateCacheOption {
+			for _, item := range selectedCacheItems {
+				if err := os.RemoveAll(item); err != nil {
+					fmt.Println("Removing: " + item)
 					return utils.ErrorExit("Failed to remove the cache file.", err)
 				}
-
-				return nil
 			}
-
-			return printFileContents((filePath))
 		}
 
 		return nil
@@ -103,4 +128,5 @@ var cacheCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(cacheCmd)
 	cacheCmd.Flags().BoolVarP(&invalidateCacheOption, "invalidate", "i", false, "Removes/clears the specified parts of the query cache.")
+	cacheCmd.Flags().BoolVarP(&unusedOption, "unused", "u", false, "Returns cache items not used in the last build.")
 }

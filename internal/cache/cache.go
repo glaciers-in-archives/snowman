@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/glaciers-in-archives/snowman/internal/utils"
 )
 
 var CacheLocation string = ".snowman/cache/"
@@ -17,46 +19,57 @@ func Hash(value string) string {
 }
 
 type CacheManager struct {
-	CacheStrategy string // "available", "never"
-	CacheHashes   map[string]bool
+	CacheStrategy          string // "available", "never"
+	StoredCacheHashes      map[string]bool
+	CacheHashesUsedInBuild map[string]bool
 }
 
 func NewCacheManager(strategy string) (*CacheManager, error) {
 	cm := CacheManager{
 		CacheStrategy: strategy,
 	}
-	cm.CacheHashes = make(map[string]bool)
+	cm.StoredCacheHashes = make(map[string]bool)
+	cm.CacheHashesUsedInBuild = make(map[string]bool)
 
 	if err := os.MkdirAll(CacheLocation, 0770); err != nil {
 		return nil, err
 	}
 
 	if strategy != "never" {
-		// index cache hashes
-		locationHashes, err := ioutil.ReadDir(CacheLocation)
-		if err != nil {
+		if err := cm.readStoredHashes(); err != nil {
 			return nil, err
-		}
-
-		for _, locationDirInfo := range locationHashes {
-			contentDirInfo, err := ioutil.ReadDir(CacheLocation + locationDirInfo.Name())
-			if err != nil {
-				return nil, err
-			}
-			for _, contentFileInfo := range contentDirInfo {
-				fullCacheHash := locationDirInfo.Name() + "/" + strings.Replace(contentFileInfo.Name(), ".json", "", 1)
-				cm.CacheHashes[fullCacheHash] = true
-			}
 		}
 	}
 
 	return &cm, nil
 }
 
+func (cm *CacheManager) readStoredHashes() error {
+	// index cache hashes
+	locationHashes, err := ioutil.ReadDir(CacheLocation)
+	if err != nil {
+		return err
+	}
+
+	for _, locationDirInfo := range locationHashes {
+		contentDirInfo, err := ioutil.ReadDir(CacheLocation + locationDirInfo.Name())
+		if err != nil {
+			return err
+		}
+		for _, contentFileInfo := range contentDirInfo {
+			fullCacheHash := locationDirInfo.Name() + "/" + strings.Replace(contentFileInfo.Name(), ".json", "", 1)
+			cm.StoredCacheHashes[fullCacheHash] = true
+		}
+	}
+
+	return nil
+}
+
 func (cm *CacheManager) GetCache(location string, query string) (*os.File, error) {
 	fullQueryHash := Hash(location) + "/" + Hash(query)
+	cm.CacheHashesUsedInBuild[fullQueryHash] = true
 
-	if !cm.CacheHashes[fullQueryHash] || cm.CacheStrategy == "never" {
+	if !cm.StoredCacheHashes[fullQueryHash] || cm.CacheStrategy == "never" {
 		return nil, nil
 	}
 
@@ -90,7 +103,15 @@ func (cm *CacheManager) SetCache(location string, query string, content string) 
 	defer f.Close()
 	f.Sync()
 
-	cm.CacheHashes[fullQueryHash] = true
+	cm.StoredCacheHashes[fullQueryHash] = true
+
+	return nil
+}
+
+func (cm *CacheManager) Teardown() error {
+	if err := utils.WriteLineSeperatedFile(cm.CacheHashesUsedInBuild, ".snowman/last_build_queries.txt"); err != nil {
+		return err
+	}
 
 	return nil
 }

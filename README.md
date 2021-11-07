@@ -314,6 +314,12 @@ snowman cache list-of-icecream.rq --invalidate
 snowman cache icecream.rq "your parameter" --invalidate
 ```
 
+Sometimes following changes to your queries and external data, you can end up having unused cache items. You can clear these using the `--unused` selector flag.
+
+```bash
+snowman cache --unused --invalidate
+```
+
 ### Using the built-in server
 
 Snowman comes with a built-in development server exposed through the `server` command. The `server` command has two optional arguments `port` and `address` which one can use to bind Snowman to specified IP addresses and ports.

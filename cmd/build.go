@@ -145,6 +145,10 @@ var buildCmd = &cobra.Command{
 
 		}
 
+		if err := sparql.CurrentRepository.CacheManager.Teardown(); err != nil {
+			return utils.ErrorExit("Failed write used queries to cache memory.", err)
+		}
+
 		return nil
 	},
 }
