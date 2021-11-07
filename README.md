@@ -102,6 +102,8 @@ Now you can generate the site by running `snowman build`. Your static site shoul
 
 Static files are placed in the `static` directory and will be copied to the root of your built site. For example, the file `static/css/buttons.css` would be copied to `site/css/buttons.css`.
 
+If you have only made changes to static files and want to build your site, you can do so with `snowman build --static`. The `static` flag ensures that Snowman only updates static files rather than doing a full build.
+
 ### Child templates
 
 While child templates are regular Go templates, they are invoked with Snowman's `include` or `include_text` functions with the full path to a template rather than a Go template name.
@@ -111,6 +113,7 @@ While child templates are regular Go templates, they are invoked with Snowman's 
 ### Layouts
 
 Layouts in Snowman are regular Go templates that are defined with `define` and `block` statements and used with the `template` statement. Layout files must, however, be placed under `templates/layouts` to be discovered by Snowman.
+
 ### Static files with templates
 
 If you want to use layouts and templates within a static file you need to create a view and a template for it but in the view configuration you exclude the `query` option.

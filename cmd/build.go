@@ -9,6 +9,7 @@ import (
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
+	"github.com/glaciers-in-archives/snowman/internal/static"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"github.com/glaciers-in-archives/snowman/internal/views"
 	"github.com/knakk/rdf"
@@ -17,6 +18,7 @@ import (
 
 // CLI FLAGS
 var cacheBuildOption string
+var staticBuildOption bool
 
 func DiscoverLayouts() ([]string, error) {
 	var paths []string
@@ -68,6 +70,19 @@ var buildCmd = &cobra.Command{
 	Long:  `Tries to locate the Snowman configuration, views, queries, etc in the current directory. Then tries to build a Snowman site.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
+		if staticBuildOption {
+			if err := static.ClearStatic(); err != nil {
+				utils.ErrorExit("Failed to clear old static files: ", err)
+			}
+
+			if err := static.CopyIn(); err != nil {
+				utils.ErrorExit("Failed to copy new static files: ", err)
+			}
+
+			fmt.Println("Finished updating static files.")
+			return nil
+		}
+
 		err := config.LoadConfig()
 		if err != nil {
 			return err
@@ -102,7 +117,7 @@ var buildCmd = &cobra.Command{
 		if _, err := os.Stat("static"); os.IsNotExist(err) {
 			fmt.Println("Failed to locate static files. Skipping...")
 		} else {
-			if err := utils.CopyDir("static", "site"); err != nil {
+			if err := static.CopyIn(); err != nil {
 				return utils.ErrorExit("Failed to copy static files.", err)
 			}
 			fmt.Println("Finished copying static files.")
@@ -156,4 +171,5 @@ var buildCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(buildCmd)
 	buildCmd.Flags().StringVarP(&cacheBuildOption, "cache", "c", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
+	buildCmd.Flags().BoolVarP(&staticBuildOption, "static", "s", false, "When set Snowman will only build static files.")
 }
