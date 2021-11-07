@@ -114,8 +114,8 @@ var cacheCmd = &cobra.Command{
 
 		if invalidateCacheOption {
 			for _, item := range selectedCacheItems {
+				fmt.Println("Removing: " + item)
 				if err := os.RemoveAll(item); err != nil {
-					fmt.Println("Removing: " + item)
 					return utils.ErrorExit("Failed to remove the cache file.", err)
 				}
 			}
