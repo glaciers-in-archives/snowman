@@ -37,7 +37,7 @@ sparql_client:
 
 #### Defining queries
 
-SPARQL queries provide data to views, but, because a single query can be used for multiple views and even partial rendering, all your SPARQL files should be located in the `queries` directory (or child directories) of your project. Let's put this in `queries/works.rq`.
+SPARQL queries provide data to views, but, because a single query can be used for multiple views and even partial rendering, all your SPARQL files should be located in the `queries` directory (or child directories) of your project. Let's put this in `queries/works.rq`:
 
 ```sparql
 SELECT ?qid ?title ?workLabel WHERE {
@@ -57,7 +57,7 @@ SELECT ?qid ?title ?workLabel WHERE {
 
 Snowman uses [Go templates](https://golang.org/pkg/html/template/). A template can access a single SPARQL result, or an entire resultset.
 
-Let's start with an example that demonstrates how to access data in a view template intended to access an entire resultset. Note that the `index` and `range` keywords must be used to access data. Let's put the following in `templates/index.html`.
+Let's start with an example that demonstrates how to access data in a view template intended to access an entire resultset. Note that the `index` and `range` keywords must be used to access data. Let's put the following in `templates/index.html`:
 
 ```html
 <h1>Works by {{ (index . 0).title }}</h1>
@@ -78,7 +78,7 @@ Snowman can also create a file from each result in a resultset. If a view has be
 
 By design, both templates and queries can be used across various views. For example, one could use the single query defined above in both of our templates. The following view will use the specified query and template to generate a file named `index.html` in the root directory of your site.
 
-Views are defined in a file named `views.yaml`, which should be in the root directory of your project.
+Views are defined in a file named `views.yaml`, which should be in the root directory of your project:
 
 ```yaml
 views:
@@ -301,7 +301,7 @@ snowman build --cache never
 
 #### Inspect cache
 
-Snowman allows you to inspect the cached data for a particular query or parameterized query using the `cache` command. The cache command takes as aguments first the path of the query and then, optionally, the argument used in a parameterized query.
+Snowman allows you to inspect the cached data for a particular query or parameterized query using the `cache` command. The cache command takes as aguments first the path of the query and then, optionally, the argument used in a parameterized query:
 
 ```bash
 snowman cache list-of-icecream.rq
@@ -311,7 +311,7 @@ snowman cache icecream.rq "your parameter"
 
 #### Invalidate cache
 
-Especially when you build very large sites or use expensive SPARQL queries it can be useful to invalidate specific portions of the cache. You can do so using the `cache` command. Specify the query or parameterized query for which you want to invalidate the cache, and add the flag `invalidate`.
+Especially when you build very large sites or use expensive SPARQL queries it can be useful to invalidate specific portions of the cache. You can do so using the `cache` command. Specify the query or parameterized query for which you want to invalidate the cache, and add the flag `invalidate`:
 
 ```bash
 snowman cache list-of-icecream.rq --invalidate
@@ -319,7 +319,7 @@ snowman cache list-of-icecream.rq --invalidate
 snowman cache icecream.rq "your parameter" --invalidate
 ```
 
-Sometimes, following changes to your queries and external data, you can end up with unused cache items. You can clear these using the `--unused` selector flag.
+Sometimes, following changes to your queries and external data, you can end up with unused cache items. You can clear these using the `--unused` selector flag:
 
 ```bash
 snowman cache --unused --invalidate
@@ -327,7 +327,7 @@ snowman cache --unused --invalidate
 
 ### Using the built-in server
 
-Snowman comes with a built-in development server exposed through the `server` command. The `server` command has two optional arguments, `port` and `address`, which can be used to bind Snowman to an IP address and port.
+Snowman comes with a built-in development server exposed through the `server` command. The `server` command has two optional arguments, `port` and `address`, which can be used to bind Snowman to an IP address and port:
 
 ```bash
 snowman server
