@@ -198,8 +198,7 @@ Snowman provides a `query` function which allows for the issuing of SPARQL queri
 Snowman exposes your site's configuration through the function `config`. The following example illustrates how to retrieve your SPARQL endpoint:
 
 ```
-{{ $yourVariable := config }}
-{{ $yourVariable.Endpoint }}
+{{ config.Client.Endpoint }}
 ```
 
 ##### Safe HTML
