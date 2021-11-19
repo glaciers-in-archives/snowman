@@ -1,0 +1,9 @@
+SELECT * WHERE {
+  VALUES (?uri ?name) {
+    (wd:Q34 '1. Sweden')
+    (wd:Q145 '2. United Kingdom')
+    (wd:Q223 '3. Greenland')
+  }
+  
+  BIND('A config value form SPARQl' AS ?fancy_value)
+}

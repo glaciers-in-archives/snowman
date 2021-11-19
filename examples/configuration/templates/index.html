@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration Examples</title>
+    <style>
+        body {
+            margin: 0;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: Arial, Helvetica, sans-serif;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Configuration Examples</h1>
+
+    <h2>snowman.yaml</h2>
+
+    <p>Here is a value/key pair from your <code>snowman.yaml</code>file.</p>
+    <code>a_config_key: {{ config.Metadata.a_config_key }}</code>
+
+    <h2>SPARQL</h2>
+
+    <p>If it suits your case you can define configuration using SPARQL's <code>BIND</code> and <code>VALUES</code> keywords! The following value and list comes from a query file.</p>
+    <code>
+        {{ index (index . 0).fancy_value }}
+
+        {{ range . }}
+            {{ .uri }} | {{ .name }}
+        {{ end }}
+    </code>
+
+    <h2>Environment variables</h2>
+
+    <p>You can also set configuration values using environment variables! In case you have <code>PATH</code> set it will render below.</p>
+    <code>{{ env "PATH" }}</code>
+</body>
+</html>
