@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canada's Official Names</title>
+    <style>
+        body {
+            margin: 0;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: Arial, Helvetica, sans-serif;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Canada's Official Names</h1>
+
+    <p>Accessing a RDF literal's language in Snowman is easy: <code>{{`{{ .name.Lang }}`}}</code>. Remember to use the HTML <code>lang</code> attribute when needed.</p>
+
+    <ul>
+        {{ range . }}
+        <li><span lang="{{ .name.Lang }}">{{ .name }}</span>({{ .name.Lang }})</li>
+        {{ end }}
+    </ul>
+</body>
+</html>
