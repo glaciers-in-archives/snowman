@@ -340,4 +340,4 @@ Sometimes when you work on large sites, it can be useful to time your build proc
 
 ## License
 
-Copyright (c) 2020 Albin Larsson. Snowman is made available under the GNU Lesser General Public License.
+Copyright (c) 2020- Albin Larsson & contributors. Snowman is made available under the GNU Lesser General Public License.
