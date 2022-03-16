@@ -65,6 +65,12 @@ var newCmd = &cobra.Command{
 			return nil
 		})
 
+		fmt.Println("Your project has been created in:", directory)
+		fmt.Println("You can now run:")
+		fmt.Println("cd", directory)
+		fmt.Println("snowman build")
+		fmt.Println("snowman server")
+
 		return nil
 	},
 }
