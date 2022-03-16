@@ -22,7 +22,7 @@ var content embed.FS
 var newCmd = &cobra.Command{
 	Use:   "new",
 	Short: "Generates a new project.",
-	Long:  ``,
+	Long:  `The new command can generate a basic Snowman project and all requried files and folders.`,
 	Args:  cobra.RangeArgs(0, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
@@ -71,5 +71,5 @@ var newCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(newCmd)
-	newCmd.Flags().StringVarP(&directory, "directory", "d", "my-new-project", "Address to which the server will bind.")
+	newCmd.Flags().StringVarP(&directory, "directory", "d", "my-new-project", "Directory in which to create the project.")
 }

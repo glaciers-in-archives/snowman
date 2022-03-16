@@ -22,6 +22,8 @@ One way to get started is by copying the Wikidata example and modifying it for y
 
 ### From scratch
 
+**As of Snowman 0.3.0 you can scaffold a new project with `snowman new --directory="project-name"`.**
+
 This is a tutorial. You can at anytime run `snowman --help` for a full list of options.
 
 #### Defining target endpoint
