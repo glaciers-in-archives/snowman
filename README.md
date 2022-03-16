@@ -297,6 +297,15 @@ The `version` function returns the Snowman version used to build the page.
 ```
 {{ version }}
 ```
+
+##### Trim
+
+The `trim` function trims leading and trailing white space from a given string.
+
+```
+{{ trim $your_variable }}
+```
+
 ### Working with cache
 
 #### Default behaviour

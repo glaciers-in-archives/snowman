@@ -17,6 +17,7 @@ var stringFuncs = map[string]interface{}{
 	"join":       join,
 	"has_prefix": has_prefix,
 	"has_suffix": has_suffix,
+	"trim":       trim,
 }
 
 func split(str interface{}, sep interface{}) []string {
@@ -49,6 +50,10 @@ func has_suffix(str interface{}, suffix interface{}) bool {
 
 func join(sep interface{}, strs ...interface{}) string {
 	return strings.Join(cast.ToStringSlice(strs), cast.ToString(sep))
+}
+
+func trim(str interface{}) string {
+	return strings.TrimSpace(cast.ToString(str))
 }
 
 func GetHTMLStringFuncs() html_template.FuncMap {
