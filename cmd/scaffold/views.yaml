@@ -1,0 +1,6 @@
+views:
+  - output: "index.html"
+    query: "index.rq"
+    template: "index.html"
+  - output: "static/index.html"
+    template: "static.html"

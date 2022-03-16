@@ -1,0 +1,35 @@
+{{ template "base" . }}
+
+{{ define "title" }}Welcome to Snowman!{{ end }}
+
+{{ define "content" }}
+
+<h1>Welcome to Snowman ☃️</h1>
+
+<p>You just generated your first webpage with Snowman. Your endpoint is set to <code>{{ config.Client.Endpoint }}</code>, you can change it in <code>snowman.yaml</code>.</p>
+
+<h2>Getting started 🔧</h2>
+
+<ul>
+    <li>📕 <a target="_blank" href="https://github.com/glaciers-in-archives/snowman#built-in-template-functions">Snowman template function reference</a></li>
+    <li>🔩 <a target="_blank" href="https://learn.hashicorp.com/tutorials/nomad/go-template-syntax">Learn Go template syntax</a></li>
+    <li>🧺 <a target="_blank" href="https://github.com/glaciers-in-archives/snowman/tree/main/examples">Snowman examples</a></li>
+</ul>
+
+<h2>Here are some triples 💾</h2>
+
+<table>
+    <tr>
+        <th>?s</th>
+        <th>?p</th>
+        <th>?o</th>
+    </tr>
+    {{ range . }}
+    <tr>
+        <td>{{ .s }}</td>
+        <td>{{ .p }}</td>
+        <td>{{ .o }}</td>
+    </tr>
+    {{ end }}
+</table>
+{{ end }}

@@ -1,0 +1,44 @@
+html {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+    font-size: 18px/1.6;
+    line-height: 1.5rem;
+}
+
+body {
+    color: #222;
+    max-width: 800px;
+    margin: auto;
+}
+
+code {
+    background: #eee;
+    border-radius: 3px;
+    white-space: pre;
+    padding: 0px 3px;
+    font-size: 0.833rem;
+}
+
+h1 {
+    font-size: 2.488em;
+}
+
+h2 {
+    font-size: 2em;
+}
+
+h1, h2 {
+    font-weight: normal;
+    line-height: 3rem;
+}
+
+p, h1, h2 {
+    margin: 1.5rem 0 0;
+}
+
+a {
+    color: #00e;
+}
+
+a:visited {
+    color: #60b;
+}
