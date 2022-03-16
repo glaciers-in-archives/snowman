@@ -9,12 +9,14 @@ import (
 )
 
 var stringFuncs = map[string]interface{}{
-	"split":   split,
-	"replace": replace,
-	"lcase":   lcase,
-	"ucase":   ucase,
-	"tcase":   tcase,
-	"join":    join,
+	"split":      split,
+	"replace":    replace,
+	"lcase":      lcase,
+	"ucase":      ucase,
+	"tcase":      tcase,
+	"join":       join,
+	"has_prefix": has_prefix,
+	"has_suffix": has_suffix,
 }
 
 func split(str interface{}, sep interface{}) []string {
@@ -35,6 +37,14 @@ func ucase(str interface{}) string {
 
 func tcase(str interface{}) string {
 	return strings.Title(cast.ToString(str))
+}
+
+func has_prefix(str interface{}, prefix interface{}) bool {
+	return strings.HasPrefix(cast.ToString(str), cast.ToString(prefix))
+}
+
+func has_suffix(str interface{}, suffix interface{}) bool {
+	return strings.HasSuffix(cast.ToString(str), cast.ToString(suffix))
 }
 
 func join(sep interface{}, strs ...interface{}) string {
