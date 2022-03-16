@@ -1,6 +1,6 @@
 module github.com/glaciers-in-archives/snowman
 
-go 1.17
+go 1.18
 
 require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
