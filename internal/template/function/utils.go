@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
+	"github.com/glaciers-in-archives/snowman/internal/version"
 	"github.com/knakk/rdf"
 	"github.com/spf13/cast"
 )
@@ -23,6 +24,9 @@ var utilFuncs = map[string]interface{}{
 	},
 	"config": func() config.SiteConfig {
 		return config.CurrentSiteConfig
+	},
+	"version": func() string {
+		return version.CurrentVersion.String()
 	},
 	"type": func(variable interface{}) string {
 		return fmt.Sprintf("%T", variable)

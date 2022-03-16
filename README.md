@@ -284,12 +284,19 @@ The `type` function returns the given variable's type as a string.
 
 ##### To JSON
 
-The `to_json` converts a given argument to a JSON-formatted string.
+The `to_json` function converts a given argument to a JSON-formatted string.
 
 ```
 {{ to_json $your_variable }}
 ```
 
+##### Version
+
+The `version` function returns the Snowman version used to build the page.
+
+```
+{{ version }}
+```
 ### Working with cache
 
 #### Default behaviour
