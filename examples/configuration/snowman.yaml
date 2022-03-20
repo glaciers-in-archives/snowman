@@ -1,6 +1,6 @@
 sparql_client:
   endpoint: "https://query.wikidata.org/sparql"
   http_headers:
-    User-Agent: "Snowman build example. https://github.com/glaciers-in-archives/snowman"
+    User-Agent: "example Snowman (https://github.com/glaciers-in-archives/snowman)"
 metadata:
   a_config_key: "a config value"
