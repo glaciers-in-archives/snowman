@@ -136,7 +136,8 @@ var buildCmd = &cobra.Command{
 
 			if view.MultipageVariableHook != nil {
 				for _, row := range results {
-					outputPath := "site/" + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", row[*view.MultipageVariableHook].String(), 1)
+					safePathSection := utils.SanitizePathSection(row[*view.MultipageVariableHook].String())
+					outputPath := "site/" + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", safePathSection, 1)
 
 					if renderedPaths[outputPath] {
 						fmt.Println("Warning: Writing to " + outputPath + " for the second time.")

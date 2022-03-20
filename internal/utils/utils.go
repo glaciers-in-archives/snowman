@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -96,4 +97,10 @@ func CountFilesRecursive(dir string) (int, error) {
 	}
 
 	return count, nil
+}
+
+var illegalPath = regexp.MustCompile(`[\~\.\/\:\*\?\"\<\>\|]`)
+
+func SanitizePathSection(path string) string {
+	return illegalPath.ReplaceAllString(path, "_")
 }
