@@ -1,7 +1,7 @@
 sparql_client:
   endpoint: "https://query.wikidata.org/sparql"
   http_headers: 
-    User-Agent: "Snowman build example. https://github.com/glaciers-in-archives/snowman"
+    User-Agent: "example Snowman (https://github.com/glaciers-in-archives/snowman)"
 metadata:
   # whatever data you might need as long as it's valid YAML
   about: "Custom data for your site."
