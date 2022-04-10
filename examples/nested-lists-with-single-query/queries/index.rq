@@ -1,0 +1,20 @@
+# title: Awards won by Norwegian orienteers
+SELECT ?qid ?orienteerLabel ?article (GROUP_CONCAT(?awardLabel; separator="|") AS ?awards) WHERE {
+  ?orienteer wdt:P641 wd:Q29358 ;
+             wdt:P31 wd:Q5 ;
+             wdt:P166 ?award ;
+             wdt:P27 wd:Q20 .
+  
+  OPTIONAL {
+    ?article schema:about ?orienteer ;
+             schema:isPartOf <https://en.wikipedia.org/> .
+  }
+  
+  BIND(REPLACE(STR(?orienteer), "http://www.wikidata.org/entity/", "") AS ?qid)
+  
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" .
+    ?award rdfs:label ?awardLabel .
+    ?orienteer rdfs:label ?orienteerLabel .
+  }
+} GROUP BY ?qid ?orienteerLabel ?article

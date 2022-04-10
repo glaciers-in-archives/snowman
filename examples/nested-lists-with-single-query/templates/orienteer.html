@@ -1,0 +1,16 @@
+{{ template "base" . }}
+
+{{ define "title" }}{{ .orienteerLabel }}{{ end }}
+
+{{ define "content" }}
+    <h1>{{ .orienteerLabel }}</h1>
+    {{- if .article -}}
+    <a href="{{ .article }}">Wikipedia</a>
+    {{- end -}}
+    <ul>
+    <h2>Awards won</h2>
+    {{ range split .awards "|" }}
+        <li>{{ . }}</li>
+    {{ end }}
+    </ul>
+{{ end }}

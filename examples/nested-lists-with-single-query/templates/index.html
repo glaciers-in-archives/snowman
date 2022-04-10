@@ -1,0 +1,12 @@
+{{ template "base" . }}
+
+{{ define "title" }}Awards won by Norwegian orienteers{{ end }}
+
+{{ define "content" }}
+    <h1>Awards won by Norwegian orienteers</h1>
+    <ul>
+        {{ range . }}
+        <li><a href="orienteers/{{ (index . "qid") }}.html">{{ .orienteerLabel }} ({{ len (split .awards "|") }})</a></li>
+        {{ end }}
+    </ul>
+{{ end }}
