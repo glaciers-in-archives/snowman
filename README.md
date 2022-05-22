@@ -26,7 +26,7 @@ One way to get started is by copying the Wikidata example and modifying it for y
 
 This is a tutorial. You can at anytime run `snowman --help` for a full list of options.
 
-#### Defining target endpoint
+#### Setting the target endpoint
 
 `snowman.yaml` should be located in the root directory of your project. It defines the URL of your SPARQL endpoint as well as optional HTTP headers and custom metadata.
 
@@ -34,7 +34,7 @@ This is a tutorial. You can at anytime run `snowman --help` for a full list of o
 sparql_client:
   endpoint: "https://query.wikidata.org/sparql"
   http_headers: 
-    User-Agent: "Snowman build example. https://github.com/glaciers-in-archives/snowman"
+    User-Agent: "project-tutorial Snowman (https://github.com/glaciers-in-archives/snowman)"
 ```
 
 #### Defining queries
