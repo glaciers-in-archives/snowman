@@ -272,7 +272,7 @@ Given two values, the `rand` function returns a random integer between them.
 The `add1` function increments the given integer by 1.
 
 ```
-{{ add1 $your_intreger }}
+{{ add1 $your_integer }}
 ```
 ##### Type
 
