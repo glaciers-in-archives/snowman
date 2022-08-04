@@ -63,6 +63,24 @@ func (v *View) RenderPage(path string, data interface{}) error {
 	return nil
 }
 
+func GetHTMLViewFuncs(v viewConfig) html_template.FuncMap {
+	var viewFuncs = map[string]interface{}{
+		"current_view": func() viewConfig {
+			return v;
+		},
+	}
+	return html_template.FuncMap(viewFuncs)
+}
+
+func GetTextViewFuncs(v viewConfig) text_template.FuncMap {
+	var viewFuncs = map[string]interface{}{
+		"current_view": func() viewConfig {
+			return v;
+		},
+	}
+	return text_template.FuncMap(viewFuncs)
+}
+
 func DiscoverViews(layouts []string) ([]View, error) {
 	var views []View
 
@@ -97,9 +115,9 @@ func DiscoverViews(layouts []string) ([]View, error) {
 		var TextTemplateA *text_template.Template
 		var HTMLTemplateA *html_template.Template
 		if viewConf.Unsafe {
-			TextTemplateA, err = text_template.New("").Funcs(function.GetTextQueryFuncs()).Funcs(function.GetTextStringFuncs()).Funcs(function.GetTextMathFuncs()).Funcs(function.GetTextUtilsFuncs()).Funcs(function.GetTextIncludeFuncs()).Funcs(function.GetTextJSONFuncs()).ParseFiles(templates...)
+			TextTemplateA, err = text_template.New("").Funcs(GetTextViewFuncs(viewConf)).Funcs(function.GetTextQueryFuncs()).Funcs(function.GetTextStringFuncs()).Funcs(function.GetTextMathFuncs()).Funcs(function.GetTextUtilsFuncs()).Funcs(function.GetTextIncludeFuncs()).Funcs(function.GetTextJSONFuncs()).ParseFiles(templates...)
 		} else {
-			HTMLTemplateA, err = html_template.New("").Funcs(function.GetHTMLQueryFuncs()).Funcs(function.GetHTMLStringFuncs()).Funcs(function.GetHTMLMathFuncs()).Funcs(function.GetHTMLUtilsFuncs()).Funcs(function.GetHTMLIncludeFuncs()).Funcs(function.GetHTMLJSONFuncs()).ParseFiles(templates...)
+			HTMLTemplateA, err = html_template.New("").Funcs(GetHTMLViewFuncs(viewConf)).Funcs(function.GetHTMLQueryFuncs()).Funcs(function.GetHTMLStringFuncs()).Funcs(function.GetHTMLMathFuncs()).Funcs(function.GetHTMLUtilsFuncs()).Funcs(function.GetHTMLIncludeFuncs()).Funcs(function.GetHTMLJSONFuncs()).ParseFiles(templates...)
 		}
 
 		if err != nil {
