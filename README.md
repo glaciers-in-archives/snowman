@@ -128,7 +128,7 @@ Note that most functions take strings as arguments, and not RDF terms. You can a
 
 ##### Now
 
-Snowman exposes the [time.Now](https://golang.org/pkg/time/#Now) function in all templates it can be used as follows:
+Snowman exposes the [time.Now](https://golang.org/pkg/time/#Now) function in all templates. It can be used as follows:
 
 ```
 {{ now.Format "2006-01-02" }}
@@ -248,7 +248,7 @@ The `div` function divides two given integer values.
 The `mul` function multiplies two given integer values.
 
 ```
-{{ mul 5 6 7 }}
+{{ mul 5 6 }}
 ```
 
 ##### Mod
