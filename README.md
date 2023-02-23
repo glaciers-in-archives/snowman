@@ -290,6 +290,14 @@ The `to_json` function converts a given argument to a JSON-formatted string.
 {{ to_json $your_variable }}
 ```
 
+##### From JSON
+
+The `from_json` function converts a given JSON-formatted string to a Go-interface which templates can use.
+
+```
+{{ from_json $your_json_string }}
+```
+
 ##### Version
 
 The `version` function returns the Snowman version used to build the page.
@@ -305,6 +313,16 @@ The `trim` function trims leading and trailing white space from a given string.
 ```
 {{ trim $your_variable }}
 ```
+
+##### Get Remote
+
+The `get_remote` function retrieves the contents of a remote URL and returns it as a string.
+
+```
+{{ get_remote "https://fornpunkt.se/lamning/lNJVbNa.geojson" }}
+```
+
+Combine it with `from_json` to parse remote JSON.
 
 ### Working with cache
 
