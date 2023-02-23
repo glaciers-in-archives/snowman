@@ -1,9 +1,8 @@
 package function
 
 import (
-	html_template "html/template"
+	"html/template"
 	"strings"
-	text_template "text/template"
 
 	"github.com/spf13/cast"
 )
@@ -56,10 +55,6 @@ func trim(str interface{}) string {
 	return strings.TrimSpace(cast.ToString(str))
 }
 
-func GetHTMLStringFuncs() html_template.FuncMap {
-	return html_template.FuncMap(stringFuncs)
-}
-
-func GetTextStringFuncs() text_template.FuncMap {
-	return text_template.FuncMap(stringFuncs)
+func GetStringFuncs() template.FuncMap {
+	return template.FuncMap(stringFuncs)
 }

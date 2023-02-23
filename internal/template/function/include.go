@@ -15,7 +15,7 @@ func include(templatePath string, arguments ...interface{}) (html_template.HTML,
 		return "", errors.New("Unable to find the template file " + templatePath)
 	}
 
-	tpl, err := html_template.New("").Funcs((GetHTMLIncludeFuncs())).Funcs(GetHTMLQueryFuncs()).Funcs(GetHTMLStringFuncs()).Funcs(GetHTMLMathFuncs()).Funcs(GetHTMLUtilsFuncs()).ParseFiles(templatePath)
+	tpl, err := html_template.New("").Funcs((GetIncludeFuncs())).Funcs(GetQueryFuncs()).Funcs(GetStringFuncs()).Funcs(GetMathFuncs()).Funcs(GetUtilsFuncs()).ParseFiles(templatePath)
 	if err != nil {
 		return "", err
 	}
@@ -41,7 +41,7 @@ func include_text(templatePath string, arguments ...interface{}) (string, error)
 		return "", errors.New("Unable to find the template file " + templatePath)
 	}
 
-	tpl, err := text_template.New("").Funcs((GetTextIncludeFuncs())).Funcs(GetTextQueryFuncs()).Funcs(GetTextStringFuncs()).Funcs(GetTextMathFuncs()).Funcs(GetTextUtilsFuncs()).ParseFiles(templatePath)
+	tpl, err := text_template.New("").Funcs((GetIncludeFuncs())).Funcs(GetQueryFuncs()).Funcs(GetStringFuncs()).Funcs(GetMathFuncs()).Funcs(GetUtilsFuncs()).ParseFiles(templatePath)
 	if err != nil {
 		return "", err
 	}
@@ -68,10 +68,6 @@ func init() {
 	includeFuncs["include_text"] = include_text
 }
 
-func GetHTMLIncludeFuncs() html_template.FuncMap {
+func GetIncludeFuncs() html_template.FuncMap {
 	return html_template.FuncMap(includeFuncs)
-}
-
-func GetTextIncludeFuncs() text_template.FuncMap {
-	return text_template.FuncMap(includeFuncs)
 }

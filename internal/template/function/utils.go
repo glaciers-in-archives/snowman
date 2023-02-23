@@ -2,9 +2,8 @@ package function
 
 import (
 	"fmt"
-	html_template "html/template"
+	"html/template"
 	"os"
-	text_template "text/template"
 	"time"
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
@@ -16,8 +15,8 @@ import (
 var utilFuncs = map[string]interface{}{
 	"now": time.Now,
 	"env": os.Getenv,
-	"safe_html": func(str interface{}) html_template.HTML {
-		return html_template.HTML(cast.ToString(str))
+	"safe_html": func(str interface{}) template.HTML {
+		return template.HTML(cast.ToString(str))
 	},
 	"uri": func(value string) (rdf.IRI, error) {
 		return rdf.NewIRI(value)
@@ -33,10 +32,6 @@ var utilFuncs = map[string]interface{}{
 	},
 }
 
-func GetHTMLUtilsFuncs() html_template.FuncMap {
-	return html_template.FuncMap(utilFuncs)
-}
-
-func GetTextUtilsFuncs() text_template.FuncMap {
-	return text_template.FuncMap(utilFuncs)
+func GetUtilsFuncs() template.FuncMap {
+	return template.FuncMap(utilFuncs)
 }

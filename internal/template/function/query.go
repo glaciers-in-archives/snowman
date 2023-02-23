@@ -3,9 +3,8 @@ package function
 import (
 	"errors"
 	"fmt"
-	html_template "html/template"
+	"html/template"
 	"strings"
-	text_template "text/template"
 
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/knakk/rdf"
@@ -33,10 +32,6 @@ var queryFuncs = map[string]interface{}{
 	},
 }
 
-func GetHTMLQueryFuncs() html_template.FuncMap {
-	return html_template.FuncMap(queryFuncs)
-}
-
-func GetTextQueryFuncs() text_template.FuncMap {
-	return text_template.FuncMap(queryFuncs)
+func GetQueryFuncs() template.FuncMap {
+	return template.FuncMap(queryFuncs)
 }

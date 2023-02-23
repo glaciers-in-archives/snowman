@@ -3,8 +3,6 @@ package function
 import (
 	"encoding/json"
 	"html/template"
-	html_template "html/template"
-	text_template "text/template"
 )
 
 var jsonFuncs = map[string]interface{}{
@@ -21,10 +19,6 @@ func toJSON(arg interface{}) (template.HTML, error) {
 	return template.HTML(b), nil
 }
 
-func GetHTMLJSONFuncs() html_template.FuncMap {
-	return html_template.FuncMap(jsonFuncs)
-}
-
-func GetTextJSONFuncs() text_template.FuncMap {
-	return text_template.FuncMap(jsonFuncs)
+func GetJSONFuncs() template.FuncMap {
+	return template.FuncMap(jsonFuncs)
 }
