@@ -21,14 +21,16 @@ var queryFuncs = map[string]interface{}{
 		switch len(arguments) {
 		case 0:
 			return sparql.CurrentRepository.Query(queryLocation)
-		case 1:
-			argument := cast.ToString(arguments[0])
-			fmt.Println("Issuing parameterized query " + queryLocation + " with argument \"" + argument + "\".")
-			sparqlString := strings.Replace(query, "{{.}}", argument, 1)
+		default:
+			var sparqlString string
+			for _, argument := range arguments {
+				argument := cast.ToString(argument)
+				sparqlString = strings.Replace(query, "{{.}}", argument, 1)
+			}
+			promt := fmt.Sprintf("Issuing parameterized query %v with arguments: %v.", queryLocation, arguments)
+			fmt.Println(promt)
 			return sparql.CurrentRepository.Query(queryLocation, sparqlString)
 		}
-
-		return nil, errors.New("Invalid arguments.")
 	},
 }
 
