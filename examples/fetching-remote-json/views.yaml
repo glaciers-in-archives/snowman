@@ -1,0 +1,3 @@
+views:
+  - output: "index.html"
+    template: "index.html"
