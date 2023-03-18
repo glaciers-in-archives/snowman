@@ -324,6 +324,14 @@ The `get_remote` function retrieves the contents of a remote URL and returns it 
 
 Combine it with `from_json` to parse remote JSON.
 
+##### Get Remote with Config
+
+The `get_remote_with_config` function also retrieves the contents of a remote URL and returns it as a string. However, it takes a second argument, which allows you to set custom HTTP request headers.
+
+```
+{{ get_remote "https://fornpunkt.se/lamning/lNJVbNa.geojson" $your_config }}
+```
+
 ### Working with cache
 
 #### Default behaviour
