@@ -105,6 +105,7 @@ func (r *Repository) Query(queryLocation string, queryOverride ...string) ([]map
 			return nil, err
 		}
 
+		file.Close()
 		return parsedResponse.Solutions(), nil
 	}
 
