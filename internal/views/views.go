@@ -63,22 +63,13 @@ func (v *View) RenderPage(path string, data interface{}) error {
 	return nil
 }
 
-func GetHTMLViewFuncs(v viewConfig) html_template.FuncMap {
+func getViewFuncs(currentViewConfig viewConfig) html_template.FuncMap {
 	var viewFuncs = map[string]interface{}{
 		"current_view": func() viewConfig {
-			return v;
+			return currentViewConfig
 		},
 	}
 	return html_template.FuncMap(viewFuncs)
-}
-
-func GetTextViewFuncs(v viewConfig) text_template.FuncMap {
-	var viewFuncs = map[string]interface{}{
-		"current_view": func() viewConfig {
-			return v;
-		},
-	}
-	return text_template.FuncMap(viewFuncs)
 }
 
 func DiscoverViews(layouts []string) ([]View, error) {
@@ -115,9 +106,9 @@ func DiscoverViews(layouts []string) ([]View, error) {
 		var TextTemplateA *text_template.Template
 		var HTMLTemplateA *html_template.Template
 		if viewConf.Unsafe {
-			TextTemplateA, err = text_template.New("").Funcs(GetTextViewFuncs(viewConf)).Funcs(function.GetQueryFuncs()).Funcs(function.GetStringFuncs()).Funcs(function.GetMathFuncs()).Funcs(function.GetUtilsFuncs()).Funcs(function.GetIncludeFuncs()).Funcs(function.GetJSONFuncs()).Funcs(function.GetRemoteFuncs()).ParseFiles(templates...)
+			TextTemplateA, err = text_template.New("").Funcs(getViewFuncs(viewConf)).Funcs(function.GetQueryFuncs()).Funcs(function.GetStringFuncs()).Funcs(function.GetMathFuncs()).Funcs(function.GetUtilsFuncs()).Funcs(function.GetIncludeFuncs()).Funcs(function.GetJSONFuncs()).Funcs(function.GetRemoteFuncs()).ParseFiles(templates...)
 		} else {
-			HTMLTemplateA, err = html_template.New("").Funcs(GetHTMLViewFuncs(viewConf)).Funcs(function.GetQueryFuncs()).Funcs(function.GetStringFuncs()).Funcs(function.GetMathFuncs()).Funcs(function.GetUtilsFuncs()).Funcs(function.GetIncludeFuncs()).Funcs(function.GetJSONFuncs()).Funcs(function.GetRemoteFuncs()).ParseFiles(templates...)
+			HTMLTemplateA, err = html_template.New("").Funcs(getViewFuncs(viewConf)).Funcs(function.GetQueryFuncs()).Funcs(function.GetStringFuncs()).Funcs(function.GetMathFuncs()).Funcs(function.GetUtilsFuncs()).Funcs(function.GetIncludeFuncs()).Funcs(function.GetJSONFuncs()).Funcs(function.GetRemoteFuncs()).ParseFiles(templates...)
 		}
 
 		if err != nil {
