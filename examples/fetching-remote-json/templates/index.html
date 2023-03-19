@@ -1,0 +1,30 @@
+<html lang="en">
+    <head>
+        <title>Snowman fetching and parsing remote JSON</title>
+        <meta charset="utf-8">
+        <style>
+            body {
+                margin: 0;
+                margin-left: auto;
+                margin-right: auto;
+                font-family: Arial, Helvetica, sans-serif;
+                max-width: 800px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Snowman fetching and parsing remote JSON</h1>
+        <p>First lets just use <code>get_remote</code> to fetch a JSON file as a string:</p>
+
+        <pre><code>{{ get_remote "https://fornpunkt.se/lamning/lNJVbNa.geojson" }}</code></pre>
+
+        <p>You can fetch any resource that way, but now let's use <code>from_json</code> to parse it and extract the title-property.</p>
+
+        <pre><code>{{ (from_json (get_remote "https://fornpunkt.se/lamning/lNJVbNa.geojson")).properties.title }}</code></pre>
+
+        <h2>Request headers</h2>
+
+        <p>The <code>get_remote_with_config</code> function can be used to set request headers, here demonstrating contet negotiation:</p>
+        <pre><code>{{ get_remote_with_config "https://fornpunkt.se/observationstyper" config.Metadata.my_json_fetching_request_config }}</code></pre>
+    </body>
+</html>

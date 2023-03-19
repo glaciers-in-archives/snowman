@@ -3,12 +3,11 @@ package function
 import (
 	"encoding/json"
 	"html/template"
-	html_template "html/template"
-	text_template "text/template"
 )
 
 var jsonFuncs = map[string]interface{}{
-	"to_json": toJSON,
+	"to_json":   toJSON,
+	"from_json": fromJSON,
 }
 
 func toJSON(arg interface{}) (template.HTML, error) {
@@ -21,10 +20,16 @@ func toJSON(arg interface{}) (template.HTML, error) {
 	return template.HTML(b), nil
 }
 
-func GetHTMLJSONFuncs() html_template.FuncMap {
-	return html_template.FuncMap(jsonFuncs)
+func fromJSON(jsonString string) (interface{}, error) {
+	var data interface{}
+	err := json.Unmarshal([]byte(jsonString), &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
-func GetTextJSONFuncs() text_template.FuncMap {
-	return text_template.FuncMap(jsonFuncs)
+func GetJSONFuncs() template.FuncMap {
+	return template.FuncMap(jsonFuncs)
 }

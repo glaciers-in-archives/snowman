@@ -2,7 +2,7 @@
 
 ![go version badge](https://img.shields.io/github/go-mod/go-version/glaciers-in-archives/snowman) [![codeclimate badge](https://img.shields.io/codeclimate/maintainability/glaciers-in-archives/snowman)](https://codeclimate.com/github/glaciers-in-archives/snowman/maintainability) ![license badge](https://img.shields.io/github/license/glaciers-in-archives/snowman)
 
-Snowman is designed to allow RDF-based projects to use SPARQL in the user-facing parts of their stack, even at scale. Snowman powers projects rendering simple SKOS vocabularies as well as projects rendering entire knowledge bases. Snowman's templating system comes with RDF- and SPARQL-tailored functions, and features and takes its data from SPARQL queries. 
+Snowman is designed to allow RDF-based projects to use SPARQL in the user-facing parts of their stack, even at scale. Snowman powers projects rendering simple SKOS vocabularies as well as projects rendering entire knowledge bases. Snowman's templating system comes with RDF- and SPARQL-tailored functions, and features and takes its data from SPARQL queries.
 
 ## Installation
 
@@ -24,7 +24,7 @@ One way to get started is by copying the Wikidata example and modifying it for y
 
 **As of Snowman 0.3.0 you can scaffold a new project with `snowman new --directory="project-name"`.**
 
-This is a tutorial. You can at anytime run `snowman --help` for a full list of options.
+This is a tutorial. You can at any time run `snowman --help` for a full list of options.
 
 #### Setting the target endpoint
 
@@ -106,7 +106,7 @@ Now you can generate the site by running `snowman build`. Your static site shoul
 
 Static files are placed in the `static` directory and will be copied to the root of your built site. For example, the file `static/css/buttons.css` would be copied to `site/css/buttons.css`.
 
-If you have made changes to static files only and want to re-build your site, you can do so with the `snowman build --static` command. The `static` flag ensures that Snowman updates only static files, rather than doing a full build.
+If you have made changes to static files only and want to rebuild your site, you can do so with the `snowman build --static` command. The `static` flag ensures that Snowman updates only static files, rather than doing a full build.
 
 ### Child templates
 
@@ -120,7 +120,7 @@ Layouts in Snowman are regular Go templates that are defined with `define` and `
 
 ### Static files with templates
 
-If you want to use layouts and templates within a static file, you'll need to create a view and a template for it—but in the view configuration you should exclude the `query` option.
+If you want to use layouts and templates within a static file, you'll need to create a view and a template for it, but in the view configuration you should exclude the `query` option.
 
 ### Built-in template functions
 
@@ -128,7 +128,7 @@ Note that most functions take strings as arguments, and not RDF terms. You can a
 
 ##### Now
 
-Snowman exposes the [time.Now](https://golang.org/pkg/time/#Now) function in all templates it can be used as follows:
+Snowman exposes the [time.Now](https://golang.org/pkg/time/#Now) function in all templates. It can be used as follows:
 
 ```
 {{ now.Format "2006-01-02" }}
@@ -152,7 +152,7 @@ Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) funct
 
 ##### Join
 
-Snowman exposes a ´join´ function which takes a separator and any number of strings, and merges them. The following examples illustrate how to merge three strings—first with, and then without, a separator:
+Snowman exposes a ´join´ function which takes a separator and any number of strings and merges them. The following examples illustrate how to merge three strings—first with, and then without, a separator:
 
 ```
 {{ join "," "comma" "separated" }}
@@ -188,7 +188,7 @@ Snowman provides `ucase`, `lcase`, and `tcase` for changing strings into upperca
 
 ##### Query
 
-Snowman provides a `query` function which allows for the issuing of SPARQL queries or parameterized SPARQL queries during rendering. The function takes two inputs. The first is the name of the query, and the second, optionally, is a string value to inject into the query. The location for the injected string is set with `{{.}}`.
+Snowman provides a `query` function that allows for the issuing of SPARQL queries or parameterized SPARQL queries during rendering. The function takes one or more parameters. The first is the name of the query, and the following parameters, optionally, is are strings to inject into the query. The given injection strings will replace instances of `{{.}}` in their given order.
 
 ```
 {{ $sparql_result := query "name_of_parameterized_query.rq" $var }}
@@ -221,7 +221,7 @@ The `uri` function takes a string and attempts to cast it to a URI, and produces
 
 ##### Add
 
-The `add` function sums integer values, and takes at least two arguments.
+The `add` function sums integer values and takes at least two arguments.
 
 ```
 {{ add 5 6 7 }}
@@ -248,7 +248,7 @@ The `div` function divides two given integer values.
 The `mul` function multiplies two given integer values.
 
 ```
-{{ mul 5 6 7 }}
+{{ mul 5 6 }}
 ```
 
 ##### Mod
@@ -290,6 +290,14 @@ The `to_json` function converts a given argument to a JSON-formatted string.
 {{ to_json $your_variable }}
 ```
 
+##### From JSON
+
+The `from_json` function converts a given JSON-formatted string to a Go-interface which templates can use.
+
+```
+{{ from_json $your_json_string }}
+```
+
 ##### Version
 
 The `version` function returns the Snowman version used to build the page.
@@ -306,6 +314,24 @@ The `trim` function trims leading and trailing white space from a given string.
 {{ trim $your_variable }}
 ```
 
+##### Get Remote
+
+The `get_remote` function retrieves the contents of a remote URL and returns it as a string.
+
+```
+{{ get_remote "https://fornpunkt.se/lamning/lNJVbNa.geojson" }}
+```
+
+Combine it with `from_json` to parse remote JSON.
+
+##### Get Remote with Config
+
+The `get_remote_with_config` function also retrieves the contents of a remote URL and returns it as a string. However, it takes a second argument, which allows you to set custom HTTP request headers.
+
+```
+{{ get_remote "https://fornpunkt.se/lamning/lNJVbNa.geojson" $your_config }}
+```
+
 ### Working with cache
 
 #### Default behaviour
@@ -318,7 +344,7 @@ snowman build --cache never
 
 #### Inspect cache
 
-Snowman allows you to inspect the cached data for a particular query or parameterized query using the `cache` command. The cache command takes as aguments first the path of the query and then, optionally, the argument used in a parameterized query:
+Snowman allows you to inspect the cached data for a particular query or parameterized query using the `cache` command. The cache command takes as arguments first the path of the query and then, optionally, the argument used in a parameterized query:
 
 ```bash
 snowman cache list-of-icecream.rq

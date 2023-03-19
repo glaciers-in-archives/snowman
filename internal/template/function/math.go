@@ -1,9 +1,8 @@
 package function
 
 import (
-	html_template "html/template"
+	"html/template"
 	"math/rand"
-	text_template "text/template"
 
 	"github.com/spf13/cast"
 )
@@ -30,10 +29,6 @@ var mathFuncs = map[string]interface{}{
 	"rand": func(min, max int) int { return rand.Intn(max-min) + min },
 }
 
-func GetHTMLMathFuncs() html_template.FuncMap {
-	return html_template.FuncMap(mathFuncs)
-}
-
-func GetTextMathFuncs() text_template.FuncMap {
-	return text_template.FuncMap(mathFuncs)
+func GetMathFuncs() template.FuncMap {
+	return template.FuncMap(mathFuncs)
 }

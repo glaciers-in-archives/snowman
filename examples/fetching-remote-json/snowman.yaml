@@ -1,0 +1,9 @@
+sparql_client:
+  endpoint: "https://query.wikidata.org/sparql"
+  http_headers: 
+    User-Agent: "project-example Snowman (https://github.com/glaciers-in-archives/snowman)"
+metadata:
+  my_json_fetching_request_config:
+    headers:
+      Accept: "application/ld+json"
+      User-Agent: "project-example Snowman (https://github.com/glaciers-in-archives/snowman)"
