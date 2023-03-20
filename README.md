@@ -342,6 +342,14 @@ The `current_view` function return the configuration of the view being rendered.
 
 **Note that the `current_view` function isn't available when used inside of templates included using the `include` or `include_text` functions.**
 
+##### Read File
+
+The `read_file` function reads the contents of a file and returns it as a string.
+
+```
+{{ read_file "relative/path/to/file.txt" }}
+```
+
 ### Working with cache
 
 #### Default behaviour
