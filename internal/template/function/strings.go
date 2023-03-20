@@ -1,7 +1,9 @@
 package function
 
 import (
+	"errors"
 	"html/template"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -10,6 +12,7 @@ import (
 var stringFuncs = map[string]interface{}{
 	"split":      split,
 	"replace":    replace,
+	"re_replace": re_replace,
 	"lcase":      lcase,
 	"ucase":      ucase,
 	"tcase":      tcase,
@@ -25,6 +28,14 @@ func split(str interface{}, sep interface{}) []string {
 
 func replace(str interface{}, old interface{}, new interface{}, count interface{}) string {
 	return strings.Replace(cast.ToString(str), cast.ToString(old), cast.ToString(new), cast.ToInt(count))
+}
+
+func re_replace(str interface{}, old interface{}, new interface{}) (string, error) {
+	re, err := regexp.Compile(cast.ToString(old))
+	if err != nil {
+		return "", errors.New("Invalid regular expression: " + cast.ToString(old))
+	}
+	return re.ReplaceAllLiteralString(cast.ToString(str), cast.ToString(new)), nil
 }
 
 func lcase(str interface{}) string {

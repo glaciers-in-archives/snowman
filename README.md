@@ -170,6 +170,14 @@ Snowman exposes the [strings.Replace](https://golang.org/pkg/strings/#Replace) f
 {{ replace . "https://en.wikipedia.org/wiki/" "" 1 }}
 ```
 
+##### Regex Replace
+
+`re_replace` works just like `replace`, but supports replacing strings using regular expressions. The first argument is the string to be replaced, the second is the regular expression, and the third is the replacement string.
+
+```
+{{ re_replace "Hello world" "world$" "Snowman" }}
+```
+
 ##### Env
 
 `env` allows you to access environment variables from within your templates. `env` returns the value of an environment as a string.
