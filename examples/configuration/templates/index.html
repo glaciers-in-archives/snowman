@@ -40,7 +40,11 @@
     <h2>Current View Configuration</h2>
 
     <p>You can also get configuration values related to the current view.</p>
-    <code>{{ current_view }}</code>
-    <code>QueryFile: {{ current_view.QueryFile }}</code>
+    <ul>
+        <li>Query file: <code>{{ current_view.QueryFile }}</code></li>
+        <li>Template file: <code>{{ current_view.TemplateFile }}</code></li>
+        <li>Output: <code>{{ current_view.Output }}</code></li>
+        <li>Unsafe: <code>{{ current_view.Unsafe }}</code></li>
+    </ul>
 </body>
 </html>

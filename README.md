@@ -332,6 +332,16 @@ The `get_remote_with_config` function also retrieves the contents of a remote UR
 {{ get_remote "https://fornpunkt.se/lamning/lNJVbNa.geojson" $your_config }}
 ```
 
+##### Current View
+
+The `current_view` function return the configuration of the view being rendered.
+
+```
+{{ current_view }}
+```
+
+**Note that the `current_view` function isn't available when used inside of templates included using the `include` or `include_text` functions.**
+
 ### Working with cache
 
 #### Default behaviour
