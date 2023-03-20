@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration Examples</title>
+    <style>
+        body {
+            margin: 0;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: Arial, Helvetica, sans-serif;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reading a query file</h1>
+    <p>This example shows a combination of <code>current_view</code> and <code>read_file</code>, illustrating how to read ones own query files.</p>
+
+    <h2>Query contents</h2>
+
+    {{ $query := read_file ( print "queries/" current_view.QueryFile ) }}
+
+    <pre>{{ $query }}</pre>
+
+    <p><a href="https://query.wikidata.org/#{{ $query }}">Open query on query.wikidata.org.</a></p>
+
+</body>
+</html>
