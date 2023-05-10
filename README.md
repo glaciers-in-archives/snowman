@@ -152,14 +152,24 @@ Snowman exposes the [strings.Split](https://golang.org/pkg/strings/#Split) funct
 
 ##### Join
 
-Snowman exposes a ´join´ function which takes a separator and any number of strings and merges them. The following examples illustrate how to merge three strings—first with, and then without, a separator:
+Snowman exposes a ´join´ function which takes a separator and any number of strings and merges them. The following examples illustrate how to merge three strings—first with a comma separator:
 
 ```
-{{ join "," "comma" "separated" }}
+{{ join "," "comma" "separated" "string" }}
 ```
 
+##### Print
+
+Snowman exposes the [fmt.Sprint](https://pkg.go.dev/fmt#Sprint) function as `as` in all templates. The following example illustrates how to print a string:
+
 ```
-{{ join "" "Hello" " " "World" }}
+{{ print "Hello world" }}
+```
+
+This can also be used to concat strings and other values:
+
+```
+{{ $hello := print "Hello " $name }}
 ```
 
 ##### Replace
