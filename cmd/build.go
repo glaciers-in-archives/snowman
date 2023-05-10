@@ -19,6 +19,7 @@ import (
 // CLI FLAGS
 var cacheBuildOption string
 var staticBuildOption bool
+var configFileLocation string
 
 func DiscoverLayouts() ([]string, error) {
 	var paths []string
@@ -83,7 +84,7 @@ var buildCmd = &cobra.Command{
 			return nil
 		}
 
-		err := config.LoadConfig()
+		err := config.LoadConfig(configFileLocation)
 		if err != nil {
 			return err
 		}
@@ -173,4 +174,5 @@ func init() {
 	rootCmd.AddCommand(buildCmd)
 	buildCmd.Flags().StringVarP(&cacheBuildOption, "cache", "c", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
 	buildCmd.Flags().BoolVarP(&staticBuildOption, "static", "s", false, "When set Snowman will only build static files.")
+	buildCmd.Flags().StringVarP(&configFileLocation, "config", "f", "snowman.yaml", "Sets the config file to use.")
 }

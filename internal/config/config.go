@@ -33,18 +33,22 @@ func (c *SiteConfig) Parse(data []byte) error {
 	return nil
 }
 
-func LoadConfig() error {
-	if _, err := os.Stat("snowman.yaml"); err != nil {
-		return utils.ErrorExit("Unable to locate snowman.yaml in the current working directory.", err)
+func LoadConfig(fileLocation string) error {
+	if _, err := os.Stat(fileLocation); err != nil {
+		if fileLocation == "snowman.yaml" {
+			return utils.ErrorExit("Unable to locate snowman.yaml in the current working directory.", err)
+		} else {
+			return utils.ErrorExit("Unable to locate Snowman configuration file at "+fileLocation+".", err)
+		}
 	}
 
-	data, err := ioutil.ReadFile("snowman.yaml")
+	data, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
-		return utils.ErrorExit("Failed to read snowman.yaml.", err)
+		return utils.ErrorExit("Failed to read "+fileLocation+".", err)
 	}
 
 	if err := CurrentSiteConfig.Parse(data); err != nil {
-		return utils.ErrorExit("Failed to parse snowman.yaml.", err)
+		return utils.ErrorExit("Failed to parse "+fileLocation+".", err)
 	}
 
 	return nil

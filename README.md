@@ -28,7 +28,7 @@ This is a tutorial. You can at any time run `snowman --help` for a full list of 
 
 #### Setting the target endpoint
 
-`snowman.yaml` should be located in the root directory of your project. It defines the URL of your SPARQL endpoint as well as optional HTTP headers and custom metadata.
+`snowman.yaml` should by default be located in the root directory of your project. It defines the URL of your SPARQL endpoint as well as optional HTTP headers and custom metadata.
 
 ```yaml
 sparql_client:
