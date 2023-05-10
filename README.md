@@ -124,7 +124,6 @@ If you want to use layouts and templates within a static file, you'll need to cr
 
 ### Built-in template functions
 
-Note that most functions take strings as arguments, and not RDF terms. You can access a string representation of an RDF term through `rdfTerm.String`.
 
 ##### Now
 
