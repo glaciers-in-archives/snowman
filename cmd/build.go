@@ -109,10 +109,8 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
 
-		if _, err := os.Stat("site"); err != nil {
-			if err := os.RemoveAll("site"); err != nil {
-				return utils.ErrorExit("Failed to remove the existing site directory.", err)
-			}
+		if err := os.RemoveAll("site"); err != nil {
+			return utils.ErrorExit("Failed to remove the existing site directory.", err)
 		}
 
 		if _, err := os.Stat("static"); os.IsNotExist(err) {
