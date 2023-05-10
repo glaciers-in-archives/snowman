@@ -124,6 +124,7 @@ If you want to use layouts and templates within a static file, you'll need to cr
 
 ### Built-in template functions
 
+Snowman exposes a number of built-in template functions in addition to the [standard Go template functions](https://golang.org/pkg/text/template/#hdr-Functions).
 
 ##### Now
 
