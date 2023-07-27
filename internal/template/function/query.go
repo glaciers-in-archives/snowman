@@ -22,10 +22,10 @@ var queryFuncs = map[string]interface{}{
 		case 0:
 			return sparql.CurrentRepository.Query(queryLocation)
 		default:
-			var sparqlString string
+			var sparqlString = query
 			for _, argument := range arguments {
 				argument := cast.ToString(argument)
-				sparqlString = strings.Replace(query, "{{.}}", argument, 1)
+				sparqlString = strings.Replace(sparqlString, "{{.}}", argument, 1)
 			}
 			promt := fmt.Sprintf("Issuing parameterized query %v with arguments: %v.", queryLocation, arguments)
 			fmt.Println(promt)
