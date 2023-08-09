@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 )
 
-func getRemoteResource(uri string, config map[interface{}]interface{}) (*string, error) {
+func GetRemote(uri string, config map[interface{}]interface{}) (*string, error) {
 	_, err := url.Parse(uri)
 	if err != nil {
 		return nil, errors.New("Invalid argument given to get_remote template function.")
@@ -51,15 +50,6 @@ func getRemoteResource(uri string, config map[interface{}]interface{}) (*string,
 	return &responseString, nil
 }
 
-var remoteFuncs = map[string]interface{}{
-	"get_remote": func(uri string) (*string, error) {
-		return getRemoteResource(uri, nil)
-	},
-	"get_remote_with_config": func(uri string, config map[interface{}]interface{}) (*string, error) {
-		return getRemoteResource(uri, config)
-	},
-}
-
-func GetRemoteFuncs() template.FuncMap {
-	return template.FuncMap(remoteFuncs)
+func GetRemoteWithConfig(uri string, config map[interface{}]interface{}) (*string, error) {
+	return GetRemote(uri, config)
 }

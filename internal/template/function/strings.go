@@ -2,35 +2,21 @@ package function
 
 import (
 	"errors"
-	"html/template"
 	"regexp"
 	"strings"
 
 	"github.com/spf13/cast"
 )
 
-var stringFuncs = map[string]interface{}{
-	"split":      split,
-	"replace":    replace,
-	"re_replace": re_replace,
-	"lcase":      lcase,
-	"ucase":      ucase,
-	"tcase":      tcase,
-	"join":       join,
-	"has_prefix": has_prefix,
-	"has_suffix": has_suffix,
-	"trim":       trim,
-}
-
-func split(str interface{}, sep interface{}) []string {
+func Split(str interface{}, sep interface{}) []string {
 	return strings.Split(cast.ToString(str), cast.ToString(sep))
 }
 
-func replace(str interface{}, old interface{}, new interface{}, count interface{}) string {
+func Replace(str interface{}, old interface{}, new interface{}, count interface{}) string {
 	return strings.Replace(cast.ToString(str), cast.ToString(old), cast.ToString(new), cast.ToInt(count))
 }
 
-func re_replace(str interface{}, old interface{}, new interface{}) (string, error) {
+func ReReplace(str interface{}, old interface{}, new interface{}) (string, error) {
 	re, err := regexp.Compile(cast.ToString(old))
 	if err != nil {
 		return "", errors.New("Invalid regular expression: " + cast.ToString(old))
@@ -38,34 +24,30 @@ func re_replace(str interface{}, old interface{}, new interface{}) (string, erro
 	return re.ReplaceAllLiteralString(cast.ToString(str), cast.ToString(new)), nil
 }
 
-func lcase(str interface{}) string {
+func LCase(str interface{}) string {
 	return strings.ToLower(cast.ToString(str))
 }
 
-func ucase(str interface{}) string {
+func UCase(str interface{}) string {
 	return strings.ToUpper(cast.ToString(str))
 }
 
-func tcase(str interface{}) string {
+func TCase(str interface{}) string {
 	return strings.Title(cast.ToString(str))
 }
 
-func has_prefix(str interface{}, prefix interface{}) bool {
+func HasPrefix(str interface{}, prefix interface{}) bool {
 	return strings.HasPrefix(cast.ToString(str), cast.ToString(prefix))
 }
 
-func has_suffix(str interface{}, suffix interface{}) bool {
+func HasSuffix(str interface{}, suffix interface{}) bool {
 	return strings.HasSuffix(cast.ToString(str), cast.ToString(suffix))
 }
 
-func join(sep interface{}, strs ...interface{}) string {
+func Join(sep interface{}, strs ...interface{}) string {
 	return strings.Join(cast.ToStringSlice(strs), cast.ToString(sep))
 }
 
-func trim(str interface{}) string {
+func Trim(str interface{}) string {
 	return strings.TrimSpace(cast.ToString(str))
-}
-
-func GetStringFuncs() template.FuncMap {
-	return template.FuncMap(stringFuncs)
 }
