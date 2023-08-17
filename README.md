@@ -99,7 +99,7 @@ The following view should generate a file for each result and use the `qid` SPAR
     template: "work.html"
 ```
 
-HTML templates are automatic, context-sensitive escaping, safe against code injection. When you need to create templates for JS, JSON, etc. add the ```unsafe: true option``` in order to render the file as text.
+HTML templates are automatic, context-sensitive escaping, safe against code injection. When you need to create templates for JS, JSON, etc. add the ```unsafe: true``` option in order to render the file as text.
 
 ```yaml
   - output: "works/{{qid}}.json"
