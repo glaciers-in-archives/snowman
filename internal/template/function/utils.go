@@ -21,6 +21,9 @@ var utilFuncs = map[string]interface{}{
 	"uri": func(value string) (rdf.IRI, error) {
 		return rdf.NewIRI(value)
 	},
+	"int": func(value interface{}) int {
+		return cast.ToInt(value)
+	},
 	"config": func() config.SiteConfig {
 		return config.CurrentSiteConfig
 	},

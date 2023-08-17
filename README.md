@@ -246,6 +246,14 @@ The `uri` function takes a string and attempts to cast it to a URI, and produces
 {{ uri "https://schema.org/Person" }}
 ```
 
+##### Int
+
+The `int` function takes a value and attempts to cast it to an integer, and produces an error upon failure.
+
+```
+{{ int "123" }}
+```
+
 ##### Add
 
 The `add` function sums integer values and takes at least two arguments.
