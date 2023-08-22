@@ -433,6 +433,14 @@ snowman server --port 4000 --address 0.0.0.0
 
 Sometimes when you work on large sites, it can be useful to time your build processes to measure the impact of changes. All Snowman commands, therefore, have a flag named `timeit`. This prints a command's execution time to the console. While this is mostly useful for measuring build times, all Snowman commands support it.
 
+### Using per-environment `snowman.yaml` configurations
+
+If you need different `snowman.yaml` configurations for different environments you can use the `--config` build flag to build your project using configurations other than the default `snowman.yaml`:
+
+```bash
+snowman build --config=production-snowman.yaml
+```
+
 ## License
 
 Copyright (c) 2020- Albin Larsson & contributors. Snowman is made available under the GNU Lesser General Public License.
