@@ -169,7 +169,7 @@ Snowman exposes a ´join´ function which takes a separator and any number of st
 
 ##### Print
 
-Snowman exposes the [fmt.Sprint](https://pkg.go.dev/fmt#Sprint) function as `as` in all templates. The following example illustrates how to print a string:
+Snowman exposes the [fmt.Sprint](https://pkg.go.dev/fmt#Sprint) function as `print` in all templates. The following example illustrates how to print a string:
 
 ```
 {{ print "Hello world" }}
