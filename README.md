@@ -18,11 +18,9 @@ go build -o snowman
 
 ## Usage
 
-One way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams' various works. Run `snowman build` to generate the site. The `snowman server` command can then be used to serve the site with Snowman's built-in development server.
+Running `snowman new  --directory="my-project-name"` will scaffold a new project utilising the most common Snowman features. You might still want to review the "From scrath" instructons below to get a good introduction to core concepts.
 
 ### From scratch
-
-**As of Snowman 0.3.0 you can scaffold a new project with `snowman new --directory="project-name"`.**
 
 This is a tutorial. You can at any time run `snowman --help` for a full list of options.
 
