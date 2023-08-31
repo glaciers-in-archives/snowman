@@ -39,7 +39,7 @@ func DiscoverQueries() (map[string]string, error) {
 	var index = make(map[string]string)
 
 	if _, err := os.Stat("queries"); os.IsNotExist(err) {
-		fmt.Println("Failed to locate query files. Skipping...")
+		printVerbose("Failed to locate query files. Skipping...")
 		return index, nil
 	}
 
@@ -80,7 +80,7 @@ var buildCmd = &cobra.Command{
 				utils.ErrorExit("Failed to copy new static files: ", err)
 			}
 
-			fmt.Println("Finished updating static files.")
+			printVerbose("Finished updating static files.")
 			return nil
 		}
 
@@ -99,7 +99,7 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to index query files.", err)
 		}
 
-		err = sparql.NewRepository(cacheBuildOption, queries)
+		err = sparql.NewRepository(cacheBuildOption, queries, verbose)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
@@ -114,25 +114,26 @@ var buildCmd = &cobra.Command{
 		}
 
 		if _, err := os.Stat("static"); os.IsNotExist(err) {
-			fmt.Println("Failed to locate static files. Skipping...")
+			printVerbose("Failed to locate static files. Skipping...")
 		} else {
 			if err := static.CopyIn(); err != nil {
 				return utils.ErrorExit("Failed to copy static files.", err)
 			}
-			fmt.Println("Finished copying static files.")
+			printVerbose("Finished copying static files.")
 		}
 
 		var renderedPaths = make(map[string]bool)
 		for _, view := range discoveredViews {
 			results := make([]map[string]rdf.Term, 0)
 			if view.ViewConfig.QueryFile != "" {
-				fmt.Println("Issuing query " + view.ViewConfig.QueryFile)
+				printVerbose("Issuing query " + view.ViewConfig.QueryFile)
 				results, err = sparql.CurrentRepository.Query(view.ViewConfig.QueryFile)
 				if err != nil {
 					return utils.ErrorExit("SPARQL query failed.", err)
 				}
 			}
 
+			// if the page is rendered based on SPARQL result rows
 			if view.MultipageVariableHook != nil {
 				for _, row := range results {
 					safePathSection := utils.SanitizePathSection(row[*view.MultipageVariableHook].String())
@@ -145,6 +146,7 @@ var buildCmd = &cobra.Command{
 					if err := view.RenderPage(outputPath, row); err != nil {
 						return utils.ErrorExit("Failed to render page at "+outputPath, err)
 					}
+					printVerbose("Rendered page at site/" + outputPath)
 					renderedPaths[outputPath] = true
 				}
 			} else {
@@ -155,6 +157,7 @@ var buildCmd = &cobra.Command{
 				if err := view.RenderPage("site/"+view.ViewConfig.Output, results); err != nil {
 					return utils.ErrorExit("Failed to render page at "+"site/"+view.ViewConfig.Output, err)
 				}
+				printVerbose("Rendered page at site/" + view.ViewConfig.Output)
 				renderedPaths["site/"+view.ViewConfig.Output] = true
 			}
 
@@ -164,6 +167,7 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed write used queries to cache memory.", err)
 		}
 
+		fmt.Println("Finished building project.")
 		return nil
 	},
 }

@@ -9,26 +9,30 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
+	"github.com/spf13/cast"
 )
 
 type Repository struct {
 	client       config.ClientConfig
 	httpClient   *http.Client
+	verbose      bool
 	CacheManager *cache.CacheManager
 	QueryIndex   map[string]string
 }
 
 var CurrentRepository Repository
 
-func NewRepository(cacheStrategy string, queryIndex map[string]string) error {
+func NewRepository(cacheStrategy string, queryIndex map[string]string, verbose bool) error {
 	repo := Repository{
 		client:     config.CurrentSiteConfig.Client,
 		QueryIndex: queryIndex,
+		verbose:    verbose,
 	}
 	repo.httpClient = http.DefaultClient
 
@@ -83,15 +87,26 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 	return &responseString, nil
 }
 
-func (r *Repository) Query(queryLocation string, queryOverride ...string) ([]map[string]rdf.Term, error) {
-
+func (r *Repository) Query(queryLocation string, arguments ...interface{}) ([]map[string]rdf.Term, error) {
 	query, exists := r.QueryIndex[queryLocation] // QueryIndex includes query/, wanted or not? not?
 	if !exists {
 		return nil, errors.New("The given query could not be found. " + queryLocation)
 	}
 
-	if len(queryOverride) > 0 {
-		query = queryOverride[0]
+	if len(arguments) > 0 {
+		for _, argument := range arguments {
+			argument := cast.ToString(argument)
+			query = strings.Replace(query, "{{.}}", argument, 1)
+		}
+	}
+
+	if r.verbose {
+		if len(arguments) > 0 {
+			promt := fmt.Sprintf("Issuing parameterized query %v with arguments: %v.", queryLocation, arguments)
+			fmt.Println(promt)
+		} else {
+			fmt.Println("Issuing query: " + queryLocation)
+		}
 	}
 
 	file, err := r.CacheManager.GetCache(queryLocation, query)
