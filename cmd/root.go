@@ -9,6 +9,13 @@ import (
 )
 
 var timeit bool
+var verbose bool
+
+func printVerbose(message string) {
+	if verbose {
+		fmt.Println(message)
+	}
+}
 
 func elapsed() func() {
 	start := time.Now()
@@ -39,4 +46,5 @@ func Execute() {
 func init() {
 	rootCmd.SilenceUsage = true
 	rootCmd.PersistentFlags().BoolVarP(&timeit, "timeit", "t", false, "")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Activate verbose output.")
 }
