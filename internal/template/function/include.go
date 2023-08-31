@@ -30,6 +30,10 @@ func include(templatePath string, arguments ...interface{}) (html_template.HTML,
 		if err := tpl.ExecuteTemplate(&renderedTpl, filepath.Base(templatePath), arguments[0]); err != nil {
 			return "", err
 		}
+	default:
+		if err := tpl.ExecuteTemplate(&renderedTpl, filepath.Base(templatePath), arguments); err != nil {
+			return "", err
+		}
 	}
 
 	return html_template.HTML(renderedTpl.String()), nil
@@ -54,6 +58,10 @@ func include_text(templatePath string, arguments ...interface{}) (string, error)
 		}
 	case 1:
 		if err := tpl.ExecuteTemplate(&renderedTpl, filepath.Base(templatePath), arguments[0]); err != nil {
+			return "", err
+		}
+	default:
+		if err := tpl.ExecuteTemplate(&renderedTpl, filepath.Base(templatePath), arguments); err != nil {
 			return "", err
 		}
 	}
