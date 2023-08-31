@@ -18,11 +18,9 @@ go build -o snowman
 
 ## Usage
 
-One way to get started is by copying the Wikidata example and modifying it for your own needs. The Wikidata example will generate a website listing Douglas Adams' various works. Run `snowman build` to generate the site. The `snowman server` command can then be used to serve the site with Snowman's built-in development server.
+Running `snowman new  --directory="my-project-name"` will scaffold a new project utilising the most common Snowman features. You might still want to review the "From scrath" instructons below to get a good introduction to core concepts.
 
 ### From scratch
-
-**As of Snowman 0.3.0 you can scaffold a new project with `snowman new --directory="project-name"`.**
 
 This is a tutorial. You can at any time run `snowman --help` for a full list of options.
 
@@ -99,6 +97,15 @@ The following view should generate a file for each result and use the `qid` SPAR
     template: "work.html"
 ```
 
+HTML templates are automatic, context-sensitive escaping, safe against code injection. When you need to create templates for JS, JSON, etc. add the ```unsafe: true``` option in order to render the file as text.
+
+```yaml
+  - output: "works/{{qid}}.json"
+    query: "works.rq"
+    template: "work.json"
+    unsafe: true
+```
+
 Now you can generate the site by running `snowman build`. Your static site should appear in the `site` directory in the root directory of your project. To start the server and view your site, run the `snowman server` command.
 
 ## Documentation
@@ -160,7 +167,7 @@ Snowman exposes a ´join´ function which takes a separator and any number of st
 
 ##### Print
 
-Snowman exposes the [fmt.Sprint](https://pkg.go.dev/fmt#Sprint) function as `as` in all templates. The following example illustrates how to print a string:
+Snowman exposes the [fmt.Sprint](https://pkg.go.dev/fmt#Sprint) function as `print` in all templates. The following example illustrates how to print a string:
 
 ```
 {{ print "Hello world" }}
@@ -235,6 +242,14 @@ The `uri` function takes a string and attempts to cast it to a URI, and produces
 
 ```
 {{ uri "https://schema.org/Person" }}
+```
+
+##### Int
+
+The `int` function takes a value and attempts to cast it to an integer, and produces an error upon failure.
+
+```
+{{ int "123" }}
 ```
 
 ##### Add
@@ -417,6 +432,14 @@ snowman server --port 4000 --address 0.0.0.0
 ### Timing your builds
 
 Sometimes when you work on large sites, it can be useful to time your build processes to measure the impact of changes. All Snowman commands, therefore, have a flag named `timeit`. This prints a command's execution time to the console. While this is mostly useful for measuring build times, all Snowman commands support it.
+
+### Using per-environment `snowman.yaml` configurations
+
+If you need different `snowman.yaml` configurations for different environments you can use the `--config` build flag to build your project using configurations other than the default `snowman.yaml`:
+
+```bash
+snowman build --config=production-snowman.yaml
+```
 
 ## License
 

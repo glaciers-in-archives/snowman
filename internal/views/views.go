@@ -60,7 +60,6 @@ func (v *View) RenderPage(path string, data interface{}) error {
 
 	f.Close()
 
-	fmt.Println("Rendered page at " + path)
 	return nil
 }
 
@@ -86,7 +85,7 @@ func DiscoverViews(layouts []string) ([]View, error) {
 		return nil, errors.New("Failed to parse views.yaml")
 	}
 
-	fmt.Println("Found " + strconv.Itoa(len(vConfigs.Views)) + " views.")
+	fmt.Println("Building project with " + strconv.Itoa(len(vConfigs.Views)) + " views.")
 
 	for _, viewConf := range vConfigs.Views {
 		var multipageVariableHook *string
