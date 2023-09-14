@@ -11,7 +11,8 @@ import (
 	"strconv"
 	text_template "text/template"
 
-	"github.com/glaciers-in-archives/snowman/internal/template/function"
+	function "github.com/glaciers-in-archives/snowman/internal/template/child_template_function"
+	"github.com/glaciers-in-archives/snowman/internal/template/function_loader"
 	"gopkg.in/yaml.v2"
 )
 
@@ -105,9 +106,9 @@ func DiscoverViews(layouts []string) ([]View, error) {
 		var TextTemplateA *text_template.Template
 		var HTMLTemplateA *html_template.Template
 		if viewConf.Unsafe {
-			TextTemplateA, err = text_template.New("").Funcs(getViewFuncs(viewConf)).Funcs(function.GetFileFuncs()).Funcs(function.GetQueryFuncs()).Funcs(function.GetStringFuncs()).Funcs(function.GetMathFuncs()).Funcs(function.GetUtilsFuncs()).Funcs(function.GetIncludeFuncs()).Funcs(function.GetJSONFuncs()).Funcs(function.GetRemoteFuncs()).ParseFiles(templates...)
+			TextTemplateA, err = text_template.New("").Funcs(getViewFuncs(viewConf)).Funcs(function_loader.FunctionLoader()).Funcs(function.GetIncludeFuncs()).ParseFiles(templates...)
 		} else {
-			HTMLTemplateA, err = html_template.New("").Funcs(getViewFuncs(viewConf)).Funcs(function.GetFileFuncs()).Funcs(function.GetQueryFuncs()).Funcs(function.GetStringFuncs()).Funcs(function.GetMathFuncs()).Funcs(function.GetUtilsFuncs()).Funcs(function.GetIncludeFuncs()).Funcs(function.GetJSONFuncs()).Funcs(function.GetRemoteFuncs()).ParseFiles(templates...)
+			HTMLTemplateA, err = html_template.New("").Funcs(getViewFuncs(viewConf)).Funcs(function_loader.FunctionLoader()).Funcs(function.GetIncludeFuncs()).ParseFiles(templates...)
 		}
 
 		if err != nil {

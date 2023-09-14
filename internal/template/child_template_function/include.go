@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	text_template "text/template"
+
+	"github.com/glaciers-in-archives/snowman/internal/template/function_loader"
 )
 
 func include(templatePath string, arguments ...interface{}) (html_template.HTML, error) {
@@ -15,7 +17,7 @@ func include(templatePath string, arguments ...interface{}) (html_template.HTML,
 		return "", errors.New("Unable to find the template file " + templatePath)
 	}
 
-	tpl, err := html_template.New("").Funcs((GetIncludeFuncs())).Funcs(GetFileFuncs()).Funcs(GetQueryFuncs()).Funcs(GetStringFuncs()).Funcs(GetMathFuncs()).Funcs(GetUtilsFuncs()).Funcs(GetRemoteFuncs()).ParseFiles(templatePath)
+	tpl, err := html_template.New("").Funcs((GetIncludeFuncs())).Funcs(function_loader.FunctionLoader()).ParseFiles(templatePath)
 	if err != nil {
 		return "", err
 	}
@@ -45,7 +47,7 @@ func include_text(templatePath string, arguments ...interface{}) (string, error)
 		return "", errors.New("Unable to find the template file " + templatePath)
 	}
 
-	tpl, err := text_template.New("").Funcs((GetIncludeFuncs())).Funcs(GetFileFuncs()).Funcs(GetQueryFuncs()).Funcs(GetStringFuncs()).Funcs(GetMathFuncs()).Funcs(GetUtilsFuncs()).Funcs(GetRemoteFuncs()).ParseFiles(templatePath)
+	tpl, err := text_template.New("").Funcs((GetIncludeFuncs())).Funcs(function_loader.FunctionLoader()).ParseFiles(templatePath)
 	if err != nil {
 		return "", err
 	}
