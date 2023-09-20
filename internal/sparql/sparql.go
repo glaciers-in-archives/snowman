@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -14,7 +15,6 @@ import (
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/knakk/rdf"
-	"github.com/knakk/sparql"
 	"github.com/spf13/cast"
 )
 
@@ -114,14 +114,15 @@ func (r *Repository) Query(queryLocation string, arguments ...interface{}) ([]ma
 		return nil, err
 	}
 
+	var parsedResponse []map[string]rdf.Term
 	if file != nil {
-		parsedResponse, err := sparql.ParseJSON(file)
+		parsedResponse := ParseSPARQLJSON(file)
 		if err != nil {
 			return nil, err
 		}
 
 		file.Close()
-		return parsedResponse.Solutions(), nil
+		return parsedResponse, nil
 	}
 
 	jsonString, err := r.QueryCall(query)
@@ -133,11 +134,76 @@ func (r *Repository) Query(queryLocation string, arguments ...interface{}) ([]ma
 		return nil, err
 	}
 
-	var parsedResponse sparql.Results
-	err = json.Unmarshal([]byte(*jsonString), &parsedResponse)
+	var resultReader = strings.NewReader(*jsonString)
+	parsedResponse = ParseSPARQLJSON(resultReader)
 	if err != nil {
 		return nil, err
 	}
 
-	return parsedResponse.Solutions(), nil
+	return parsedResponse, nil
+}
+
+type Results struct {
+	Variables []string
+	Results   results
+}
+
+type results struct {
+	Bindings []map[string]binding
+}
+
+type binding struct {
+	Type     string
+	Value    string
+	Lang     string `json:"xml:lang"`
+	DataType string
+}
+
+var xsdString, _ = rdf.NewIRI("http://www.w3.org/2001/XMLSchema#string")
+
+func ParseSPARQLJSON(r io.Reader) []map[string]rdf.Term {
+	var results Results
+	err := json.NewDecoder(r).Decode(&results)
+
+	if err != nil {
+		return nil
+	}
+
+	var parsedResults []map[string]rdf.Term
+	for _, binding := range results.Results.Bindings {
+		parsedBinding := make(map[string]rdf.Term)
+		for key, value := range binding {
+			var term rdf.Term
+			var err error
+			switch value.Type {
+			case "bnode":
+				term, err = rdf.NewBlank(value.Value)
+			case "uri":
+				term, err = rdf.NewIRI(value.Value)
+			case "literal":
+				// Untyped literals are typed as xsd:string
+				if value.Lang != "" {
+					term, err = rdf.NewLangLiteral(value.Value, value.Lang)
+				}
+				term = rdf.NewTypedLiteral(value.Value, xsdString)
+			case "typed-literal":
+				iri, err := rdf.NewIRI(value.DataType)
+				term = rdf.NewTypedLiteral(value.Value, iri)
+				if err != nil {
+					term = nil
+					err = nil
+				}
+			default:
+				term = nil
+				err = errors.New("Unknown RDF type")
+			}
+
+			if err == nil {
+				parsedBinding[key] = term
+			}
+		}
+		parsedResults = append(parsedResults, parsedBinding)
+	}
+
+	return parsedResults
 }
