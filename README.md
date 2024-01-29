@@ -289,7 +289,7 @@ The `mul` function multiplies two given integer values.
 The `mod` function returns the modulus of two given values.
 
 ```
-{{ div 5 2 }}
+{{ mod 5 2 }}
 ```
 
 ##### Rand
@@ -307,6 +307,7 @@ The `add1` function increments the given integer by 1.
 ```
 {{ add1 $your_integer }}
 ```
+
 ##### Type
 
 The `type` function returns the given variable's type as a string.
