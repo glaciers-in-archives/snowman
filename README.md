@@ -441,6 +441,24 @@ If you need different `snowman.yaml` configurations for different environments y
 snowman build --config=production-snowman.yaml
 ```
 
+## Development
+
+Snowman is written in Go. To build Snowman from source, you need to have Go installed. Clone the repository and build the binary:
+
+```bash
+git clone https://github.com/glaciers-in-archives/snowman
+cd snowman
+go build -o snowman
+```
+
+To run the tests, use the foollowing command:
+
+```bash
+go test ./...
+```
+
+To make a release, see `RELEASE.md`.
+
 ## License
 
 Copyright (c) 2020- Albin Larsson & contributors. Snowman is made available under the GNU Lesser General Public License.
