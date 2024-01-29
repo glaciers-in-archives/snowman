@@ -254,10 +254,10 @@ The `int` function takes a value and attempts to cast it to an integer, and prod
 
 ##### Add
 
-The `add` function sums integer values and takes at least two arguments.
+The `add` function sums two values.
 
 ```
-{{ add 5 6 7 }}
+{{ add 5 6 }}
 ```
 
 ##### Sub
