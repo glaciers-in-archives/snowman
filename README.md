@@ -238,6 +238,14 @@ Snowman exposes your site's configuration through the function `config`. The fol
 {{ config.Client.Endpoint }}
 ```
 
+##### Include and include_text
+
+`include` and `include_text` are used to render child templates. `include` expects HTML templates, while `include_text` will treat the rendered content as plaintext. The first argument is the path to the child template all following arguments are passed to the child template.
+
+```
+{{ include "path/to/child.html" $variable $another_variable }}
+```
+
 ##### Safe HTML
 
 The `safe_html` function allows you to render an HTML string as-is, without the default escaping performed in unsafe templates. **Note that you should never trust third-party HTML.**
