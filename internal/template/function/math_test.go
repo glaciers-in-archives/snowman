@@ -199,3 +199,43 @@ func TestDiv(t *testing.T) {
 		}
 	}
 }
+
+var modTests = []mathTest{
+	{2, 2, 0},
+	{"2", 3, 2},
+	{2.0, 3, 2},
+	{2.9, 3, 2},
+	{2.1, 3, 2},
+	{5, 2, 1},
+	{10, 2, 0},
+	{"-2", -1, 0},
+}
+
+var modTestsWithError = []mathTest{
+	{1, 2, 4},
+	{"yuyu", 3, 6},
+	//{3, 3, "", 6},
+	//{3, 3, nil, 6},
+	{"~", 3, 6},
+	//{1, 0, 0},
+	//{-1, 0, 0},
+}
+
+func TestMod(t *testing.T) {
+	for _, test := range modTests {
+		if got := Mod(test.arg1, test.arg2); got != test.want {
+			if Type(got) != "int64" {
+				t.Errorf("Output %q not equal to expected %q", Type(got), "int64")
+			}
+
+			t.Errorf("Output %q not equal to expected %q", cast.ToString(got), cast.ToString(test.want))
+		}
+	}
+
+	for _, test := range modTestsWithError {
+		// these tests should fail
+		if got := Mod(test.arg1, test.arg2); got == test.want {
+			t.Errorf("Negative test did not fail and instead returned %q", cast.ToString(got))
+		}
+	}
+}
