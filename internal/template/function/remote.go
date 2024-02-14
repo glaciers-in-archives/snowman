@@ -7,15 +7,19 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/spf13/cast"
 )
 
-func GetRemote(uri string, config map[interface{}]interface{}) (*string, error) {
-	_, err := url.Parse(uri)
+func GetRemote(uri interface{}, config map[interface{}]interface{}) (*string, error) {
+	preparedUri := cast.ToString(uri)
+
+	_, err := url.Parse(preparedUri)
 	if err != nil {
 		return nil, errors.New("Invalid argument given to get_remote template function.")
 	}
 
-	req, err := http.NewRequest("GET", uri, bytes.NewBuffer(nil))
+	req, err := http.NewRequest("GET", preparedUri, bytes.NewBuffer(nil))
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +46,7 @@ func GetRemote(uri string, config map[interface{}]interface{}) (*string, error) 
 	responseString := string(bodyBytes)
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Received bad(HTTP: " + resp.Status + ") response from " + uri + ".")
+		fmt.Println("Received bad(HTTP: " + resp.Status + ") response from " + preparedUri + ".")
 		fmt.Println(responseString)
 		return nil, errors.New("Received bad response from remote resource.")
 	}
@@ -50,6 +54,6 @@ func GetRemote(uri string, config map[interface{}]interface{}) (*string, error) 
 	return &responseString, nil
 }
 
-func GetRemoteWithConfig(uri string, config map[interface{}]interface{}) (*string, error) {
+func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*string, error) {
 	return GetRemote(uri, config)
 }
