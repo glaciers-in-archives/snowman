@@ -187,6 +187,8 @@ Snowman exposes the [strings.Replace](https://golang.org/pkg/strings/#Replace) f
 {{ replace . "https://en.wikipedia.org/wiki/" "" 1 }}
 ```
 
+The first argument is the string to be replaced, the second is the string to be replaced, the third is the replacement string, and the fourth is the number of replacements to make. If the fourth argument is -1, all occurrences will be replaced.
+
 ##### Regex Replace
 
 `re_replace` works just like `replace`, but supports replacing strings using regular expressions. The first argument is the string to be replaced, the second is the regular expression, and the third is the replacement string.
