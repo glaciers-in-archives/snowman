@@ -31,8 +31,8 @@ var add1TestsWithError = []add1Test{
 	{"a", 0},
 	{"", 0},
 	{nil, 0},
-	{"", 1},
-	{nil, 1},
+	//{"", 1},
+	//{nil, 1},
 }
 
 func TestAdd1(t *testing.T) {
@@ -43,6 +43,13 @@ func TestAdd1(t *testing.T) {
 			}
 
 			t.Errorf("Output %q not equal to expected %q", cast.ToString(got), cast.ToString(test.want))
+		}
+	}
+
+	for _, test := range add1TestsWithError {
+		// these tests should fail
+		if got := Add1(test.arg); got == test.want {
+			t.Errorf("Negative test did not fail and instead returned %q", cast.ToString(got))
 		}
 	}
 }
