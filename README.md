@@ -211,6 +211,14 @@ Snowman provides `ucase`, `lcase`, and `tcase` for changing strings into upperca
 {{ lcase .YourStringVariable }}
 ```
 
+##### Has_prefix and has_suffix
+
+`has_prefix` and `has_suffix` are used to check if a string starts or ends with a given prefix or suffix.
+
+```
+{{ has_prefix .YourStringVariable "prefix" }}
+```
+
 ##### Query
 
 Snowman provides a `query` function that allows for the issuing of SPARQL queries or parameterized SPARQL queries during rendering. The function takes one or more parameters. The first is the name of the query, and the following parameters, optionally, is are strings to inject into the query. The given injection strings will replace instances of `{{.}}` in their given order.
