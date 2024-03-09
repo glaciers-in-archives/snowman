@@ -43,6 +43,7 @@ func FunctionLoader() template.FuncMap {
 		"has_prefix": function.HasPrefix,
 		"has_suffix": function.HasSuffix,
 		"trim":       function.Trim,
+		"contains":   function.Contains,
 
 		"safe_html": function.SafeHTML,
 		"uri":       function.URI,

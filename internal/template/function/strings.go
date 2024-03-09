@@ -51,3 +51,7 @@ func Join(sep interface{}, strs ...interface{}) string {
 func Trim(str interface{}) string {
 	return strings.TrimSpace(cast.ToString(str))
 }
+
+func Contains(str interface{}, substr interface{}) bool {
+	return strings.Contains(cast.ToString(str), cast.ToString(substr))
+}
