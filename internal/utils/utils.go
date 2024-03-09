@@ -99,8 +99,30 @@ func CountFilesRecursive(dir string) (int, error) {
 	return count, nil
 }
 
-var illegalPath = regexp.MustCompile(`[\~\/\:\*\?\"\<\>\|]`)
+var illegalPath = regexp.MustCompile(`[\~\:\*\?\"\<\>\|]`)
+var illegalNextToEachOther = regexp.MustCompile(`[\.\/]{2,}`)
+var illegalStartAndEnd = regexp.MustCompile(`^[\./]|[\./]$`)
 
-func SanitizePathSection(path string) string {
-	return illegalPath.ReplaceAllString(path, "_")
+func ValidatePathSection(path string) error {
+	// throw an error if the path contains illegal characters
+	if illegalPath.MatchString(path) {
+		return errors.New("Illegal characters in path: " + path)
+	}
+
+	// throw an error if the path contains . or / next to each other
+	if illegalNextToEachOther.MatchString(path) {
+		return errors.New("Illegal character combination in path: " + path)
+	}
+
+	// throw an error if the path starts or ends with . or /
+	if illegalStartAndEnd.MatchString(path) {
+		return errors.New("Illegal start or end in path: " + path)
+	}
+
+	// throw an error if the path is empty
+	if path == "" {
+		return errors.New("Path can't be empty")
+	}
+
+	return nil
 }

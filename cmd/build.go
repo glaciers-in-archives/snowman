@@ -136,8 +136,12 @@ var buildCmd = &cobra.Command{
 			// if the page is rendered based on SPARQL result rows
 			if view.MultipageVariableHook != nil {
 				for _, row := range results {
-					safePathSection := utils.SanitizePathSection(row[*view.MultipageVariableHook].String())
-					outputPath := "site/" + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", safePathSection, 1)
+					pathSection := row[*view.MultipageVariableHook].String()
+					if utils.ValidatePathSection(pathSection); err != nil {
+						return utils.ErrorExit("Failed to validate path section.", err)
+					}
+
+					outputPath := "site/" + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", pathSection, 1)
 
 					if renderedPaths[outputPath] {
 						fmt.Println("Warning: Writing to " + outputPath + " for the second time.")
