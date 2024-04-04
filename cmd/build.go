@@ -53,7 +53,7 @@ func DiscoverQueries() (map[string]string, error) {
 				return err
 			}
 
-			index[strings.Replace(path, "queries/", "", 1)] = string(sparqlBytes)
+			index[strings.Replace(path, "queries"+string(os.PathSeparator), "", 1)] = string(sparqlBytes)
 
 		}
 		return nil
