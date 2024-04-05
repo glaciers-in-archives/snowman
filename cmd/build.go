@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
@@ -23,7 +23,7 @@ var configFileLocation string
 
 func DiscoverLayouts() ([]string, error) {
 	var paths []string
-	filepath.Walk("templates/layouts", func(path string, info os.FileInfo, err error) error {
+	fs.WalkDir(os.DirFS("."), "templates/layouts", func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -43,7 +43,7 @@ func DiscoverQueries() (map[string]string, error) {
 		return index, nil
 	}
 
-	err := filepath.Walk("queries", func(path string, info os.FileInfo, err error) error {
+	err := fs.WalkDir(os.DirFS("."), "queries", func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -53,7 +53,7 @@ func DiscoverQueries() (map[string]string, error) {
 				return err
 			}
 
-			index[strings.Replace(path, "queries"+string(os.PathSeparator), "", 1)] = string(sparqlBytes)
+			index[strings.Replace(path, "queries/", "", 1)] = string(sparqlBytes)
 
 		}
 		return nil

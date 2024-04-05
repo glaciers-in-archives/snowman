@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
@@ -62,12 +62,12 @@ var cacheCmd = &cobra.Command{
 				return utils.ErrorExit("Failed to read last unused cache items: ", err)
 			}
 
-			err = filepath.Walk(cache.CacheLocation, func(path string, info os.FileInfo, err error) error {
+			err = fs.WalkDir(os.DirFS("."), cache.CacheLocation, func(path string, info fs.DirEntry, err error) error {
 				if err != nil {
 					return err
 				}
 
-				pathAsCacheItem := strings.Replace(strings.Replace(path, ".json", "", 1), ".snowman/cache/", "", 1)
+				pathAsCacheItem := strings.Replace(strings.Replace(path, ".json", "", 1), cache.CacheLocation, "", 1)
 				isUsed := false
 				for _, used := range usedItems {
 					if pathAsCacheItem == used || strings.HasPrefix(used, pathAsCacheItem) {

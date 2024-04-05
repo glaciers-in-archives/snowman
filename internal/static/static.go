@@ -2,6 +2,7 @@ package static
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,8 +28,9 @@ func ClearStatic() error {
 func CopyIn() error {
 	var writtenFiles []string
 	// This does not include checking if the "from" directory exists
-	err := filepath.Walk("static", func(path string, info os.FileInfo, err error) error {
-		if info.Mode().IsRegular() {
+	err := fs.WalkDir(os.DirFS("."), "static", func(path string, d fs.DirEntry, err error) error {
+		info, _ := d.Info()
+		if info.Mode().IsRegular() { // checks that its not ModeDir | ModeSymlink | ModeNamedPipe | ModeSocket | ModeDevice | ModeCharDevice | ModeIrregular
 			newPath := strings.Replace(path, "static/", "site/", 1)
 			if err := os.MkdirAll(filepath.Dir(newPath), 0770); err != nil {
 				return err
