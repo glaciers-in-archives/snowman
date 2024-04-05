@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
@@ -141,7 +142,8 @@ var buildCmd = &cobra.Command{
 						return utils.ErrorExit("Failed to validate path section.", err)
 					}
 
-					outputPath := "site/" + strings.Replace(view.ViewConfig.Output, "{{"+*view.MultipageVariableHook+"}}", pathSection, 1)
+					outputVariablePattern := regexp.MustCompile(`{{ *` + *view.MultipageVariableHook + ` *}}`)
+					outputPath := "site/" + outputVariablePattern.ReplaceAllString(view.ViewConfig.Output, pathSection)
 
 					if renderedPaths[outputPath] {
 						fmt.Println("Warning: Writing to " + outputPath + " for the second time.")

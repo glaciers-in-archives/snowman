@@ -89,7 +89,7 @@ func DiscoverViews(layouts []string) ([]View, error) {
 
 	for _, viewConf := range vConfigs.Views {
 		var multipageVariableHook *string
-		re := regexp.MustCompile(`{{([\w\d_]+)}}`)
+		re := regexp.MustCompile(`{{ *([\w\d_]+) *}}`)
 		if re.Match([]byte(viewConf.Output)) {
 			multipageVariableHook = &re.FindAllStringSubmatch(viewConf.Output, 1)[0][1]
 		}
