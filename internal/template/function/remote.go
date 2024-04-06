@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-func GetRemote(uri interface{}, config map[interface{}]interface{}) (*string, error) {
+func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*string, error) {
 	preparedUri := cast.ToString(uri)
 
 	_, err := url.Parse(preparedUri)
@@ -54,6 +54,6 @@ func GetRemote(uri interface{}, config map[interface{}]interface{}) (*string, er
 	return &responseString, nil
 }
 
-func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*string, error) {
-	return GetRemote(uri, config)
+func GetRemote(uri interface{}) (*string, error) {
+	return GetRemoteWithConfig(uri, nil)
 }
