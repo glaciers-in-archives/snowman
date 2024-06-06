@@ -9,7 +9,8 @@ test:
 build:
   go build -o snowman
 
-run:
+# runs snowman with the given command and arguments
+run *COMMAND:
   go run main.go {{COMMAND}}
 
 # builds snowman for all officially supported platforms
