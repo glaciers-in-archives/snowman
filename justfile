@@ -15,3 +15,4 @@ run:
 # builds snowman for all officially supported platforms
 build-all:
   ./release.bash
+
