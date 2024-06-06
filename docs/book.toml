@@ -1,0 +1,6 @@
+[book]
+authors = ["Albin Larsson"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Snowman Manual"
