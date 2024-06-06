@@ -137,6 +137,11 @@ var buildCmd = &cobra.Command{
 			// if the page is rendered based on SPARQL result rows
 			if view.MultipageVariableHook != nil {
 				for _, row := range results {
+					if _, ok := row[*view.MultipageVariableHook]; !ok {
+						err := fmt.Errorf(*view.MultipageVariableHook + " not found in SPARQL result row.")
+						return utils.ErrorExit("Failed to render multipage view.", err)
+					}
+
 					pathSection := row[*view.MultipageVariableHook].String()
 					if utils.ValidatePathSection(pathSection); err != nil {
 						return utils.ErrorExit("Failed to validate path section.", err)
