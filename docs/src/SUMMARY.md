@@ -4,7 +4,6 @@
 
 - [Installation](./installation.md)
 - [Quick start](./quick-start.md)
-- [Core concepts](./core-concepts.md)
 
 # Reference
 
@@ -21,6 +20,7 @@
     - [Whitespace control](./reference/template-syntax/whitespace-control.md)
     - [Loops](./reference/template-syntax/loops.md)
     - [Conditionals](./reference/template-syntax/conditionals.md)
+    - [Indexing](./reference/template-syntax/indexing.md)
     - [Includes](./reference/template-syntax/includes.md)
     - [Layouts](./reference/template-syntax/layouts.md)
     - [Pipes](./reference/template-syntax/pipes.md)
@@ -79,6 +79,9 @@
         - [read_file](./reference/template-functions/utilities/read_file.md)
         - [current_view](./reference/template-functions/utilities/current_view.md)
         - [version](./reference/template-functions/utilities/version.md)
+        - [len](./reference/template-functions/utilities/len.md)
+        - [js](./reference/template-functions/utilities/js.md)
+        - [index](./reference/template-functions/utilities/index-func.md)
 - [Configuration](./reference/configuration.md)
     - [snowman.yaml](./reference/snowman-yaml.md)
     - [views.yaml](./reference/views-yaml.md)
@@ -87,7 +90,7 @@
 # Guides
 
 - [CLI autocompletion](./guides/cli-autocompletion.md)
-- [Continuous integration](./guides/continuous-integration.md)
+- [Woriking with multiple environments](./guides/woriking-with-multiple-environments.md)
 - [Managing cache](./guides/managing-cache.md)
 - [Timing builds](./guides/timing-builds.md)
 
@@ -102,3 +105,5 @@
 - [Site metadata](./recipes/site-metadata.md)
 - [Reading environment variables](./recipes/reading-environment-variables.md)
 - [Parameterized queries](./recipes/parameterized-queries.md)
+- [Building with Github Actions](./recipes/building-with-github-actions.md)
+- [Building with Gitlab CI](./recipes/building-with-gitlab-ci.md)
