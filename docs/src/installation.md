@@ -1,6 +1,6 @@
 # Installation
 
-Snowman ships as a single binary, and is available for the most commons architectures and operating systems. Check out the [releases page](https://github.com/glaciers-in-archives/snowman/releases) for the latest version. Once downloaded, you should rename it to `snowman` install it by moving it to a directory in your `PATH`.
+Snowman ships as a single binary, and is available for the most commons architectures and operating systems. Check out the [releases page](https://github.com/glaciers-in-archives/snowman/releases) for the latest version. Once downloaded, you should rename it to `snowman` and install it by moving it to a directory in your `PATH`.
 
 ## Using multiple versions
 

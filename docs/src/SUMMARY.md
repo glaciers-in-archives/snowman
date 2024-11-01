@@ -90,7 +90,7 @@
 # Guides
 
 - [CLI autocompletion](./guides/cli-autocompletion.md)
-- [Woriking with multiple environments](./guides/woriking-with-multiple-environments.md)
+- [Working with multiple environments](./guides/working-with-multiple-environments.md)
 - [Managing cache](./guides/managing-cache.md)
 - [Timing builds](./guides/timing-builds.md)
 
