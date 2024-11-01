@@ -1,6 +1,6 @@
 # `build`
 
-The `build` command is used to build a Snowman project. It reads the configuration file and the views file, and then it fetches the data from the SPARQL endpoint and renders the templates. The output is written to the `site` directory.
+The `build` command is used to build a Snowman project. It reads the configuration(`snowman.yaml`) file and the views file(`views.yaml`), then it fetches the data from a SPARQL endpoint, and finally it renders the templates. The output is written to the `site` directory.
 
 ```sh
 snowman build

@@ -6,7 +6,7 @@ cd best-project-name-ever
 snowman build && snowman server
 ```
 
-This will create a new Snowman project in the directory `best-project-name-ever`, build it, and start a local server. You can now visit `http://localhost:8080` to see the built site. To get you started it fetches a few triples from Wikidata, gives you a basic layout and a static file. 
+This will create a new Snowman project in the directory `best-project-name-ever`, build it, and start a local server. You can now visit `http://localhost:8080` to see the built site. To get you started it fetches a few triples from Wikidata, gives you a basic layout, and a static file. 
 
 ## The project structure
 
