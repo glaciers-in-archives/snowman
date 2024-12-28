@@ -10,6 +10,7 @@ snowman build
 
  - `--cache` (`-c`) Sets the cache strategy. "available" will use cached SPARQL responses when available and fallback to making queries. "never" will ignore existing cache and will not update or set new cache. (default "available")
  - `--config` (`-f`) The path to the configuration file. (default "snowman.yaml")
+ - `--snowman-directory` (`-d`) The path to your Snowman directory. (default ".snowman")
  - `--help` (`-h`) Shows help for the command.
  - `--verbose` (`-v`) Enables verbose output.
  - `--static` (`-s`) Only update static files, do not fetch data or render templates.

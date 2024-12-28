@@ -22,13 +22,13 @@ type Repository struct {
 	client       config.ClientConfig
 	httpClient   *http.Client
 	verbose      bool
-	CacheManager *cache.CacheManager
+	CacheManager cache.CacheManager
 	QueryIndex   map[string]string
 }
 
 var CurrentRepository Repository
 
-func NewRepository(cacheStrategy string, queryIndex map[string]string, verbose bool) error {
+func NewRepository(cacheManager cache.CacheManager, queryIndex map[string]string, verbose bool) error {
 	repo := Repository{
 		client:     config.CurrentSiteConfig.Client,
 		QueryIndex: queryIndex,
@@ -36,12 +36,7 @@ func NewRepository(cacheStrategy string, queryIndex map[string]string, verbose b
 	}
 	repo.httpClient = http.DefaultClient
 
-	cm, err := cache.NewCacheManager(cacheStrategy)
-	if err != nil {
-		return errors.New("Failed to initiate cache handler. " + " Error: " + err.Error())
-	}
-
-	repo.CacheManager = cm
+	repo.CacheManager = cacheManager
 
 	CurrentRepository = repo
 

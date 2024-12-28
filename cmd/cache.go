@@ -14,6 +14,7 @@ import (
 
 var invalidateCacheOption bool
 var unusedOption bool
+var snowmanPath string
 
 func printFileContents(path string) error {
 	fmt.Println(path)
@@ -47,27 +48,34 @@ var cacheCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var selectedCacheItems []string
 
+		// we do initialize the cache manager, so that all cache related checks are done
+		cm, err := cache.NewCacheManager("available", snowmanPath) // the cache strategy isn't relevant for this command
+		if err != nil {
+			return utils.ErrorExit("Failed to create cache manager.", err)
+		}
+		var cacheLocation = cm.SnowmanDirectoryPath + "/cache/"
+
 		if len(args) == 0 && !unusedOption {
-			totFiles, err := utils.CountFilesRecursive(cache.CacheLocation)
+			totFiles, err := utils.CountFilesRecursive(cacheLocation)
 			if err != nil {
 				return utils.ErrorExit("Failed to retrive cache info.", err)
 			}
 
 			fmt.Println("There are " + fmt.Sprint(totFiles) + " cache items.")
 
-			selectedCacheItems = append(selectedCacheItems, cache.CacheLocation)
+			selectedCacheItems = append(selectedCacheItems, cacheLocation)
 		} else if len(args) == 0 && unusedOption {
 			usedItems, err := utils.ReadLineSeperatedFile(".snowman/last_build_queries.txt")
 			if err != nil {
 				return utils.ErrorExit("Failed to read last unused cache items: ", err)
 			}
 
-			err = fs.WalkDir(os.DirFS("."), cache.CacheLocation, func(path string, info fs.DirEntry, err error) error {
+			err = fs.WalkDir(os.DirFS("."), cacheLocation, func(path string, info fs.DirEntry, err error) error {
 				if err != nil {
 					return err
 				}
 
-				pathAsCacheItem := strings.Replace(strings.Replace(path, ".json", "", 1), cache.CacheLocation, "", 1)
+				pathAsCacheItem := strings.Replace(strings.Replace(path, ".json", "", 1), cacheLocation, "", 1)
 				isUsed := false
 				for _, used := range usedItems {
 					if pathAsCacheItem == used || strings.HasPrefix(used, pathAsCacheItem) {
@@ -83,7 +91,7 @@ var cacheCmd = &cobra.Command{
 
 			fmt.Println("Found " + fmt.Sprint(len(selectedCacheItems)) + " unused cache items.")
 		} else if len(args) == 1 {
-			dirPath := cache.CacheLocation + cache.Hash(args[0])
+			dirPath := cacheLocation + cache.Hash(args[0])
 
 			files, err := os.ReadDir(dirPath)
 			if err != nil {
@@ -106,7 +114,7 @@ var cacheCmd = &cobra.Command{
 
 			queryString := strings.Replace(string(sparqlBytes), "{{.}}", args[1], 1)
 
-			filePath := cache.CacheLocation + cache.Hash(args[0]) + "/" + cache.Hash(queryString) + ".json"
+			filePath := cacheLocation + cache.Hash(args[0]) + "/" + cache.Hash(queryString) + ".json"
 			selectedCacheItems = append(selectedCacheItems, filePath)
 
 			printFileContents((filePath))
@@ -129,4 +137,5 @@ func init() {
 	rootCmd.AddCommand(cacheCmd)
 	cacheCmd.Flags().BoolVarP(&invalidateCacheOption, "invalidate", "i", false, "Removes/clears the specified parts of the query cache.")
 	cacheCmd.Flags().BoolVarP(&unusedOption, "unused", "u", false, "Returns cache items not used in the last build.")
+	cacheCmd.Flags().StringVarP(&snowmanPath, "snowman-directory", "d", ".snowman", "Sets the snowman directory to use.")
 }

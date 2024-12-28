@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
+	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/glaciers-in-archives/snowman/internal/static"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
@@ -21,6 +22,7 @@ import (
 var cacheBuildOption string
 var staticBuildOption bool
 var configFileLocation string
+var snowmanDirectoryPath string
 
 func DiscoverLayouts() ([]string, error) {
 	var paths []string
@@ -100,7 +102,12 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to index query files.", err)
 		}
 
-		err = sparql.NewRepository(cacheBuildOption, queries, verbose)
+		cacheManager, err := cache.NewCacheManager(cacheBuildOption, snowmanDirectoryPath)
+		if err != nil {
+			return utils.ErrorExit("Failed to initiate cache manager.", err)
+		}
+
+		err = sparql.NewRepository(*cacheManager, queries, verbose)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
 		}
@@ -188,4 +195,5 @@ func init() {
 	buildCmd.Flags().StringVarP(&cacheBuildOption, "cache", "c", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
 	buildCmd.Flags().BoolVarP(&staticBuildOption, "static", "s", false, "When set Snowman will only build static files.")
 	buildCmd.Flags().StringVarP(&configFileLocation, "config", "f", "snowman.yaml", "Sets the config file to use.")
+	buildCmd.Flags().StringVarP(&snowmanDirectoryPath, "snowman-directory", "d", ".snowman", "Sets the snowman directory to use.")
 }
