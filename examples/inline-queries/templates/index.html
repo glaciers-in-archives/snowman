@@ -13,5 +13,15 @@
             <h2>{{ .professionLabel }}</h2>
             {{ include "cats.html" (query "cats-per-profession.rq" .profession.String) }}
         {{ end }}
+
+        <h2>Professions Cats shares with Dogs</h2>
+        {{ $cat := "Q146" }}
+        {{ $dog := "Q144" }}
+        {{ $shared_professions := query "shared-professions.rq" $cat $dog }}
+        <ul>
+            {{ range $shared_professions }}
+                <li>{{ .species1_professionLabel  }}</li>
+            {{ end }}
+        </ul>
     </body>
 </html>

@@ -1,0 +1,11 @@
+SELECT DISTINCT ?species1_profession ?species1_professionLabel WHERE {
+  VALUES (?species1 ?species2) { (wd:{{.}} wd:{{.}}) }
+  [] wdt:P31 ?species1 ;
+     wdt:P106 ?species1_profession .
+  [] wdt:P31 ?species2 ;
+     wdt:P106 ?species2_profession .
+
+  FILTER(?species1_profession = ?species2_profession)
+
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" . }
+}
