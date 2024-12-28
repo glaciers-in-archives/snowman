@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"io/fs"
 	"io"
+	"io/fs"
 	"os"
 	"strings"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 )
 
@@ -44,7 +45,6 @@ var cacheCmd = &cobra.Command{
 	Use:   "cache",
 	Short: "Show the contents of cached queries",
 	Long:  `This command allows you to inspect the cache for any cached query. The first argument should be the name of the SPARQL query. To inspect the cache of a parameterized query provide a second argument with its parameter value.`,
-	Args:  cobra.RangeArgs(0, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var selectedCacheItems []string
 
@@ -55,6 +55,7 @@ var cacheCmd = &cobra.Command{
 		}
 		var cacheLocation = cm.SnowmanDirectoryPath + "/cache/"
 
+		// if we have no arguments and the unused flag is not set, we just count the cache items
 		if len(args) == 0 && !unusedOption {
 			totFiles, err := utils.CountFilesRecursive(cacheLocation)
 			if err != nil {
@@ -64,6 +65,7 @@ var cacheCmd = &cobra.Command{
 			fmt.Println("There are " + fmt.Sprint(totFiles) + " cache items.")
 
 			selectedCacheItems = append(selectedCacheItems, cacheLocation)
+			// if we have no arguments and the unused flag is set, we read the last build queries and clear the cache items that were not used
 		} else if len(args) == 0 && unusedOption {
 			usedItems, err := utils.ReadLineSeperatedFile(snowmanPath + "/last_build_queries.txt")
 			if err != nil {
@@ -75,6 +77,7 @@ var cacheCmd = &cobra.Command{
 					return err
 				}
 
+				// last_build_queries.txt stores <hash>/<hash>
 				pathAsCacheItem := strings.Replace(strings.Replace(path, ".json", "", 1), cacheLocation, "", 1)
 				isUsed := false
 				for _, used := range usedItems {
@@ -93,6 +96,7 @@ var cacheCmd = &cobra.Command{
 			}
 
 			fmt.Println("Found " + fmt.Sprint(len(selectedCacheItems)) + " unused cache items.")
+			// if we have one argument, we show the cache items for the query
 		} else if len(args) == 1 {
 			dirPath := cacheLocation + cache.Hash(args[0])
 
@@ -108,16 +112,23 @@ var cacheCmd = &cobra.Command{
 			}
 
 			selectedCacheItems = append(selectedCacheItems, dirPath)
-		} else if len(args) == 2 {
+			// if we have two or more arguments, we show the cache item for the query with the parameter
+		} else if len(args) >= 2 {
 
 			sparqlBytes, err := os.ReadFile("queries/" + args[0])
 			if err != nil {
 				return utils.ErrorExit("Failed to remove find query file.", err)
 			}
 
-			queryString := strings.Replace(string(sparqlBytes), "{{.}}", args[1], 1)
+			// for the second and all following arguments
+			queryParameters := args[1:]
+			query := string(sparqlBytes)
+			for _, parameter := range queryParameters {
+				argument := cast.ToString(parameter)
+				query = strings.Replace(query, "{{.}}", argument, 1)
+			}
 
-			filePath := cacheLocation + cache.Hash(args[0]) + "/" + cache.Hash(queryString) + ".json"
+			filePath := cacheLocation + cache.Hash(args[0]) + "/" + cache.Hash(query) + ".json"
 			selectedCacheItems = append(selectedCacheItems, filePath)
 
 			printFileContents((filePath))
