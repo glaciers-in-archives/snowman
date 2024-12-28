@@ -65,12 +65,12 @@ var cacheCmd = &cobra.Command{
 
 			selectedCacheItems = append(selectedCacheItems, cacheLocation)
 		} else if len(args) == 0 && unusedOption {
-			usedItems, err := utils.ReadLineSeperatedFile(".snowman/last_build_queries.txt")
+			usedItems, err := utils.ReadLineSeperatedFile(snowmanPath + "/last_build_queries.txt")
 			if err != nil {
 				return utils.ErrorExit("Failed to read last unused cache items: ", err)
 			}
 
-			err = fs.WalkDir(os.DirFS("."), cacheLocation, func(path string, info fs.DirEntry, err error) error {
+			err = fs.WalkDir(os.DirFS("."), strings.TrimRight(cacheLocation, "/"), func(path string, info fs.DirEntry, err error) error {
 				if err != nil {
 					return err
 				}
@@ -88,6 +88,9 @@ var cacheCmd = &cobra.Command{
 				}
 				return nil
 			})
+			if err != nil {
+				return utils.ErrorExit("Failed to walk cache directory: ", err)
+			}
 
 			fmt.Println("Found " + fmt.Sprint(len(selectedCacheItems)) + " unused cache items.")
 		} else if len(args) == 1 {
