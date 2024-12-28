@@ -3,7 +3,6 @@ package cache
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,7 +29,7 @@ func NewCacheManager(strategy string, snowmanDirectoryPath string) (*CacheManage
 	}
 	cm.StoredCacheHashes = make(map[string]bool)
 
-	if err := os.MkdirAll(cm.SnowmanDirectoryPath + "/cache/", 0770); err != nil {
+	if err := os.MkdirAll(cm.SnowmanDirectoryPath+"/cache/", 0770); err != nil {
 		return nil, err
 	}
 
@@ -45,13 +44,13 @@ func NewCacheManager(strategy string, snowmanDirectoryPath string) (*CacheManage
 
 func (cm *CacheManager) readStoredHashes() error {
 	// index cache hashes
-	locationHashes, err := ioutil.ReadDir(cm.SnowmanDirectoryPath + "/cache/")
+	locationHashes, err := os.ReadDir(cm.SnowmanDirectoryPath + "/cache/")
 	if err != nil {
 		return err
 	}
 
 	for _, locationDirInfo := range locationHashes {
-		contentDirInfo, err := ioutil.ReadDir(cm.SnowmanDirectoryPath + "/cache/" + locationDirInfo.Name())
+		contentDirInfo, err := os.ReadDir(cm.SnowmanDirectoryPath + "/cache/" + locationDirInfo.Name())
 		if err != nil {
 			return err
 		}

@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -51,7 +50,7 @@ func DiscoverQueries() (map[string]string, error) {
 			return err
 		}
 		if !info.IsDir() {
-			sparqlBytes, err := ioutil.ReadFile(path)
+			sparqlBytes, err := os.ReadFile(path)
 			if err != nil {
 				return err
 			}

@@ -2,7 +2,7 @@ package function
 
 import (
 	"errors"
-	"io/ioutil"
+	"os"
 )
 
 func ReadFile(filepath string) (string, error) {
@@ -10,7 +10,7 @@ func ReadFile(filepath string) (string, error) {
 		return "", errors.New("File path must be relative to the project root.")
 	}
 
-	bytes, err := ioutil.ReadFile(filepath)
+	bytes, err := os.ReadFile(filepath)
 	if err != nil {
 		return "", err
 	}

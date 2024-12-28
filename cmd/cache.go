@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io/fs"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -30,7 +30,7 @@ func printFileContents(path string) error {
 		return nil
 	}()
 
-	b, err := ioutil.ReadAll(file)
+	b, err := io.ReadAll(file)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ var cacheCmd = &cobra.Command{
 			selectedCacheItems = append(selectedCacheItems, dirPath)
 		} else if len(args) == 2 {
 
-			sparqlBytes, err := ioutil.ReadFile("queries/" + args[0])
+			sparqlBytes, err := os.ReadFile("queries/" + args[0])
 			if err != nil {
 				return utils.ErrorExit("Failed to remove find query file.", err)
 			}

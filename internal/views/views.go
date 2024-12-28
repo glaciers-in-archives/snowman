@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	html_template "html/template"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -75,7 +74,7 @@ func getViewFuncs(currentViewConfig viewConfig) html_template.FuncMap {
 func DiscoverViews(layouts []string) ([]View, error) {
 	var views []View
 
-	data, err := ioutil.ReadFile("views.yaml")
+	data, err := os.ReadFile("views.yaml")
 	if err != nil {
 		return nil, errors.New("Failed to read views.yaml")
 	}

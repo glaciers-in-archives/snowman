@@ -1,7 +1,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"net/url"
 	"os"
 
@@ -42,7 +41,7 @@ func LoadConfig(fileLocation string) error {
 		}
 	}
 
-	data, err := ioutil.ReadFile(fileLocation)
+	data, err := os.ReadFile(fileLocation)
 	if err != nil {
 		return utils.ErrorExit("Failed to read "+fileLocation+".", err)
 	}
