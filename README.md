@@ -4,6 +4,9 @@
 
 Snowman is designed to allow RDF-based projects to use SPARQL in the user-facing parts of their stack, even at scale. Snowman powers projects rendering simple SKOS vocabularies as well as projects rendering entire knowledge bases. Snowman's templating system comes with RDF- and SPARQL-tailored functions, and features and takes its data from SPARQL queries.
 
+> [!NOTE]
+> The Snowman documentation has outgrown this README and it's being migrated to its own [dedicated space](https://byabbe.se/snowman-manual/). The "from scratch" guide and the reference section will be removed from this README in a future release.
+
 ## Installation
 
 [Download the latest release for your OS/architecture](https://github.com/glaciers-in-archives/snowman/releases).
