@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"strings"
 
@@ -67,33 +66,12 @@ var cacheCmd = &cobra.Command{
 			selectedCacheItems = append(selectedCacheItems, cacheLocation)
 			// if we have no arguments and the unused flag is set, we read the last build queries and clear the cache items that were not used
 		} else if len(args) == 0 && unusedOption {
-			usedItems, err := utils.ReadLineSeperatedFile(snowmanPath + "/last_build_queries.txt")
+			unusedCacheItems, err := cm.GetUnusedCacheHashes()
 			if err != nil {
-				return utils.ErrorExit("Failed to read last unused cache items: ", err)
+				return utils.ErrorExit("Failed to get unused cache items.", err)
 			}
 
-			err = fs.WalkDir(os.DirFS("."), strings.TrimRight(cacheLocation, "/"), func(path string, info fs.DirEntry, err error) error {
-				if err != nil {
-					return err
-				}
-
-				// last_build_queries.txt stores <hash>/<hash>
-				pathAsCacheItem := strings.Replace(strings.Replace(path, ".json", "", 1), cacheLocation, "", 1)
-				isUsed := false
-				for _, used := range usedItems {
-					if pathAsCacheItem == used || strings.HasPrefix(used, pathAsCacheItem) {
-						isUsed = true
-					}
-				}
-
-				if !isUsed {
-					selectedCacheItems = append(selectedCacheItems, path)
-				}
-				return nil
-			})
-			if err != nil {
-				return utils.ErrorExit("Failed to walk cache directory: ", err)
-			}
+			selectedCacheItems = append(selectedCacheItems, unusedCacheItems...)
 
 			fmt.Println("Found " + fmt.Sprint(len(selectedCacheItems)) + " unused cache items.")
 			// if we have one argument, we show the cache items for the query
