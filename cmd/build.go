@@ -13,7 +13,7 @@ import (
 	"github.com/glaciers-in-archives/snowman/internal/static"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"github.com/glaciers-in-archives/snowman/internal/views"
-	"github.com/knakk/rdf"
+	"github.com/glaciers-in-archives/snowman/internal/rdf"
 	"github.com/spf13/cobra"
 )
 

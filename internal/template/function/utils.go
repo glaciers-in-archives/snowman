@@ -5,8 +5,8 @@ import (
 	"html/template"
 
 	"github.com/glaciers-in-archives/snowman/internal/config"
+	"github.com/glaciers-in-archives/snowman/internal/rdf"
 	"github.com/glaciers-in-archives/snowman/internal/version"
-	"github.com/knakk/rdf"
 	"github.com/spf13/cast"
 )
 

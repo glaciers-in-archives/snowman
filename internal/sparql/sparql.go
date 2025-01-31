@@ -13,7 +13,7 @@ import (
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/config"
-	"github.com/knakk/rdf"
+	"github.com/glaciers-in-archives/snowman/internal/rdf"
 	"github.com/spf13/cast"
 )
 

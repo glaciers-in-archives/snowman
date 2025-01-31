@@ -1,8 +1,8 @@
 package function
 
 import (
+	"github.com/glaciers-in-archives/snowman/internal/rdf"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
-	"github.com/knakk/rdf"
 )
 
 func Query(queryLocation string, arguments ...interface{}) ([]map[string]rdf.Term, error) {
