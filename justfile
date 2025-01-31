@@ -17,3 +17,7 @@ run *COMMAND:
 build-all:
   ./release.bash
 
+# starts the documentation server and file watcher
+docs:
+  cd docs && mdbook serve
+
