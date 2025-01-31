@@ -2,8 +2,6 @@
 
 `now` returns the current date and time in the requested format. The function takes a format string as an argument.
 
- [time.Now](https://golang.org/pkg/time/#Now)
-
 ```
 {{ now.Format "2006-01-02" }}
 ```
