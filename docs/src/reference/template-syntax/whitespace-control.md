@@ -32,4 +32,7 @@ The `-` is optional and can be placed on either side of the block. The following
 
 You can also use trim markers with comments:
 
+```
 {{- /* this is a comment with trim markers */ -}}
+```
+
