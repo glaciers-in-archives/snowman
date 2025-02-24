@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	cache_cmd "github.com/glaciers-in-archives/snowman/cmd/cache"
 	"github.com/spf13/cobra"
 )
 
@@ -45,6 +46,9 @@ func Execute() {
 
 func init() {
 	rootCmd.SilenceUsage = true
+
+	rootCmd.AddCommand(cache_cmd.CacheCmd)
+
 	rootCmd.PersistentFlags().BoolVarP(&timeit, "timeit", "t", false, "")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Activate verbose output.")
 }
