@@ -16,7 +16,7 @@ func Hash(value string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-type CacheManager struct {
+type SparqlCacheManager struct {
 	CacheStrategy                 string // "available", "never"
 	StoredCacheHashes             map[string]bool
 	cacheHashesUsedInCurrentBuild []string
@@ -24,14 +24,14 @@ type CacheManager struct {
 	SnowmanDirectoryPath          string
 }
 
-func NewCacheManager(strategy string, snowmanDirectoryPath string) (*CacheManager, error) {
-	cm := CacheManager{
+func NewSparqlCacheManager(strategy string, snowmanDirectoryPath string) (*SparqlCacheManager, error) {
+	cm := SparqlCacheManager{
 		CacheStrategy:        strategy,
 		SnowmanDirectoryPath: snowmanDirectoryPath,
 	}
 	cm.StoredCacheHashes = make(map[string]bool)
 
-	if err := os.MkdirAll(cm.SnowmanDirectoryPath+"/cache/", 0770); err != nil {
+	if err := os.MkdirAll(cm.SnowmanDirectoryPath+"/cache/sparql/", 0770); err != nil {
 		return nil, err
 	}
 
@@ -47,8 +47,8 @@ func NewCacheManager(strategy string, snowmanDirectoryPath string) (*CacheManage
 // GetCacheItemsByResourceAndArguments returns a list of cache paths given a resource and arguments, like so:
 // "myquery.rq", "arg1", "arg2"
 // note that if only a location is provided, the resulting path might be a directory
-func (cm *CacheManager) GetCacheItemsByResourceAndArguments(location string, arguments ...string) ([]string, error) {
-	locationPathWithHash := cm.SnowmanDirectoryPath + "/cache/" + Hash(location)
+func (cm *SparqlCacheManager) GetCacheItemsByResourceAndArguments(location string, arguments ...string) ([]string, error) {
+	locationPathWithHash := cm.SnowmanDirectoryPath + "/cache/sparql/" + Hash(location)
 	if len(arguments) == 0 { // just the location
 		files, err := os.ReadDir(locationPathWithHash)
 		if err != nil {
@@ -82,7 +82,7 @@ func (cm *CacheManager) GetCacheItemsByResourceAndArguments(location string, arg
 	return []string{cacheFilePath}, nil
 }
 
-func (cm *CacheManager) loadCacheHashesUsedInLastBuild() error {
+func (cm *SparqlCacheManager) loadCacheHashesUsedInLastBuild() error {
 	lastBuildQueries, err := utils.ReadLineSeperatedFile(cm.SnowmanDirectoryPath + "/last_build_queries.txt")
 	if err != nil {
 		return err
@@ -94,7 +94,7 @@ func (cm *CacheManager) loadCacheHashesUsedInLastBuild() error {
 
 // GetUnusedCacheHashes returns a list of cache paths that were not used in the last build
 // it's mainly used for cleaning up the cache directory, note that it returns the full path
-func (cm *CacheManager) GetUnusedCacheHashes() ([]string, error) {
+func (cm *SparqlCacheManager) GetUnusedCacheHashes() ([]string, error) {
 	err := cm.loadCacheHashesUsedInLastBuild()
 	if err != nil {
 		return nil, err
@@ -104,18 +104,18 @@ func (cm *CacheManager) GetUnusedCacheHashes() ([]string, error) {
 	// but it's more reliable in terms of finding everything odd in the cache directory
 	// however, it might be worth rewriting this
 	unusedCacheHashes := []string{}
-	err = fs.WalkDir(os.DirFS("."), cm.SnowmanDirectoryPath+"/cache", func(path string, info fs.DirEntry, err error) error {
+	err = fs.WalkDir(os.DirFS("."), cm.SnowmanDirectoryPath+"/cache/sparql", func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
 		// skip the directory itself
-		if path == cm.SnowmanDirectoryPath+"/cache" {
+		if path == cm.SnowmanDirectoryPath+"/cache/sparql" {
 			return nil
 		}
 
 		// last_build_queries.txt stores <hash>/<hash>
-		pathAsCacheItem := strings.Replace(strings.Replace(path, ".json", "", 1), cm.SnowmanDirectoryPath+"/cache/", "", 1)
+		pathAsCacheItem := strings.Replace(strings.Replace(path, ".json", "", 1), cm.SnowmanDirectoryPath+"/cache/sparql/", "", 1)
 		isUsed := false
 		for _, used := range cm.cacheHashesUsedInLastBuild {
 			if pathAsCacheItem == used || strings.HasPrefix(used, pathAsCacheItem) {
@@ -135,14 +135,14 @@ func (cm *CacheManager) GetUnusedCacheHashes() ([]string, error) {
 	return unusedCacheHashes, nil
 }
 
-func (cm *CacheManager) readStoredHashes() error {
-	locationHashes, err := os.ReadDir(cm.SnowmanDirectoryPath + "/cache/")
+func (cm *SparqlCacheManager) readStoredHashes() error {
+	locationHashes, err := os.ReadDir(cm.SnowmanDirectoryPath + "/cache/sparql/")
 	if err != nil {
 		return err
 	}
 
 	for _, locationDirInfo := range locationHashes {
-		contentDirInfo, err := os.ReadDir(cm.SnowmanDirectoryPath + "/cache/" + locationDirInfo.Name())
+		contentDirInfo, err := os.ReadDir(cm.SnowmanDirectoryPath + "/cache/sparql/" + locationDirInfo.Name())
 		if err != nil {
 			return err
 		}
@@ -155,7 +155,7 @@ func (cm *CacheManager) readStoredHashes() error {
 	return nil
 }
 
-func (cm *CacheManager) GetCache(location string, query string) (*os.File, error) {
+func (cm *SparqlCacheManager) GetCache(location string, query string) (*os.File, error) {
 	fullQueryHash := Hash(location) + "/" + Hash(query)
 	cm.cacheHashesUsedInCurrentBuild = append(cm.cacheHashesUsedInCurrentBuild, fullQueryHash)
 
@@ -163,18 +163,18 @@ func (cm *CacheManager) GetCache(location string, query string) (*os.File, error
 		return nil, nil
 	}
 
-	queryCacheLocation := cm.SnowmanDirectoryPath + "/cache/" + fullQueryHash + ".json"
+	queryCacheLocation := cm.SnowmanDirectoryPath + "/cache/sparql/" + fullQueryHash + ".json"
 
 	return os.Open(queryCacheLocation)
 }
 
-func (cm *CacheManager) SetCache(location string, query string, content string) error {
+func (cm *SparqlCacheManager) SetCache(location string, query string, content string) error {
 	if cm.CacheStrategy == "never" {
 		return nil
 	}
 
 	fullQueryHash := Hash(location) + "/" + Hash(query)
-	queryCacheLocation := cm.SnowmanDirectoryPath + "/cache/" + fullQueryHash + ".json"
+	queryCacheLocation := cm.SnowmanDirectoryPath + "/cache/sparql/" + fullQueryHash + ".json"
 
 	if err := os.MkdirAll(filepath.Dir(queryCacheLocation), 0770); err != nil {
 		return err
@@ -198,7 +198,7 @@ func (cm *CacheManager) SetCache(location string, query string, content string) 
 	return nil
 }
 
-func (cm *CacheManager) Teardown() error {
+func (cm *SparqlCacheManager) Teardown() error {
 	if err := utils.WriteLineSeperatedFile(cm.cacheHashesUsedInCurrentBuild, cm.SnowmanDirectoryPath+"/last_build_queries.txt"); err != nil {
 		return err
 	}
