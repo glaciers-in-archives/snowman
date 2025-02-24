@@ -7,18 +7,18 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/glaciers-in-archives/snowman/internal/config"
 	"github.com/glaciers-in-archives/snowman/internal/cache"
+	"github.com/glaciers-in-archives/snowman/internal/config"
+	"github.com/glaciers-in-archives/snowman/internal/rdf"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/glaciers-in-archives/snowman/internal/static"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"github.com/glaciers-in-archives/snowman/internal/views"
-	"github.com/glaciers-in-archives/snowman/internal/rdf"
 	"github.com/spf13/cobra"
 )
 
 // CLI FLAGS
-var cacheBuildOption string
+var sparqlCacheBuildOption string
 var staticBuildOption bool
 var configFileLocation string
 var snowmanDirectoryPath string
@@ -101,7 +101,7 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to index query files.", err)
 		}
 
-		cacheManager, err := cache.NewCacheManager(cacheBuildOption, snowmanDirectoryPath)
+		cacheManager, err := cache.NewCacheManager(sparqlCacheBuildOption, snowmanDirectoryPath)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate cache manager.", err)
 		}
@@ -191,8 +191,11 @@ var buildCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-	buildCmd.Flags().StringVarP(&cacheBuildOption, "cache", "c", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
+	buildCmd.Flags().StringVar(&sparqlCacheBuildOption, "cache-sparql", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
 	buildCmd.Flags().BoolVarP(&staticBuildOption, "static", "s", false, "When set Snowman will only build static files.")
 	buildCmd.Flags().StringVarP(&configFileLocation, "config", "f", "snowman.yaml", "Sets the config file to use.")
 	buildCmd.Flags().StringVarP(&snowmanDirectoryPath, "snowman-directory", "d", ".snowman", "Sets the snowman directory to use.")
+
+	buildCmd.Flags().StringVarP(&sparqlCacheBuildOption, "cache", "c", "available", "This flag is deprecated. Use --cache-sparql instead.")
+	buildCmd.MarkFlagsMutuallyExclusive("cache", "cache-sparql")
 }
