@@ -101,7 +101,7 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to index query files.", err)
 		}
 
-		cacheManager, err := cache.NewCacheManager(sparqlCacheBuildOption, snowmanDirectoryPath)
+		cacheManager, err := cache.NewSparqlCacheManager(sparqlCacheBuildOption, snowmanDirectoryPath)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate cache manager.", err)
 		}

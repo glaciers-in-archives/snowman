@@ -18,7 +18,7 @@ var sparqlCacheClearCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// we do initialize the cache manager, so that all cache related checks are done
-		cm, err := cache.NewCacheManager("available", snowmanPath) // the cache strategy isn't relevant for this command
+		cm, err := cache.NewSparqlCacheManager("available", snowmanPath) // the cache strategy isn't relevant for this command
 		if err != nil {
 			return utils.ErrorExit("Failed to create cache manager.", err)
 		}

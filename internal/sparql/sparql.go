@@ -21,13 +21,13 @@ type Repository struct {
 	client       config.ClientConfig
 	httpClient   *http.Client
 	verbose      bool
-	CacheManager cache.CacheManager
+	CacheManager cache.SparqlCacheManager
 	QueryIndex   map[string]string
 }
 
 var CurrentRepository Repository
 
-func NewRepository(cacheManager cache.CacheManager, queryIndex map[string]string, verbose bool) error {
+func NewRepository(cacheManager cache.SparqlCacheManager, queryIndex map[string]string, verbose bool) error {
 	repo := Repository{
 		client:     config.CurrentSiteConfig.Client,
 		QueryIndex: queryIndex,
