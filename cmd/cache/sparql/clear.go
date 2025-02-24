@@ -22,7 +22,7 @@ var sparqlCacheClearCmd = &cobra.Command{
 		if err != nil {
 			return utils.ErrorExit("Failed to create cache manager.", err)
 		}
-		var cacheLocation = cm.SnowmanDirectoryPath + "/cache/"
+		var cacheLocation = cm.SnowmanDirectoryPath + "/cache/sparql/"
 
 		// if we have no arguments and the unused flag is not set, we remove all cache items
 		if len(args) == 0 && !unusedOption {
