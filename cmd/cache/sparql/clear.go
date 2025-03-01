@@ -12,8 +12,8 @@ import (
 )
 
 var sparqlCacheClearCmd = &cobra.Command{
-	Use:   "inspect",
-	Short: "Inspect the Snowman SPARQL cache.",
+	Use:   "clear",
+	Short: "Clear the Snowman SPARQL cache.",
 	Long:  `This command allows you to clear the cache for any cached query. The first argument should be the name of the SPARQL query. To clear the cache of a parameterized query provide a second argument with its parameter value.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
