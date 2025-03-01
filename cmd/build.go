@@ -19,6 +19,7 @@ import (
 
 // CLI FLAGS
 var sparqlCacheBuildOption string
+var resourcesCacheBuildOption string
 var staticBuildOption bool
 var configFileLocation string
 var snowmanDirectoryPath string
@@ -101,14 +102,19 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to index query files.", err)
 		}
 
-		cacheManager, err := cache.NewSparqlCacheManager(sparqlCacheBuildOption, snowmanDirectoryPath)
+		sparqlCacheManager, err := cache.NewSparqlCacheManager(sparqlCacheBuildOption, snowmanDirectoryPath)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate cache manager.", err)
 		}
 
-		err = sparql.NewRepository(*cacheManager, queries, verbose)
+		err = sparql.NewRepository(*sparqlCacheManager, queries, verbose)
 		if err != nil {
 			return utils.ErrorExit("Failed to initiate SPARQL client.", err)
+		}
+
+		err = cache.NewResourcesCacheManager(resourcesCacheBuildOption, snowmanDirectoryPath)
+		if err != nil {
+			return utils.ErrorExit("Failed to initiate resources cache manager.", err)
 		}
 
 		discoveredViews, err := views.DiscoverViews(layouts)
@@ -192,6 +198,7 @@ var buildCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(buildCmd)
 	buildCmd.Flags().StringVar(&sparqlCacheBuildOption, "cache-sparql", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
+	buildCmd.Flags().StringVar(&resourcesCacheBuildOption, "cache-resources", "available", "Sets the cache strategy for resources. \"available\" will use cached resources when available and fallback to downloading. \"never\" will ignore existing cache and will not update or set new cache.")
 	buildCmd.Flags().BoolVarP(&staticBuildOption, "static", "s", false, "When set Snowman will only build static files.")
 	buildCmd.Flags().StringVarP(&configFileLocation, "config", "f", "snowman.yaml", "Sets the config file to use.")
 	buildCmd.Flags().StringVarP(&snowmanDirectoryPath, "snowman-directory", "d", ".snowman", "Sets the snowman directory to use.")
