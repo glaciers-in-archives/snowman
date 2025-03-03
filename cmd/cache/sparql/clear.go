@@ -47,7 +47,12 @@ var sparqlCacheClearCmd = &cobra.Command{
 				return utils.ErrorExit("Failed to get unused cache items.", err)
 			}
 
-			fmt.Println("Found " + fmt.Sprint(len(unusedCacheItems)) + " unused cache items.")
+			for _, item := range unusedCacheItems {
+				fmt.Println("Removing: " + item)
+				if err := os.RemoveAll(item); err != nil {
+					return utils.ErrorExit("Failed to remove the cache file.", err)
+				}
+			}
 			// if we have one argument, remove all cache items for the query
 		} else if len(args) == 1 {
 			dirPath := cacheLocation + cache.Hash(args[0])
