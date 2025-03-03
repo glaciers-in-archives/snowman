@@ -2,7 +2,6 @@ package sparql_cache_cmd
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
@@ -11,29 +10,6 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 )
-
-func printFileContents(path string) error {
-	fmt.Println(path)
-	file, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-
-	defer func() error {
-		if err = file.Close(); err != nil {
-			return err
-		}
-		return nil
-	}()
-
-	b, err := io.ReadAll(file)
-	if err != nil {
-		return err
-	}
-
-	fmt.Print(string(b))
-	return nil
-}
 
 var sparqlCacheInspectCmd = &cobra.Command{
 	Use:   "inspect",
@@ -77,7 +53,7 @@ var sparqlCacheInspectCmd = &cobra.Command{
 			if len(files) > 1 {
 				fmt.Println(args[0] + " represents a parameterized query with " + fmt.Sprint(len(files)) + " cache items.")
 			} else {
-				printFileContents(dirPath + "/" + files[0].Name())
+				utils.PrintFileContents(dirPath + "/" + files[0].Name())
 			}
 
 			// if we have two or more arguments, we show the cache item for the query with the parameter
@@ -98,7 +74,7 @@ var sparqlCacheInspectCmd = &cobra.Command{
 
 			filePath := cacheLocation + cache.Hash(args[0]) + "/" + cache.Hash(query) + ".json"
 
-			printFileContents((filePath))
+			utils.PrintFileContents((filePath))
 		}
 
 		return nil

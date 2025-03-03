@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -123,5 +124,28 @@ func ValidatePathSection(path string) error {
 		return errors.New("Path can't be empty")
 	}
 
+	return nil
+}
+
+func PrintFileContents(path string) error {
+	fmt.Println(path)
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	defer func() error {
+		if err = file.Close(); err != nil {
+			return err
+		}
+		return nil
+	}()
+
+	b, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print(string(b))
 	return nil
 }
