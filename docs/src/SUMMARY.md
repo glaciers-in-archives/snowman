@@ -9,7 +9,9 @@
 
 - [CLI](./reference/cli.md)
     - [build](./reference/cli/build.md)
-    - [cache](./reference/cli/cache.md)
+    - [cache](./reference/cli/cache/index.md)
+        - [sparql](./reference/cli/cache/sparql.md)
+        - [resources](./reference/cli/cache/resources.md)
     - [completion](./reference/cli/completion.md)
     - [new](./reference/cli/new.md)
     - [server](./reference/cli/server.md)
