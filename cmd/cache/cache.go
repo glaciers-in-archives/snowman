@@ -1,6 +1,7 @@
 package cache_cmd
 
 import (
+	resources_cache_cmd "github.com/glaciers-in-archives/snowman/cmd/cache/resources"
 	sparql_cache_cmd "github.com/glaciers-in-archives/snowman/cmd/cache/sparql"
 	"github.com/spf13/cobra"
 )
@@ -13,4 +14,5 @@ var CacheCmd = &cobra.Command{
 
 func init() {
 	CacheCmd.AddCommand(sparql_cache_cmd.SparqlCacheCmd)
+	CacheCmd.AddCommand(resources_cache_cmd.ResourcesCacheCmd)
 }
