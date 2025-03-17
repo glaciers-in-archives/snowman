@@ -178,6 +178,13 @@ func ParseSPARQLJSON(r io.Reader) []map[string]rdf.Term {
 				// Untyped literals are typed as xsd:string
 				if value.Lang != "" {
 					term, err = rdf.NewLangLiteral(value.Value, value.Lang)
+					break
+				}
+
+				if value.DataType != "" {
+					iri, _ := rdf.NewIRI(value.DataType)
+					term = rdf.NewTypedLiteral(value.Value, iri)
+					break
 				}
 				term = rdf.NewTypedLiteral(value.Value, xsdString)
 			case "typed-literal":
