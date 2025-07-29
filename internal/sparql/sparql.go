@@ -132,7 +132,7 @@ func (r *Repository) queryCallCached(queryLocation, query, accept string) (io.Re
 	return resultReader, nil
 }
 
-func (r *Repository) Query(queryLocation string, arguments ...interface{}) ([]map[string]rdf.Term, error) {
+func (r *Repository) QuerySelect(queryLocation string, arguments ...interface{}) ([]map[string]rdf.Term, error) {
 	accept := "application/sparql-results+json"
 
 	queryBody, err := r.queryBody(queryLocation, arguments...)
@@ -146,6 +146,29 @@ func (r *Repository) Query(queryLocation string, arguments ...interface{}) ([]ma
 	}
 
 	parsedResponse := ParseSPARQLJSON(responseContents)
+	return parsedResponse, nil
+}
+
+func (r *Repository) QueryConstruct(queryLocation string, arguments ...interface{}) (interface{}, error) {
+	accept := "application/ld+json"
+
+	queryBody, err := r.queryBody(queryLocation, arguments...)
+	if err != nil {
+		return nil, err
+	}
+
+	responseContents, err := r.queryCallCached(queryLocation, *queryBody, accept)
+	if err != nil {
+		return nil, err
+	}
+
+	var parsedResponse interface{}
+
+	err = json.NewDecoder(responseContents).Decode(&parsedResponse)
+	if err != nil {
+		return nil, err
+	}
+
 	return parsedResponse, nil
 }
 

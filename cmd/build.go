@@ -140,7 +140,7 @@ var buildCmd = &cobra.Command{
 			results := make([]map[string]rdf.Term, 0)
 			if view.ViewConfig.QueryFile != "" {
 				printVerbose("Issuing query " + view.ViewConfig.QueryFile)
-				results, err = sparql.CurrentRepository.Query(view.ViewConfig.QueryFile)
+				results, err = sparql.CurrentRepository.QuerySelect(view.ViewConfig.QueryFile)
 				if err != nil {
 					return utils.ErrorExit("SPARQL query failed.", err)
 				}
