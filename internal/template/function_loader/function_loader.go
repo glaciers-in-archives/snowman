@@ -28,7 +28,8 @@ func FunctionLoader() template.FuncMap {
 		"mul":  function.Mul,
 		"rand": function.Rand,
 
-		"query": function.Query,
+		"query":           function.Query,
+		"query_construct": function.QueryConstruct,
 
 		"get_remote":             function.GetRemote,
 		"get_remote_with_config": function.GetRemoteWithConfig,
