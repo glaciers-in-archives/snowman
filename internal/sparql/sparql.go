@@ -42,7 +42,7 @@ func NewRepository(cacheManager cache.SparqlCacheManager, queryIndex map[string]
 	return nil
 }
 
-func (r *Repository) QueryCall(query string) (*string, error) {
+func (r *Repository) QueryCall(query, accept string) (*string, error) {
 	form := url.Values{}
 	form.Set("query", query)
 	b := form.Encode()
@@ -54,7 +54,7 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Content-Length", strconv.Itoa(len(b)))
-	req.Header.Set("Accept", "application/sparql-results+json")
+	req.Header.Set("Accept", accept)
 
 	for header, content := range r.client.Headers {
 		req.Header.Set(header, content)
@@ -81,7 +81,8 @@ func (r *Repository) QueryCall(query string) (*string, error) {
 	return &responseString, nil
 }
 
-func (r *Repository) Query(queryLocation string, arguments ...interface{}) ([]map[string]rdf.Term, error) {
+// Get a query contents by its filename and optionally substitute variables.
+func (r *Repository) queryBody(queryLocation string, arguments ...interface{}) (*string, error) {
 	query, exists := r.QueryIndex[queryLocation] // QueryIndex includes query/, wanted or not? not?
 	if !exists {
 		return nil, errors.New("The given query could not be found. " + queryLocation)
@@ -103,37 +104,48 @@ func (r *Repository) Query(queryLocation string, arguments ...interface{}) ([]ma
 		}
 	}
 
+	return &query, nil
+}
+
+// Retrieve the query results from cache or issue a new call and save to cache
+func (r *Repository) queryCallCached(queryLocation, query, accept string) (io.Reader, error) {
 	file, err := r.CacheManager.GetCache(queryLocation, query)
 	if err != nil {
 		return nil, err
 	}
 
-	var parsedResponse []map[string]rdf.Term
 	if file != nil {
-		parsedResponse := ParseSPARQLJSON(file)
-		if err != nil {
-			return nil, err
-		}
-
-		file.Close()
-		return parsedResponse, nil
+		defer file.Close()
+		return file, nil
 	}
 
-	jsonString, err := r.QueryCall(query)
+	queryResult, err := r.QueryCall(query, accept)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := r.CacheManager.SetCache(queryLocation, query, *jsonString); err != nil {
+	if err := r.CacheManager.SetCache(queryLocation, query, *queryResult); err != nil {
 		return nil, err
 	}
 
-	var resultReader = strings.NewReader(*jsonString)
-	parsedResponse = ParseSPARQLJSON(resultReader)
+	var resultReader = strings.NewReader(*queryResult)
+	return resultReader, nil
+}
+
+func (r *Repository) Query(queryLocation string, arguments ...interface{}) ([]map[string]rdf.Term, error) {
+	accept := "application/sparql-results+json"
+
+	queryBody, err := r.queryBody(queryLocation, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
+	responseContents, err := r.queryCallCached(queryLocation, *queryBody, accept)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedResponse := ParseSPARQLJSON(responseContents)
 	return parsedResponse, nil
 }
 
