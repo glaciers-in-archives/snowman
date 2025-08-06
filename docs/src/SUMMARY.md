@@ -68,6 +68,7 @@
         - [from_json](./reference/template-functions/json/from_json.md)
     - [HTTP](./reference/template-functions/http/index.md)
         - [query](./reference/template-functions/http/query.md)
+        - [query_construct](./reference/template-functions/http/query_construct.md)
         - [get_remote](./reference/template-functions/http/get_remote.md)
         - [get_remote_with_config](./reference/template-functions/http/get_remote_with_config.md)
     - [Templates](./reference/template-functions/templates/index.md)
