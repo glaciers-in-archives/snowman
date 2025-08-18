@@ -45,6 +45,10 @@ func FunctionLoader() template.FuncMap {
 		"trim":       function.Trim,
 		"contains":   function.Contains,
 
+		"md5":       function.MD5,
+		"sha1":      function.SHA1,
+		"sha256":    function.SHA256,
+
 		"safe_html": function.SafeHTML,
 		"uri":       function.URI,
 		"config":    function.Config,
