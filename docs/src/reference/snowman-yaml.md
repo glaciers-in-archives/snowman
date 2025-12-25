@@ -21,3 +21,29 @@ snowman build --config=production-snowman.yaml
 
 This is useful if you need to build your proejct in various environments such as development, CI, and production.
 
+## Version Requirements
+
+You can specify a required Snowman version in your `snowman.yaml` to ensure all team members are using a compatible version:
+
+```yaml
+snowman_version: ">=0.7.0"
+sparql_client:
+  endpoint: "https://query.wikidata.org/sparql"
+```
+
+The `snowman_version` field uses NPM-style semantic versioning syntax and supports various constraint formats:
+
+- **Range constraint**: `">=0.7.0"` - Requires version 0.7.0 or higher
+- **Caret constraint**: `"^0.7.0"` - Compatible with 0.7.x (allows patch and minor updates)
+- **Tilde constraint**: `"~0.7.0"` - Compatible with 0.7.x (allows patch updates only)
+- **Exact version**: `"0.7.1"` - Requires exactly version 0.7.1
+- **Complex range**: `">=0.7.0 <0.8.0"` - Between 0.7.0 (inclusive) and 0.8.0 (exclusive)
+
+If the Snowman version doesn't satisfy the requirement, the build will fail with a clear error message:
+
+```
+Error: Version mismatch. Your Snowman version (0.6.5) does not satisfy the project requirement (>=0.7.0)
+```
+
+This field is optional. If omitted, any Snowman version can attempt to build the project.
+
