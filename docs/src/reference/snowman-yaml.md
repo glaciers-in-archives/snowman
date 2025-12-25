@@ -47,3 +47,40 @@ Error: Version mismatch. Your Snowman version (0.6.5) does not satisfy the proje
 
 This field is optional. If omitted, any Snowman version can attempt to build the project.
 
+## Metadata
+
+The `metadata` field allows you to define project-specific configuration values that can be accessed in your templates. This is useful for storing site-wide settings like site titles, URLs, author information, or any other data you want to reuse across your templates.
+
+```yaml
+metadata:
+  site_title: "My Awesome Knowledge Base"
+  base_url: "https://example.org"
+  author: "Tux"
+  contact_email: "tux@example.org"
+  analytics_id: "123456-1"
+  social_links:
+    - name: "Codeberg"
+      url: "https://codeberg.org/..."
+    - name: "Mastodon"
+      url: "https://social.example.org/tux"
+```
+
+### Accessing metadata in templates
+
+Metadata values can be accessed in your templates using the [`config` template function](template-functions/utilities/config.md):
+
+```html
+<title>{{ config.Metadata.site_title }}</title>
+<meta name="author" content="{{ config.Metadata.author }}">
+<a href="mailto:{{ config.Metadata.contact_email }}">Contact</a>
+```
+
+For nested values like the social links example above, you can iterate over them:
+
+```html
+<ul>
+{{ range config.Metadata.social_links }}
+  <li><a href="{{ .url }}">{{ .name }}</a></li>
+{{ end }}
+</ul>
+```
