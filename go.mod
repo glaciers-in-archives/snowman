@@ -3,6 +3,7 @@ module github.com/glaciers-in-archives/snowman
 go 1.19
 
 require (
+	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/cobra v1.9.1
 	gopkg.in/yaml.v2 v2.4.0

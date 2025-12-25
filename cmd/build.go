@@ -13,6 +13,7 @@ import (
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/glaciers-in-archives/snowman/internal/static"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
+	"github.com/glaciers-in-archives/snowman/internal/version"
 	"github.com/glaciers-in-archives/snowman/internal/views"
 	"github.com/spf13/cobra"
 )
@@ -90,6 +91,15 @@ var buildCmd = &cobra.Command{
 		err := config.LoadConfig(configFileLocation)
 		if err != nil {
 			return err
+		}
+
+		// Check version compatibility - block build if incompatible
+		if !config.CheckVersionCompatibility() {
+			if config.CurrentSiteConfig.SnowmanVersion != "" {
+				return fmt.Errorf("Error: Version mismatch. Your Snowman version (%s) does not satisfy the project requirement (%s)",
+					version.CurrentVersion.String(),
+					config.CurrentSiteConfig.SnowmanVersion)
+			}
 		}
 
 		layouts, err := DiscoverLayouts()
