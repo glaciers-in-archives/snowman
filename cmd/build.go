@@ -199,7 +199,7 @@ func init() {
 	rootCmd.AddCommand(buildCmd)
 	buildCmd.Flags().StringVar(&sparqlCacheBuildOption, "cache-sparql", "available", "Sets the cache strategy. \"available\" will use cached SPARQL responses when available and fallback to making queries. \"never\" will ignore existing cache and will not update or set new cache.")
 	buildCmd.Flags().StringVar(&resourcesCacheBuildOption, "cache-resources", "available", "Sets the cache strategy for resources. \"available\" will use cached resources when available and fallback to downloading. \"never\" will ignore existing cache and will not update or set new cache.")
-	buildCmd.Flags().BoolVarP(&staticBuildOption, "static", "s", false, "When set Snowman will only build static files.")
+	buildCmd.Flags().BoolVarP(&staticBuildOption, "static", "s", false, "Only process files in the \"static\" directory, otherwise leave already built site in place.")
 	buildCmd.Flags().StringVarP(&configFileLocation, "config", "f", "snowman.yaml", "Sets the config file to use.")
 	buildCmd.Flags().StringVarP(&snowmanDirectoryPath, "snowman-directory", "d", ".snowman", "Sets the snowman directory to use.")
 
