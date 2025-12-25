@@ -10,6 +10,6 @@
 
 1. Start to document the changes and create a draft release on Github using one of the [past releases](https://github.com/glaciers-in-archives/snowman/releases).
 2. Bump the version number in [`current_version.go`](https://github.com/glaciers-in-archives/snowman/blob/main/internal/version/current_version.go)
-3. Build executables for all supported platforms using `release.bash`. Note that you must trim the project's path.
+3. Build executables for all supported platforms by running `./release.bash` from the project root directory.
 4. Upload the executables to your draft release.
 5. Give the release notes a read-through and publish the release!
