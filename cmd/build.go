@@ -158,6 +158,7 @@ var buildCmd = &cobra.Command{
 
 			// if the page is rendered based on SPARQL result rows
 			if view.MultipageVariableHook != nil {
+				printVerbose("Rendering multipage view based on variable " + *view.MultipageVariableHook + ", with " + fmt.Sprint(len(results)) + " results.")
 				for _, row := range results {
 					if _, ok := row[*view.MultipageVariableHook]; !ok {
 						err := fmt.Errorf(*view.MultipageVariableHook + " not found in SPARQL result row.")
