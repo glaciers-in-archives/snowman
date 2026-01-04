@@ -145,7 +145,10 @@ func (r *Repository) QuerySelect(queryLocation string, arguments ...interface{})
 		return nil, err
 	}
 
-	parsedResponse := ParseSPARQLJSON(responseContents)
+	parsedResponse, err := ParseSPARQLJSON(responseContents)
+	if err != nil {
+		return nil, err
+	}
 	return parsedResponse, nil
 }
 
@@ -190,12 +193,11 @@ type binding struct {
 
 var xsdString, _ = rdf.NewIRI("http://www.w3.org/2001/XMLSchema#string")
 
-func ParseSPARQLJSON(r io.Reader) []map[string]rdf.Term {
+func ParseSPARQLJSON(r io.Reader) ([]map[string]rdf.Term, error) {
 	var results Results
 	err := json.NewDecoder(r).Decode(&results)
-
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	var parsedResults []map[string]rdf.Term
@@ -241,5 +243,5 @@ func ParseSPARQLJSON(r io.Reader) []map[string]rdf.Term {
 		parsedResults = append(parsedResults, parsedBinding)
 	}
 
-	return parsedResults
+	return parsedResults, nil
 }
