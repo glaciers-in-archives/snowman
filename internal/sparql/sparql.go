@@ -116,7 +116,11 @@ func (r *Repository) queryCallCached(queryLocation, query, accept string) (io.Re
 
 	if file != nil {
 		defer file.Close()
-		return file, nil
+		content, err := io.ReadAll(file)
+		if err != nil {
+			return nil, err
+		}
+		return strings.NewReader(string(content)), nil
 	}
 
 	queryResult, err := r.QueryCall(query, accept)
