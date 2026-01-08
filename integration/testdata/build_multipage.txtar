@@ -1,0 +1,86 @@
+# Test building a multi-page site
+# This test verifies that Snowman can build a site with multipage views
+# where multiple HTML files are generated from a single template
+
+# Build the site
+exec snowman build
+stdout 'Building project'
+
+# Verify the index page exists
+exists site/index.html
+
+# Verify multiple item pages were generated
+exists site/items/item1.html
+exists site/items/item2.html
+
+# Check content in item pages
+grep 'First Item' site/items/item1.html
+grep 'Second Item' site/items/item2.html
+
+-- snowman.yaml --
+sparql_client:
+  endpoint: "MOCK_SPARQL_ENDPOINT"
+snowman_version: ">=0.7.0"
+
+-- views.yaml --
+views:
+  - output: "index.html"
+    query: "index.rq"
+    template: "index.html"
+  - output: "items/{{id}}.html"
+    query: "items.rq"
+    template: "item.html"
+
+-- queries/index.rq --
+# Query for index page - mock server recognizes "items" in the query
+SELECT ?id ?name ?description WHERE {
+  VALUES (?placeholder) { ("items") }
+}
+
+-- queries/items.rq --
+# Query for individual items - mock server recognizes "items" in the query
+SELECT ?id ?name ?description WHERE {
+  VALUES (?placeholder) { ("items") }
+}
+
+-- templates/layouts/base.html --
+{{ define "base" }}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ block "title" . }}Snowman Site{{ end }}</title>
+</head>
+<body>
+    {{ block "content" . }}{{ end }}
+</body>
+</html>
+{{ end }}
+
+-- templates/index.html --
+{{ template "base" . }}
+
+{{ define "title" }}Item Directory{{ end }}
+
+{{ define "content" }}
+<h1>Item Directory</h1>
+<ul>
+    {{ range . }}
+    <li><a href="/items/{{ .id }}.html">{{ .name }}</a></li>
+    {{ end }}
+</ul>
+{{ end }}
+
+-- templates/item.html --
+{{ template "base" . }}
+
+{{ define "title" }}{{ .name }}{{ end }}
+
+{{ define "content" }}
+<h1>{{ .name }}</h1>
+<p>{{ .description }}</p>
+<p>Item ID: {{ .id }}</p>
+<a href="/index.html">Back to index</a>
+{{ end }}
+
+-- static/.gitkeep --
