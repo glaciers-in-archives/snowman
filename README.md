@@ -16,6 +16,9 @@ cd snowman
 go build -o snowman
 ```
 
+### Installation on macOS
+On macOS you might get a message that "Apple could not verify “snowman” is free of malware that may harm your Mac or compromise your privacy.". To get around this message go to System Settings, then Privacy & Security, scroll all the way down to 'Security' and click 'Allow Anyway' next to the message that snowman was "blocked to protect your mac". After that you can run snowman, but you still need to click the 'Open Anyway' button on the following pop-up and enter your password / touchid.
+
 ## Usage
 
 Running `snowman new  --directory="my-project-name"` will scaffold a new project utilising the most common Snowman features.
