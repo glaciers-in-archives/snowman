@@ -27,7 +27,7 @@ var snowmanDirectoryPath string
 
 func DiscoverLayouts() ([]string, error) {
 	var paths []string
-	fs.WalkDir(os.DirFS("."), "templates/layouts", func(path string, info fs.DirEntry, err error) error {
+	err := fs.WalkDir(os.DirFS("."), "templates/layouts", func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -36,6 +36,9 @@ func DiscoverLayouts() ([]string, error) {
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 	return paths, nil
 }
 
