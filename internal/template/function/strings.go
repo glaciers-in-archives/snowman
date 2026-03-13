@@ -4,6 +4,7 @@ import (
 	"errors"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/spf13/cast"
 )
@@ -33,7 +34,15 @@ func UCase(str interface{}) string {
 }
 
 func TCase(str interface{}) string {
-	return strings.Title(cast.ToString(str))
+	prev := ' '
+	return strings.Map(func(r rune) rune {
+		if unicode.IsSpace(prev) {
+			prev = r
+			return unicode.ToTitle(r)
+		}
+		prev = r
+		return r
+	}, cast.ToString(str))
 }
 
 func HasPrefix(str interface{}, prefix interface{}) bool {
