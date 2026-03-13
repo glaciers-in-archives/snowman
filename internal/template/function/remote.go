@@ -15,8 +15,8 @@ import (
 func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*string, error) {
 	preparedUri := cast.ToString(uri)
 
-	_, err := url.Parse(preparedUri)
-	if err != nil {
+	parsed, err := url.ParseRequestURI(preparedUri)
+	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
 		return nil, errors.New("Invalid argument given to get_remote template function.")
 	}
 
@@ -42,9 +42,17 @@ func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*
 
 	if config != nil {
 		if config["headers"] != nil {
-			headers := config["headers"].(map[interface{}]interface{})
+			headers, ok := config["headers"].(map[interface{}]interface{})
+			if !ok {
+				return nil, errors.New("get_remote: headers must be a map")
+			}
 			for key, value := range headers {
-				req.Header.Set(key.(string), value.(string))
+				k, ok1 := key.(string)
+				v, ok2 := value.(string)
+				if !ok1 || !ok2 {
+					return nil, errors.New("get_remote: header keys and values must be strings")
+				}
+				req.Header.Set(k, v)
 			}
 		}
 	}
