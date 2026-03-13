@@ -98,8 +98,8 @@ func (r *Repository) queryBody(queryLocation string, arguments ...interface{}) (
 
 	if r.verbose {
 		if len(arguments) > 0 {
-			promt := fmt.Sprintf("Issuing parameterized query %v with arguments: %v.", queryLocation, arguments)
-			fmt.Println(promt)
+			prompt := fmt.Sprintf("Issuing parameterized query %v with arguments: %v.", queryLocation, arguments)
+			fmt.Println(prompt)
 		} else {
 			fmt.Println("Issuing query: " + queryLocation)
 		}
