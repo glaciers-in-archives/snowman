@@ -1,11 +1,15 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -34,13 +38,26 @@ var serverCmd = &cobra.Command{
 		fs := http.FileServer(http.Dir("site/"))
 		address := serverInterface + ":" + strconv.Itoa(port)
 		fmt.Println("Serving site at http://" + address + ". Hold ctrl+c to exit.")
-		if err := http.ListenAndServe(address, loggingHandler(fs)); err != nil {
-			// utils.ErrorExit() wont work here has
-			log.Println(err) // #TODO shutdown gracefully
-		}
-		// #TODO shutdown gracefully
 
-		return nil
+		srv := &http.Server{
+			Addr:    address,
+			Handler: loggingHandler(fs),
+		}
+
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+		go func() {
+			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				log.Println(err)
+			}
+		}()
+
+		<-stop
+		fmt.Println("\nShutting down server...")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		return srv.Shutdown(ctx)
 	},
 }
 
