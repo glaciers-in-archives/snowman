@@ -26,7 +26,10 @@ func TestParseSPARQLJSONWithLanguageTags(t *testing.T) {
 
 	// Parse the JSON data
 	reader := strings.NewReader(jsonData)
-	results := ParseSPARQLJSON(reader)
+	results, err := ParseSPARQLJSON(reader)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
 	// Validate the results
 	if len(results) != 1 {
@@ -101,7 +104,10 @@ func TestParseSPARQLJSONWithMultipleLanguageTags(t *testing.T) {
 
 	// Parse the JSON data
 	reader := strings.NewReader(jsonData)
-	results := ParseSPARQLJSON(reader)
+	results, err := ParseSPARQLJSON(reader)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
 	// Validate the results
 	if len(results) != 3 {
@@ -169,7 +175,10 @@ func TestParseSPARQLJSONWithMixedLiterals(t *testing.T) {
 
 	// Parse the JSON data
 	reader := strings.NewReader(jsonData)
-	results := ParseSPARQLJSON(reader)
+	results, err := ParseSPARQLJSON(reader)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
 	// Validate the results
 	if len(results) != 1 {

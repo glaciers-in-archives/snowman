@@ -231,10 +231,10 @@ func ParseSPARQLJSON(r io.Reader) ([]map[string]rdf.Term, error) {
 				term = rdf.NewTypedLiteral(value.Value, xsdString)
 			case "typed-literal":
 				iri, err := rdf.NewIRI(value.DataType)
-				term = rdf.NewTypedLiteral(value.Value, iri)
 				if err != nil {
 					term = nil
-					err = nil
+				} else {
+					term = rdf.NewTypedLiteral(value.Value, iri)
 				}
 			default:
 				term = nil
