@@ -24,10 +24,10 @@ func CopyFile(srcFile, dstFile string) error {
 	defer out.Close()
 
 	in, err := os.Open(srcFile)
-	defer in.Close()
 	if err != nil {
 		return err
 	}
+	defer in.Close()
 
 	_, err = io.Copy(out, in)
 	if err != nil {
