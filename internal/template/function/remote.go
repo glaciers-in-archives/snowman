@@ -7,10 +7,13 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/spf13/cast"
 )
+
+var remoteClient = &http.Client{Timeout: 30 * time.Second}
 
 func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*string, error) {
 	preparedUri := cast.ToString(uri)
@@ -57,7 +60,7 @@ func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*
 		}
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := remoteClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

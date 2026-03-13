@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/config"
@@ -33,7 +34,7 @@ func NewRepository(cacheManager cache.SparqlCacheManager, queryIndex map[string]
 		QueryIndex: queryIndex,
 		verbose:    verbose,
 	}
-	repo.httpClient = http.DefaultClient
+	repo.httpClient = &http.Client{Timeout: 30 * time.Second}
 
 	repo.CacheManager = cacheManager
 
