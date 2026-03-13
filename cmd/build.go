@@ -166,7 +166,7 @@ var buildCmd = &cobra.Command{
 					}
 
 					pathSection := row[*view.MultipageVariableHook].String()
-					if utils.ValidatePathSection(pathSection); err != nil {
+					if err := utils.ValidatePathSection(pathSection); err != nil {
 						return utils.ErrorExit("Failed to validate path section.", err)
 					}
 
