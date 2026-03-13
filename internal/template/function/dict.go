@@ -117,13 +117,20 @@ func Values(dict map[string]interface{}) []interface{} {
 
 func Dig(ps ...interface{}) (interface{}, error) {
 	if len(ps) < 3 {
-		panic("dig needs at least three arguments")
+		return nil, fmt.Errorf("dig needs at least three arguments")
 	}
-	dict := ps[len(ps)-1].(map[string]interface{})
+	dict, ok := ps[len(ps)-1].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("dig: last argument must be a map")
+	}
 	def := ps[len(ps)-2]
 	ks := make([]string, len(ps)-2)
 	for i := 0; i < len(ks); i++ {
-		ks[i] = ps[i].(string)
+		s, ok := ps[i].(string)
+		if !ok {
+			return nil, fmt.Errorf("dig: key arguments must be strings")
+		}
+		ks[i] = s
 	}
 
 	return digFromDict(dict, def, ks)
@@ -138,5 +145,9 @@ func digFromDict(dict map[string]interface{}, d interface{}, ks []string) (inter
 	if len(ns) == 0 {
 		return step, nil
 	}
-	return digFromDict(step.(map[string]interface{}), d, ns)
+	next, ok := step.(map[string]interface{})
+	if !ok {
+		return d, nil
+	}
+	return digFromDict(next, d, ns)
 }
