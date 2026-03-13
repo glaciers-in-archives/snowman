@@ -134,12 +134,7 @@ func PrintFileContents(path string) error {
 		return err
 	}
 
-	defer func() error {
-		if err = file.Close(); err != nil {
-			return err
-		}
-		return nil
-	}()
+	defer file.Close()
 
 	b, err := io.ReadAll(file)
 	if err != nil {
