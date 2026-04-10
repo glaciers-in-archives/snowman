@@ -99,6 +99,22 @@ func CountFilesRecursive(dir string) (int, error) {
 	return count, nil
 }
 
+func EmptyDir(dir string) error {
+	entries, err := os.ReadDir(dir)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	for _, e := range entries {
+		if err := os.RemoveAll(filepath.Join(dir, e.Name())); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 var illegalPath = regexp.MustCompile(`[\~\:\*\?\"\<\>\|]`)
 var illegalNextToEachOther = regexp.MustCompile(`[\.\/]{2,}`)
 var illegalStartAndEnd = regexp.MustCompile(`^[\./]|[\./]$`)
