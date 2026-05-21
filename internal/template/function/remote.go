@@ -9,13 +9,14 @@ import (
 	"net/url"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
+	"github.com/glaciers-in-archives/snowman/internal/ratelimit"
 	"github.com/spf13/cast"
 )
 
 func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*string, error) {
 	preparedUri := cast.ToString(uri)
 
-	_, err := url.Parse(preparedUri)
+	parsedUri, err := url.Parse(preparedUri)
 	if err != nil {
 		return nil, errors.New("Invalid argument given to get_remote template function.")
 	}
@@ -48,6 +49,8 @@ func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*
 			}
 		}
 	}
+
+	ratelimit.CurrentDomainLimiter.Wait(parsedUri.Hostname())
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

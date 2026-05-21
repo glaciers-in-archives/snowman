@@ -13,6 +13,7 @@ import (
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/config"
+	"github.com/glaciers-in-archives/snowman/internal/ratelimit"
 	"github.com/glaciers-in-archives/snowman/internal/rdf"
 	"github.com/spf13/cast"
 )
@@ -20,6 +21,7 @@ import (
 type Repository struct {
 	client       config.ClientConfig
 	httpClient   *http.Client
+	rateLimiter  *ratelimit.Limiter
 	verbose      bool
 	CacheManager cache.SparqlCacheManager
 	QueryIndex   map[string]string
@@ -34,6 +36,7 @@ func NewRepository(cacheManager cache.SparqlCacheManager, queryIndex map[string]
 		verbose:    verbose,
 	}
 	repo.httpClient = http.DefaultClient
+	repo.rateLimiter = ratelimit.NewLimiter(config.CurrentSiteConfig.SparqlRateLimit())
 
 	repo.CacheManager = cacheManager
 
@@ -59,6 +62,8 @@ func (r *Repository) QueryCall(query, accept string) (*string, error) {
 	for header, content := range r.client.Headers {
 		req.Header.Set(header, content)
 	}
+
+	r.rateLimiter.Wait()
 
 	resp, err := r.httpClient.Do(req)
 	if err != nil {

@@ -2,6 +2,7 @@ package config
 
 import (
 	"testing"
+	"time"
 
 	"github.com/glaciers-in-archives/snowman/internal/version"
 )
@@ -208,6 +209,92 @@ func TestCheckVersionCompatibility(t *testing.T) {
 					test.expectedCompatible)
 			}
 		})
+	}
+}
+
+func TestParseValidRateLimits(t *testing.T) {
+	original := setupTest()
+	defer teardownTest(original)
+
+	CurrentSiteConfig = SiteConfig{}
+	data := []byte(`
+sparql_client:
+  endpoint: "https://example.com/sparql"
+  rate_limit: "500ms"
+http_rate_limits:
+  "api.example.com": "1s"
+  "images.example.org": "2s"
+`)
+
+	if err := CurrentSiteConfig.Parse(data); err != nil {
+		t.Fatalf("Parse() returned unexpected error: %v", err)
+	}
+
+	if got := CurrentSiteConfig.SparqlRateLimit(); got != 500*time.Millisecond {
+		t.Errorf("SparqlRateLimit() = %v, want 500ms", got)
+	}
+
+	intervals := CurrentSiteConfig.HTTPRateLimitIntervals()
+	if got := intervals["api.example.com"]; got != time.Second {
+		t.Errorf("HTTPRateLimitIntervals()[api.example.com] = %v, want 1s", got)
+	}
+	if got := intervals["images.example.org"]; got != 2*time.Second {
+		t.Errorf("HTTPRateLimitIntervals()[images.example.org] = %v, want 2s", got)
+	}
+}
+
+func TestParseNoRateLimits(t *testing.T) {
+	original := setupTest()
+	defer teardownTest(original)
+
+	CurrentSiteConfig = SiteConfig{}
+	data := []byte(`
+sparql_client:
+  endpoint: "https://example.com/sparql"
+`)
+
+	if err := CurrentSiteConfig.Parse(data); err != nil {
+		t.Fatalf("Parse() returned unexpected error: %v", err)
+	}
+
+	if got := CurrentSiteConfig.SparqlRateLimit(); got != 0 {
+		t.Errorf("SparqlRateLimit() = %v, want 0", got)
+	}
+	if got := len(CurrentSiteConfig.HTTPRateLimitIntervals()); got != 0 {
+		t.Errorf("HTTPRateLimitIntervals() length = %d, want 0", got)
+	}
+}
+
+func TestParseInvalidSparqlRateLimit(t *testing.T) {
+	original := setupTest()
+	defer teardownTest(original)
+
+	CurrentSiteConfig = SiteConfig{}
+	data := []byte(`
+sparql_client:
+  endpoint: "https://example.com/sparql"
+  rate_limit: "not-a-duration"
+`)
+
+	if err := CurrentSiteConfig.Parse(data); err == nil {
+		t.Error("Parse() expected an error for invalid sparql_client.rate_limit, got nil")
+	}
+}
+
+func TestParseInvalidHTTPRateLimit(t *testing.T) {
+	original := setupTest()
+	defer teardownTest(original)
+
+	CurrentSiteConfig = SiteConfig{}
+	data := []byte(`
+sparql_client:
+  endpoint: "https://example.com/sparql"
+http_rate_limits:
+  "api.example.com": "soon"
+`)
+
+	if err := CurrentSiteConfig.Parse(data); err == nil {
+		t.Error("Parse() expected an error for invalid http_rate_limits entry, got nil")
 	}
 }
 
