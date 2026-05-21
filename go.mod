@@ -1,6 +1,8 @@
 module github.com/glaciers-in-archives/snowman
 
-go 1.19
+go 1.21
+
+toolchain go1.24.7
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0

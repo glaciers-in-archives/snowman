@@ -13,9 +13,16 @@ import (
 
 var CurrentSiteConfig SiteConfig
 
+type RetryConfig struct {
+	Enabled        bool `yaml:"enabled"`
+	MaxRetries     int  `yaml:"max_retries"`
+	InitialDelayMS int  `yaml:"initial_delay_ms"`
+}
+
 type ClientConfig struct {
 	Endpoint string            `yaml:"endpoint"`
 	Headers  map[string]string `yaml:"http_headers"`
+	Retry    RetryConfig       `yaml:"retry"`
 }
 
 type SiteConfig struct {

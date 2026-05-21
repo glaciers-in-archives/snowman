@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/config"
@@ -42,7 +43,26 @@ func NewRepository(cacheManager cache.SparqlCacheManager, queryIndex map[string]
 	return nil
 }
 
-func (r *Repository) QueryCall(query, accept string) (*string, error) {
+// CriticalEndpointError is returned for SPARQL endpoint responses that must not be retried,
+// such as 4xx client errors (including 429 Too Many Requests).
+type CriticalEndpointError struct {
+	StatusCode int
+	message    string
+}
+
+func (e *CriticalEndpointError) Error() string {
+	return e.message
+}
+
+// isCriticalStatusCode reports whether a HTTP status code represents an error that
+// retrying cannot resolve. All 4xx client errors are critical; 5xx server errors are retryable.
+func isCriticalStatusCode(code int) bool {
+	return code >= 400 && code < 500
+}
+
+// doQueryCall performs a single HTTP POST to the SPARQL endpoint and returns the response body.
+// It returns a CriticalEndpointError for 4xx responses so callers can skip retries.
+func (r *Repository) doQueryCall(query, accept string) (*string, error) {
 	form := url.Values{}
 	form.Set("query", query)
 	b := form.Encode()
@@ -75,10 +95,58 @@ func (r *Repository) QueryCall(query, accept string) (*string, error) {
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println("Received bad(HTTP: " + resp.Status + ") response from SPARQL endpoint:")
 		fmt.Println(responseString)
-		return nil, errors.New("Received bad response from SPARQL endpoint")
+		if isCriticalStatusCode(resp.StatusCode) {
+			return nil, &CriticalEndpointError{
+				StatusCode: resp.StatusCode,
+				message:    "Received critical error response from SPARQL endpoint: " + resp.Status,
+			}
+		}
+		return nil, errors.New("Received bad response from SPARQL endpoint: " + resp.Status)
 	}
 
 	return &responseString, nil
+}
+
+// QueryCall executes a SPARQL query against the endpoint, retrying transient failures
+// when retry is enabled in config. 4xx responses are always treated as critical and
+// returned immediately without retrying.
+func (r *Repository) QueryCall(query, accept string) (*string, error) {
+	retry := r.client.Retry
+
+	maxAttempts := 1
+	if retry.Enabled && retry.MaxRetries > 0 {
+		maxAttempts = retry.MaxRetries + 1
+	}
+
+	initialDelay := retry.InitialDelayMS
+	if initialDelay <= 0 {
+		initialDelay = 1000
+	}
+
+	var lastErr error
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		if attempt > 0 {
+			delay := time.Duration(initialDelay*(1<<(attempt-1))) * time.Millisecond
+			fmt.Printf("Retrying SPARQL request (attempt %d/%d) after %v...\n", attempt+1, maxAttempts, delay)
+			time.Sleep(delay)
+		}
+
+		result, err := r.doQueryCall(query, accept)
+		if err == nil {
+			return result, nil
+		}
+
+		var criticalErr *CriticalEndpointError
+		if errors.As(err, &criticalErr) {
+			return nil, err
+		}
+
+		lastErr = err
+		if retry.Enabled && attempt < maxAttempts-1 {
+			fmt.Printf("SPARQL request failed (attempt %d/%d): %v\n", attempt+1, maxAttempts, err)
+		}
+	}
+	return nil, lastErr
 }
 
 // Get a query contents by its filename and optionally substitute variables.
