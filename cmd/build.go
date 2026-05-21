@@ -9,6 +9,7 @@ import (
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/config"
+	"github.com/glaciers-in-archives/snowman/internal/ratelimit"
 	"github.com/glaciers-in-archives/snowman/internal/rdf"
 	"github.com/glaciers-in-archives/snowman/internal/sparql"
 	"github.com/glaciers-in-archives/snowman/internal/static"
@@ -92,6 +93,8 @@ var buildCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		ratelimit.CurrentDomainLimiter = ratelimit.NewDomainLimiter(config.CurrentSiteConfig.HTTPRateLimitIntervals())
 
 		// Check version compatibility - block build if incompatible
 		if !config.CheckVersionCompatibility() {

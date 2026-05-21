@@ -2,5 +2,8 @@ sparql_client:
   endpoint: "https://query.wikidata.org/sparql"
   http_headers:
     User-Agent: "example Snowman (https://github.com/glaciers-in-archives/snowman)"
+  rate_limit: "1s"
+http_rate_limits:
+  "example.com": "500ms"
 metadata:
   a_config_key: "a config value"
