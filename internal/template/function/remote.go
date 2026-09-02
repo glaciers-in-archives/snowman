@@ -16,7 +16,7 @@ import (
 func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*string, error) {
 	preparedUri := cast.ToString(uri)
 
-	parsedUri, err := url.Parse(preparedUri)
+	_, err := url.Parse(preparedUri)
 	if err != nil {
 		return nil, errors.New("Invalid argument given to get_remote template function.")
 	}
@@ -50,9 +50,7 @@ func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*
 		}
 	}
 
-	ratelimit.CurrentDomainLimiter.Wait(parsedUri.Hostname())
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := ratelimit.Do(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -67,6 +65,9 @@ func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println("Received bad(HTTP: " + resp.Status + ") response from " + preparedUri + ".")
 		fmt.Println(responseString)
+		if ratelimit.IsRateLimited(resp) {
+			fmt.Println("The remote resource is rate limiting Snowman, consider slowing Snowman down using a url_rules rate_limit.")
+		}
 		return nil, errors.New("Received bad response from remote resource.")
 	}
 

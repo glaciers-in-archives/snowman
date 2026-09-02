@@ -17,18 +17,22 @@ var CurrentSiteConfig SiteConfig
 type ClientConfig struct {
 	Endpoint string            `yaml:"endpoint"`
 	Headers  map[string]string `yaml:"http_headers"`
-	// RateLimit is an optional minimum interval between SPARQL requests,
+}
+
+// URLRule holds the settings applied to the HTTP requests Snowman makes to the
+// URLs matching a pattern, be it the SPARQL endpoint or a remote resource.
+type URLRule struct {
+	// RateLimit is a minimum interval between the matching requests,
 	// expressed as a Go duration string (e.g. "500ms", "1s").
 	RateLimit string `yaml:"rate_limit"`
 }
 
 type SiteConfig struct {
 	Client ClientConfig `yaml:"sparql_client"`
-	// HTTPRateLimits maps a host to an optional minimum interval between
-	// non-SPARQL HTTP requests to that host, expressed as a Go duration
-	// string (e.g. "500ms", "1s").
-	HTTPRateLimits map[string]string `yaml:"http_rate_limits"`
-	SnowmanVersion string            `yaml:"snowman_version,omitempty"`
+	// URLRules maps a URL pattern, such as "example.org" or
+	// "example.org/api/*", to the settings used for the requests matching it.
+	URLRules       map[string]URLRule `yaml:"url_rules"`
+	SnowmanVersion string             `yaml:"snowman_version,omitempty"`
 	Metadata       map[string]interface{}
 }
 
@@ -42,35 +46,28 @@ func (c *SiteConfig) Parse(data []byte) error {
 		return err
 	}
 
-	if c.Client.RateLimit != "" {
-		if _, err := time.ParseDuration(c.Client.RateLimit); err != nil {
-			return fmt.Errorf("invalid sparql_client.rate_limit %q: %w", c.Client.RateLimit, err)
+	for pattern, rule := range c.URLRules {
+		if rule.RateLimit == "" {
+			continue
 		}
-	}
-
-	for host, value := range c.HTTPRateLimits {
-		if _, err := time.ParseDuration(value); err != nil {
-			return fmt.Errorf("invalid http_rate_limits entry for %q: %w", host, err)
+		if _, err := time.ParseDuration(rule.RateLimit); err != nil {
+			return fmt.Errorf("invalid rate_limit for url_rules entry %q: %w", pattern, err)
 		}
 	}
 
 	return nil
 }
 
-// SparqlRateLimit returns the configured minimum interval between SPARQL
-// requests, or zero if no rate limit is configured.
-func (c *SiteConfig) SparqlRateLimit() time.Duration {
-	d, _ := time.ParseDuration(c.Client.RateLimit)
-	return d
-}
-
-// HTTPRateLimitIntervals returns the per-host minimum intervals between
-// non-SPARQL HTTP requests.
-func (c *SiteConfig) HTTPRateLimitIntervals() map[string]time.Duration {
-	intervals := make(map[string]time.Duration, len(c.HTTPRateLimits))
-	for host, value := range c.HTTPRateLimits {
-		d, _ := time.ParseDuration(value)
-		intervals[host] = d
+// RateLimitIntervals returns the minimum intervals between the HTTP requests
+// Snowman makes to the URLs matching each pattern.
+func (c *SiteConfig) RateLimitIntervals() map[string]time.Duration {
+	intervals := make(map[string]time.Duration, len(c.URLRules))
+	for pattern, rule := range c.URLRules {
+		if rule.RateLimit == "" {
+			continue
+		}
+		d, _ := time.ParseDuration(rule.RateLimit)
+		intervals[pattern] = d
 	}
 	return intervals
 }

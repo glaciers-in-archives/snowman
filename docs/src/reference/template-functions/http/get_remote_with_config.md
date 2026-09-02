@@ -5,3 +5,5 @@ The `get_remote_with_config` function fetches the content of a remote URL and re
 ```snowman
 {{ get_remote_with_config "https://example.com" $config }}
 ```
+
+Requests can be slowed down per URL pattern through `url_rules`, and responses telling Snowman that it's being rate limited are retried, see the [configuration reference](../../configuration.md#url_rules).

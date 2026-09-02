@@ -94,7 +94,7 @@ var buildCmd = &cobra.Command{
 			return err
 		}
 
-		ratelimit.CurrentDomainLimiter = ratelimit.NewDomainLimiter(config.CurrentSiteConfig.HTTPRateLimitIntervals())
+		ratelimit.CurrentURLLimiter = ratelimit.NewURLLimiter(config.CurrentSiteConfig.RateLimitIntervals())
 
 		// Check version compatibility - block build if incompatible
 		if !config.CheckVersionCompatibility() {
