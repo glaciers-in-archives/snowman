@@ -35,6 +35,20 @@ cd snowman
 go build -o snowman
 ```
 
+### Using devenv/Nix
+
+A [devenv](https://devenv.sh/) configuration is provided that pins Go and `mdbook`, and ships the common development tasks as scripts (replacing the old `justfile`). With devenv installed, run `devenv shell` to drop into the environment; it lists the available scripts on startup:
+
+| Command | Description |
+| --- | --- |
+| `build` | Build snowman for the current platform (`go build -o snowman`) |
+| `build-all` | Build snowman for all officially supported platforms (`./release.bash`) |
+| `run <args>` | Run snowman from source, e.g. `run build` |
+| `docs` | Serve the manual locally with live reload |
+| `devenv test` | Run the test suite (`go test -v ./...`) |
+
+If you use [direnv](https://direnv.net/), an `.envrc` is included so the environment loads automatically on `cd`.
+
 To run the tests, use the foollowing command:
 
 ```bash
