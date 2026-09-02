@@ -2,7 +2,9 @@ package config
 
 import (
 	"testing"
+	"time"
 
+	"github.com/glaciers-in-archives/snowman/internal/ratelimit"
 	"github.com/glaciers-in-archives/snowman/internal/version"
 )
 
@@ -221,5 +223,93 @@ func TestCheckVersionCompatibilityEmptyConfig(t *testing.T) {
 	result := CheckVersionCompatibility()
 	if !result {
 		t.Error("CheckVersionCompatibility() with empty config should return true, got false")
+	}
+}
+
+func TestRateLimitDefaults(t *testing.T) {
+	var config SiteConfig
+	if err := config.Parse([]byte("sparql_client:\n  endpoint: \"https://example.org/sparql\"\n")); err != nil {
+		t.Fatal(err)
+	}
+
+	options := config.RateLimitOptions()
+	defaults := ratelimit.DefaultConfig()
+
+	if options != defaults {
+		t.Errorf("Expected the default rate limit options %+v, got %+v", defaults, options)
+	}
+}
+
+func TestRateLimitConfiguration(t *testing.T) {
+	var config SiteConfig
+	data := []byte(`
+sparql_client:
+  endpoint: "https://example.org/sparql"
+rate_limit:
+  max_retries: 10
+  initial_backoff: "500ms"
+  max_wait: "2m"
+`)
+
+	if err := config.Parse(data); err != nil {
+		t.Fatal(err)
+	}
+
+	options := config.RateLimitOptions()
+	if options.MaxRetries != 10 {
+		t.Errorf("Expected 10 retries, got %d", options.MaxRetries)
+	}
+	if options.InitialBackoff != 500*time.Millisecond {
+		t.Errorf("Expected an initial backoff of 500ms, got %v", options.InitialBackoff)
+	}
+	if options.MaxWait != 2*time.Minute {
+		t.Errorf("Expected a max wait of 2m, got %v", options.MaxWait)
+	}
+}
+
+func TestRateLimitCanBeDisabled(t *testing.T) {
+	var config SiteConfig
+	data := []byte(`
+sparql_client:
+  endpoint: "https://example.org/sparql"
+rate_limit:
+  max_retries: 0
+`)
+
+	if err := config.Parse(data); err != nil {
+		t.Fatal(err)
+	}
+
+	if retries := config.RateLimitOptions().MaxRetries; retries != 0 {
+		t.Errorf("Expected retrying to be disabled, got %d retries", retries)
+	}
+}
+
+func TestInvalidRateLimitConfiguration(t *testing.T) {
+	tests := []struct {
+		name string
+		data string
+	}{
+		{
+			name: "negative retries",
+			data: "sparql_client:\n  endpoint: \"https://example.org/sparql\"\nrate_limit:\n  max_retries: -1\n",
+		},
+		{
+			name: "unparsable duration",
+			data: "sparql_client:\n  endpoint: \"https://example.org/sparql\"\nrate_limit:\n  initial_backoff: \"soon\"\n",
+		},
+		{
+			name: "negative duration",
+			data: "sparql_client:\n  endpoint: \"https://example.org/sparql\"\nrate_limit:\n  max_wait: \"-5s\"\n",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var config SiteConfig
+			if err := config.Parse([]byte(test.data)); err == nil {
+				t.Error("Expected the configuration to be rejected, got no error")
+			}
+		})
 	}
 }

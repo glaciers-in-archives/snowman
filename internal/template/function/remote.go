@@ -9,10 +9,12 @@ import (
 	"net/url"
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
+	"github.com/glaciers-in-archives/snowman/internal/config"
+	"github.com/glaciers-in-archives/snowman/internal/ratelimit"
 	"github.com/spf13/cast"
 )
 
-func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*string, error) {
+func GetRemoteWithConfig(uri interface{}, requestConfig map[interface{}]interface{}) (*string, error) {
 	preparedUri := cast.ToString(uri)
 
 	_, err := url.Parse(preparedUri)
@@ -40,16 +42,16 @@ func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*
 		return nil, err
 	}
 
-	if config != nil {
-		if config["headers"] != nil {
-			headers := config["headers"].(map[interface{}]interface{})
+	if requestConfig != nil {
+		if requestConfig["headers"] != nil {
+			headers := requestConfig["headers"].(map[interface{}]interface{})
 			for key, value := range headers {
 				req.Header.Set(key.(string), value.(string))
 			}
 		}
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := ratelimit.Do(http.DefaultClient, req, config.CurrentSiteConfig.RateLimitOptions())
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +66,9 @@ func GetRemoteWithConfig(uri interface{}, config map[interface{}]interface{}) (*
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println("Received bad(HTTP: " + resp.Status + ") response from " + preparedUri + ".")
 		fmt.Println(responseString)
+		if ratelimit.IsRateLimited(resp) {
+			fmt.Println("The remote resource is rate limiting Snowman, consider giving it more time to recover using the rate_limit options in your Snowman configuration.")
+		}
 		return nil, errors.New("Received bad response from remote resource.")
 	}
 

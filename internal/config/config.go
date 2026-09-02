@@ -1,11 +1,14 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/glaciers-in-archives/snowman/internal/ratelimit"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 	"github.com/glaciers-in-archives/snowman/internal/version"
 	"gopkg.in/yaml.v2"
@@ -18,10 +21,70 @@ type ClientConfig struct {
 	Headers  map[string]string `yaml:"http_headers"`
 }
 
+// RateLimitConfig describes how Snowman should behave when a SPARQL endpoint
+// or a remote resource rate limits us. Durations are given as Go duration
+// strings such as "500ms", "5s" or "2m".
+type RateLimitConfig struct {
+	MaxRetries     *int   `yaml:"max_retries,omitempty"`
+	InitialBackoff string `yaml:"initial_backoff,omitempty"`
+	MaxWait        string `yaml:"max_wait,omitempty"`
+}
+
+// Options returns the rate limiting options to use, filling in the defaults
+// for the values the project doesn't configure.
+func (c RateLimitConfig) Options() (ratelimit.Config, error) {
+	options := ratelimit.DefaultConfig()
+
+	if c.MaxRetries != nil {
+		if *c.MaxRetries < 0 {
+			return options, errors.New("rate_limit.max_retries can't be negative.")
+		}
+		options.MaxRetries = *c.MaxRetries
+	}
+
+	durations := []struct {
+		name   string
+		value  string
+		target *time.Duration
+	}{
+		{"rate_limit.initial_backoff", c.InitialBackoff, &options.InitialBackoff},
+		{"rate_limit.max_wait", c.MaxWait, &options.MaxWait},
+	}
+
+	for _, duration := range durations {
+		if duration.value == "" {
+			continue
+		}
+
+		parsed, err := time.ParseDuration(duration.value)
+		if err != nil {
+			return options, errors.New("Failed to parse " + duration.name + ", expected a duration such as \"5s\". Got: " + duration.value)
+		}
+		if parsed < 0 {
+			return options, errors.New(duration.name + " can't be negative.")
+		}
+		*duration.target = parsed
+	}
+
+	return options, nil
+}
+
 type SiteConfig struct {
-	Client         ClientConfig `yaml:"sparql_client"`
-	SnowmanVersion string       `yaml:"snowman_version,omitempty"`
+	Client         ClientConfig    `yaml:"sparql_client"`
+	SnowmanVersion string          `yaml:"snowman_version,omitempty"`
+	RateLimit      RateLimitConfig `yaml:"rate_limit,omitempty"`
 	Metadata       map[string]interface{}
+}
+
+// RateLimitOptions returns the rate limiting options of the current
+// configuration with the defaults applied.
+func (c *SiteConfig) RateLimitOptions() ratelimit.Config {
+	options, err := c.RateLimit.Options()
+	if err != nil {
+		// Invalid values are rejected while parsing the configuration.
+		return ratelimit.DefaultConfig()
+	}
+	return options
 }
 
 func (c *SiteConfig) Parse(data []byte) error {
@@ -33,6 +96,11 @@ func (c *SiteConfig) Parse(data []byte) error {
 	if err != nil {
 		return err
 	}
+
+	if _, err := c.RateLimit.Options(); err != nil {
+		return err
+	}
+
 	return nil
 }
 

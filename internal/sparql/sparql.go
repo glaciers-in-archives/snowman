@@ -13,6 +13,7 @@ import (
 
 	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/config"
+	"github.com/glaciers-in-archives/snowman/internal/ratelimit"
 	"github.com/glaciers-in-archives/snowman/internal/rdf"
 	"github.com/spf13/cast"
 )
@@ -20,6 +21,7 @@ import (
 type Repository struct {
 	client       config.ClientConfig
 	httpClient   *http.Client
+	rateLimit    ratelimit.Config
 	verbose      bool
 	CacheManager cache.SparqlCacheManager
 	QueryIndex   map[string]string
@@ -31,6 +33,7 @@ func NewRepository(cacheManager cache.SparqlCacheManager, queryIndex map[string]
 	repo := Repository{
 		client:     config.CurrentSiteConfig.Client,
 		QueryIndex: queryIndex,
+		rateLimit:  config.CurrentSiteConfig.RateLimitOptions(),
 		verbose:    verbose,
 	}
 	repo.httpClient = http.DefaultClient
@@ -60,7 +63,7 @@ func (r *Repository) QueryCall(query, accept string) (*string, error) {
 		req.Header.Set(header, content)
 	}
 
-	resp, err := r.httpClient.Do(req)
+	resp, err := ratelimit.Do(r.httpClient, req, r.rateLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -75,6 +78,9 @@ func (r *Repository) QueryCall(query, accept string) (*string, error) {
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println("Received bad(HTTP: " + resp.Status + ") response from SPARQL endpoint:")
 		fmt.Println(responseString)
+		if ratelimit.IsRateLimited(resp) {
+			fmt.Println("The endpoint is rate limiting Snowman, consider giving it more time to recover using the rate_limit options in your Snowman configuration.")
+		}
 		return nil, errors.New("Received bad response from SPARQL endpoint")
 	}
 

@@ -47,6 +47,37 @@ Error: Version mismatch. Your Snowman version (0.6.5) does not satisfy the proje
 
 This field is optional. If omitted, any Snowman version can attempt to build the project.
 
+## Rate limiting
+
+SPARQL endpoints and other remote resources often limit how many requests they accept over a given period of time. Instead of failing your build the moment an endpoint asks Snowman to slow down, Snowman waits and retries the request.
+
+Snowman treats HTTP 429 (Too Many Requests) responses, and HTTP 503 responses carrying a `Retry-After` header, as rate limiting. When the response tells Snowman how long to wait using `Retry-After` that delay is respected, otherwise Snowman waits `initial_backoff` and doubles the wait for each following retry.
+
+The behaviour can be tuned using the optional `rate_limit` field:
+
+```yaml
+sparql_client:
+  endpoint: "https://query.wikidata.org/sparql"
+rate_limit:
+  max_retries: 3
+  initial_backoff: "1s"
+  max_wait: "60s"
+```
+
+- `max_retries` The number of times a rate limited request is retried. Set it to `0` to disable retrying and fail the build on the first rate limiting response. (default `3`)
+- `initial_backoff` How long to wait before the first retry when the response doesn't include a `Retry-After` header, the wait is doubled for each following retry. (default `"1s"`)
+- `max_wait` The longest Snowman waits before a single retry. Backoffs are capped by this value, while a `Retry-After` asking for a longer delay makes Snowman give up as it can't respect it. (default `"60s"`)
+
+Durations are written as Go duration strings such as `"500ms"`, `"30s"` or `"5m"`.
+
+These settings apply to both SPARQL queries and to remote resources fetched with [`get_remote`](template-functions/http/get_remote.md) and [`get_remote_with_config`](template-functions/http/get_remote_with_config.md). Snowman prints a line each time it waits so that a slow build doesn't look like a stuck one:
+
+```
+Rate limited (HTTP 429) by query.wikidata.org, waiting 30s before retry 1 of 3.
+```
+
+Note that a build still fails once the retries have been exhausted. Endpoints that rate limit you aggressively are best combined with the [SPARQL cache](../guides/managing-cache.md), which lets a new build reuse the responses an earlier build already retrieved.
+
 ## Metadata
 
 The `metadata` field allows you to define project-specific configuration values that can be accessed in your templates. This is useful for storing site-wide settings like site titles, URLs, author information, or any other data you want to reuse across your templates.
