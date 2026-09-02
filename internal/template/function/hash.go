@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-func MD5 (arg interface{}) string {
+func MD5(arg interface{}) string {
 	data := cast.ToString(arg)
 	hash := md5.Sum([]byte(data))
 	return string(hash[:])
