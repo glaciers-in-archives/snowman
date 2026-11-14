@@ -113,7 +113,7 @@ func renderView(view views.View, argument *string, renderedPaths map[string]bool
 			continue
 		}
 
-		if utils.ValidatePathSection(pathSection); err != nil {
+		if err := utils.ValidatePathSection(pathSection); err != nil {
 			return renderedPages, utils.ErrorExit("Failed to validate path section.", err)
 		}
 

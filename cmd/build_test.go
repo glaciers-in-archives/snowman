@@ -24,6 +24,12 @@ const sparqlResponse = `{"head":{"vars":["id"]},"results":{"bindings":[
 // working directory and returns a counter of the queries its endpoint received.
 func setupProject(t *testing.T) *int {
 	t.Helper()
+	return setupProjectWithResponse(t, sparqlResponse)
+}
+
+// setupProjectWithResponse is like setupProject, but lets the endpoint answer with the given response.
+func setupProjectWithResponse(t *testing.T, sparqlResponse string) *int {
+	t.Helper()
 
 	queryCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -108,6 +114,31 @@ func TestFullBuild(t *testing.T) {
 	assertFile(t, "site/style.css", "body {}")
 	if _, err := os.Stat("site/leftover.html"); !os.IsNotExist(err) {
 		t.Error("Expected a full build to empty the site directory.")
+	}
+}
+
+func TestBuildValidatesPathSections(t *testing.T) {
+	for _, id := range []string{"../../outside", "a/../../outside", "/outside", "a:b", ""} {
+		t.Run(id, func(t *testing.T) {
+			setupProjectWithResponse(t, `{"head":{"vars":["id"]},"results":{"bindings":[{"id":{"type":"literal","value":"`+id+`"}}]}}`)
+			projectDirectory, err := os.Getwd()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			err = runBuild()
+			if err == nil || !strings.Contains(err.Error(), "Failed to validate path section.") {
+				t.Fatalf("Expected the build to fail on the path section %q, got %v", id, err)
+			}
+
+			// nothing is written outside of the site directory
+			if _, err := os.Stat(filepath.Join(projectDirectory, "..", "outside.html")); !os.IsNotExist(err) {
+				t.Errorf("Expected no page to be rendered for the path section %q.", id)
+			}
+			if _, err := os.Stat("outside.html"); !os.IsNotExist(err) {
+				t.Errorf("Expected no page to be rendered for the path section %q.", id)
+			}
+		})
 	}
 }
 
