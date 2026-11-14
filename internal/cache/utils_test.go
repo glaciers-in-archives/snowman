@@ -1,8 +1,10 @@
 package cache
 
 import (
+	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/glaciers-in-archives/snowman/internal/utils"
@@ -44,5 +46,43 @@ func TestWriteCacheHistory(t *testing.T) {
 				t.Errorf("Expected history %v, got %v", tt.expected, history)
 			}
 		})
+	}
+}
+
+func TestGetUnusedCacheHashes(t *testing.T) {
+	snowmanDirectory := t.TempDir()
+	// the cache managers pass the directory with a trailing slash
+	cacheDirectory := snowmanDirectory + "/cache/sparql/"
+	historyFilePath := snowmanDirectory + "/last_build_queries.txt"
+
+	for _, cacheItem := range []string{"used/1", "used/2", "partlyused/1", "partlyused/2", "unused/1"} {
+		if err := saveToCacheFile(cacheDirectory+cacheItem+".json", "{}"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := utils.WriteLineSeperatedFile([]string{"used/1", "used/2", "partlyused/1"}, historyFilePath); err != nil {
+		t.Fatal(err)
+	}
+
+	unused, err := getUnusedCacheHashes(cacheDirectory, historyFilePath, ".json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// a directory is unused when none of the cache items in it are used
+	expected := []string{
+		filepath.Join(cacheDirectory, "partlyused", "2.json"),
+		filepath.Join(cacheDirectory, "unused"),
+		filepath.Join(cacheDirectory, "unused", "1.json"),
+	}
+	sort.Strings(unused)
+	if !reflect.DeepEqual(unused, expected) {
+		t.Errorf("Expected unused cache items %v, got %v", expected, unused)
+	}
+
+	for _, path := range unused {
+		if _, err := os.Stat(path); err != nil {
+			t.Errorf("Expected the unused cache item %s to exist: %v", path, err)
+		}
 	}
 }

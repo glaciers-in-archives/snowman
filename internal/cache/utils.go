@@ -28,18 +28,23 @@ func getUnusedCacheHashes(directory string, historyFilePath string, cacheFormat 
 	// but it's more reliable in terms of finding everything odd in the cache directory
 	// however, it might be worth rewriting this
 	unusedCacheHashes := []string{}
-	err = fs.WalkDir(os.DirFS("."), directory, func(path string, info fs.DirEntry, err error) error {
+	err = filepath.WalkDir(directory, func(path string, info fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		relativePath, err := filepath.Rel(directory, path)
 		if err != nil {
 			return err
 		}
 
 		// skip the directory itself
-		if path == directory {
+		if relativePath == "." {
 			return nil
 		}
 
 		// last_build_queries.txt & last_build_recources.txt stores <hash>/<hash>
-		pathAsCacheItem := strings.Replace(strings.Replace(path, cacheFormat, "", 1), directory, "", 1)
+		pathAsCacheItem := strings.TrimSuffix(filepath.ToSlash(relativePath), cacheFormat)
 		isUsed := false
 		for _, used := range usedAtLastBuild {
 			if pathAsCacheItem == used || strings.HasPrefix(used, pathAsCacheItem) {
