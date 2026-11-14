@@ -59,6 +59,33 @@ func getUnusedCacheHashes(directory string, historyFilePath string, cacheFormat 
 	return unusedCacheHashes, nil
 }
 
+// writeCacheHistory records which cache items a build used. A partial build
+// only uses some of the cache items the site depends on, so it adds its items
+// to the existing history rather than replacing it. Otherwise the cache items
+// of everything it didn't build would be considered unused.
+func writeCacheHistory(historyFilePath string, usedHashes []string, partialBuild bool) error {
+	hashes := usedHashes
+	if partialBuild {
+		previousHashes, err := utils.ReadLineSeperatedFile(historyFilePath)
+		if err != nil && !os.IsNotExist(err) {
+			return err
+		}
+		hashes = append(previousHashes, usedHashes...)
+	}
+
+	seen := make(map[string]bool)
+	uniqueHashes := []string{}
+	for _, hash := range hashes {
+		if hash == "" || seen[hash] {
+			continue
+		}
+		seen[hash] = true
+		uniqueHashes = append(uniqueHashes, hash)
+	}
+
+	return utils.WriteLineSeperatedFile(uniqueHashes, historyFilePath)
+}
+
 func loadStoredCacheItemHashes(directory string, cacheFormat string) (map[string]bool, error) {
 	storedCacheHashes := make(map[string]bool)
 

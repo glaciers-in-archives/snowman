@@ -71,7 +71,38 @@ func getViewFuncs(currentViewConfig viewConfig) html_template.FuncMap {
 	return html_template.FuncMap(viewFuncs)
 }
 
-func DiscoverViews(layouts []string) ([]View, error) {
+var multipageVariablePattern = regexp.MustCompile(`{{ *([\w\d_]+) *}}`)
+
+// normalizeOutput removes the optional whitespace around a multipage variable
+// so that "entities/{{ id }}.html" and "entities/{{id}}.html" compare as equal.
+func normalizeOutput(output string) string {
+	return multipageVariablePattern.ReplaceAllString(output, "{{$1}}")
+}
+
+// selectViewConfigs returns the views whose output matches the given selector.
+// The selector is the output of a view as it's written in views.yaml.
+func selectViewConfigs(viewConfigs []viewConfig, selector string) ([]viewConfig, error) {
+	var selected []viewConfig
+	for _, viewConf := range viewConfigs {
+		if normalizeOutput(viewConf.Output) == normalizeOutput(selector) {
+			selected = append(selected, viewConf)
+		}
+	}
+
+	if len(selected) == 0 {
+		message := "Unable to find a view with the output " + selector + ". The available views are:"
+		for _, viewConf := range viewConfigs {
+			message += "\n  " + viewConf.Output
+		}
+		return nil, errors.New(message)
+	}
+
+	return selected, nil
+}
+
+// DiscoverViews reads views.yaml and prepares the views found in it. If
+// viewSelector isn't empty, only the views with that output are prepared.
+func DiscoverViews(layouts []string, viewSelector string) ([]View, error) {
 	var views []View
 
 	data, err := os.ReadFile("views.yaml")
@@ -84,13 +115,21 @@ func DiscoverViews(layouts []string) ([]View, error) {
 		return nil, errors.New("Failed to parse views.yaml")
 	}
 
-	fmt.Println("Building project with " + strconv.Itoa(len(vConfigs.Views)) + " views.")
+	viewConfigs := vConfigs.Views
+	if viewSelector != "" {
+		viewConfigs, err = selectViewConfigs(vConfigs.Views, viewSelector)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("Building " + strconv.Itoa(len(viewConfigs)) + " of the project's " + strconv.Itoa(len(vConfigs.Views)) + " views.")
+	} else {
+		fmt.Println("Building project with " + strconv.Itoa(len(viewConfigs)) + " views.")
+	}
 
-	for _, viewConf := range vConfigs.Views {
+	for _, viewConf := range viewConfigs {
 		var multipageVariableHook *string
-		re := regexp.MustCompile(`{{ *([\w\d_]+) *}}`)
-		if re.Match([]byte(viewConf.Output)) {
-			multipageVariableHook = &re.FindAllStringSubmatch(viewConf.Output, 1)[0][1]
+		if match := multipageVariablePattern.FindStringSubmatch(viewConf.Output); match != nil {
+			multipageVariableHook = &match[1]
 		}
 
 		templatePath := "templates/" + viewConf.TemplateFile

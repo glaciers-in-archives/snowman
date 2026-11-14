@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -68,12 +69,105 @@ func DiscoverQueries() (map[string]string, error) {
 	return index, nil
 }
 
+// renderView issues the query of a view and renders its page(s). If argument
+// isn't nil, only the pages of a multipage view where the variable used in the
+// output path has that value are rendered. It returns the number of rendered pages.
+func renderView(view views.View, argument *string, renderedPaths map[string]bool) (int, error) {
+	var err error
+	results := make([]map[string]rdf.Term, 0)
+	if view.ViewConfig.QueryFile != "" {
+		printVerbose("Issuing query " + view.ViewConfig.QueryFile)
+		results, err = sparql.CurrentRepository.QuerySelect(view.ViewConfig.QueryFile)
+		if err != nil {
+			return 0, utils.ErrorExit("SPARQL query failed.", err)
+		}
+	}
+
+	// if the page is rendered based on all of the SPARQL results
+	if view.MultipageVariableHook == nil {
+		outputPath := "site/" + view.ViewConfig.Output
+		if renderedPaths[outputPath] {
+			fmt.Println("Warning: Writing to " + outputPath + " for the second time.")
+		}
+
+		if err := view.RenderPage(outputPath, results); err != nil {
+			return 0, utils.ErrorExit("Failed to render page at "+outputPath, err)
+		}
+		printVerbose("Rendered page at " + outputPath)
+		renderedPaths[outputPath] = true
+		return 1, nil
+	}
+
+	// if the page is rendered based on SPARQL result rows
+	printVerbose("Rendering multipage view based on variable " + *view.MultipageVariableHook + ", with " + fmt.Sprint(len(results)) + " results.")
+	outputVariablePattern := regexp.MustCompile(`{{ *` + *view.MultipageVariableHook + ` *}}`)
+	renderedPages := 0
+	for _, row := range results {
+		if _, ok := row[*view.MultipageVariableHook]; !ok {
+			err := fmt.Errorf(*view.MultipageVariableHook + " not found in SPARQL result row.")
+			return renderedPages, utils.ErrorExit("Failed to render multipage view.", err)
+		}
+
+		pathSection := row[*view.MultipageVariableHook].String()
+		if argument != nil && pathSection != *argument {
+			continue
+		}
+
+		if utils.ValidatePathSection(pathSection); err != nil {
+			return renderedPages, utils.ErrorExit("Failed to validate path section.", err)
+		}
+
+		outputPath := "site/" + outputVariablePattern.ReplaceAllString(view.ViewConfig.Output, pathSection)
+
+		if renderedPaths[outputPath] {
+			fmt.Println("Warning: Writing to " + outputPath + " for the second time.")
+		}
+
+		if err := view.RenderPage(outputPath, row); err != nil {
+			return renderedPages, utils.ErrorExit("Failed to render page at "+outputPath, err)
+		}
+		printVerbose("Rendered page at " + outputPath)
+		renderedPaths[outputPath] = true
+		renderedPages++
+	}
+
+	if argument != nil && renderedPages == 0 {
+		return 0, fmt.Errorf("Failed to render multipage view. Error: %s did not return any result where %s is %s.", view.ViewConfig.QueryFile, *view.MultipageVariableHook, *argument)
+	}
+
+	return renderedPages, nil
+}
+
 // buildCmd represents the build command
 var buildCmd = &cobra.Command{
-	Use:   "build",
+	Use:   "build [view] [argument]",
 	Short: "Builds a Snowman site in the current directory.",
-	Long:  `Tries to locate the Snowman configuration, views, queries, etc in the current directory. Then tries to build a Snowman site.`,
+	Long: `Tries to locate the Snowman configuration, views, queries, etc in the current directory. Then tries to build a Snowman site.
+
+To only build a part of the site, provide the output of a view as it's written in views.yaml. For a view which renders one page per SPARQL result, a second argument limits the build to the page(s) where the variable used in the output path has the given value. A partial build leaves the rest of the already built site in place.`,
+	Example: `  snowman build
+  snowman build index.html
+  snowman build "entities/{{id}}.html"
+  snowman build "entities/{{id}}.html" Q42`,
+	Args: cobra.MaximumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
+
+		// a partial build only renders the given view, optionally limited to the given argument
+		partialBuild := len(args) > 0
+		var viewSelector string
+		var viewArgument *string
+		if partialBuild {
+			if staticBuildOption {
+				return errors.New("--static can't be combined with a view.")
+			}
+			if args[0] == "" {
+				return errors.New("The view to build can't be empty.")
+			}
+			viewSelector = args[0]
+			if len(args) == 2 {
+				viewArgument = &args[1]
+			}
+		}
 
 		if staticBuildOption {
 			if err := static.ClearStatic(); err != nil {
@@ -127,81 +221,54 @@ var buildCmd = &cobra.Command{
 			return utils.ErrorExit("Failed to initiate resources cache manager.", err)
 		}
 
-		discoveredViews, err := views.DiscoverViews(layouts)
+		discoveredViews, err := views.DiscoverViews(layouts, viewSelector)
 		if err != nil {
 			return utils.ErrorExit("Failed to discover views.", err)
 		}
 
-		if err := utils.EmptyDir("site"); err != nil {
-			return utils.ErrorExit("Failed to empty the existing site directory.", err)
+		if viewArgument != nil {
+			for _, view := range discoveredViews {
+				if view.MultipageVariableHook == nil {
+					return fmt.Errorf("The view %s renders a single page and doesn't take an argument.", view.ViewConfig.Output)
+				}
+			}
 		}
 
-		if _, err := os.Stat("static"); os.IsNotExist(err) {
-			printVerbose("Failed to locate static files. Skipping...")
-		} else {
-			if err := static.CopyIn(); err != nil {
-				return utils.ErrorExit("Failed to copy static files.", err)
+		// a partial build leaves everything but the pages it renders in place
+		if !partialBuild {
+			if err := utils.EmptyDir("site"); err != nil {
+				return utils.ErrorExit("Failed to empty the existing site directory.", err)
 			}
-			printVerbose("Finished copying static files.")
+
+			if _, err := os.Stat("static"); os.IsNotExist(err) {
+				printVerbose("Failed to locate static files. Skipping...")
+			} else {
+				if err := static.CopyIn(); err != nil {
+					return utils.ErrorExit("Failed to copy static files.", err)
+				}
+				printVerbose("Finished copying static files.")
+			}
 		}
 
 		var renderedPaths = make(map[string]bool)
+		renderedPages := 0
 		for _, view := range discoveredViews {
-			results := make([]map[string]rdf.Term, 0)
-			if view.ViewConfig.QueryFile != "" {
-				printVerbose("Issuing query " + view.ViewConfig.QueryFile)
-				results, err = sparql.CurrentRepository.QuerySelect(view.ViewConfig.QueryFile)
-				if err != nil {
-					return utils.ErrorExit("SPARQL query failed.", err)
-				}
+			pages, err := renderView(view, viewArgument, renderedPaths)
+			if err != nil {
+				return err
 			}
-
-			// if the page is rendered based on SPARQL result rows
-			if view.MultipageVariableHook != nil {
-				printVerbose("Rendering multipage view based on variable " + *view.MultipageVariableHook + ", with " + fmt.Sprint(len(results)) + " results.")
-				for _, row := range results {
-					if _, ok := row[*view.MultipageVariableHook]; !ok {
-						err := fmt.Errorf(*view.MultipageVariableHook + " not found in SPARQL result row.")
-						return utils.ErrorExit("Failed to render multipage view.", err)
-					}
-
-					pathSection := row[*view.MultipageVariableHook].String()
-					if utils.ValidatePathSection(pathSection); err != nil {
-						return utils.ErrorExit("Failed to validate path section.", err)
-					}
-
-					outputVariablePattern := regexp.MustCompile(`{{ *` + *view.MultipageVariableHook + ` *}}`)
-					outputPath := "site/" + outputVariablePattern.ReplaceAllString(view.ViewConfig.Output, pathSection)
-
-					if renderedPaths[outputPath] {
-						fmt.Println("Warning: Writing to " + outputPath + " for the second time.")
-					}
-
-					if err := view.RenderPage(outputPath, row); err != nil {
-						return utils.ErrorExit("Failed to render page at "+outputPath, err)
-					}
-					printVerbose("Rendered page at site/" + outputPath)
-					renderedPaths[outputPath] = true
-				}
-			} else {
-				if renderedPaths["site/"+view.ViewConfig.Output] {
-					fmt.Println("Warning: Writing to " + "site/" + view.ViewConfig.Output + " for the second time.")
-				}
-
-				if err := view.RenderPage("site/"+view.ViewConfig.Output, results); err != nil {
-					return utils.ErrorExit("Failed to render page at "+"site/"+view.ViewConfig.Output, err)
-				}
-				printVerbose("Rendered page at site/" + view.ViewConfig.Output)
-				renderedPaths["site/"+view.ViewConfig.Output] = true
-			}
-
+			renderedPages += pages
 		}
 
-		if err := sparql.CurrentRepository.CacheManager.Teardown(); err != nil {
+		if err := sparql.CurrentRepository.CacheManager.Teardown(partialBuild); err != nil {
 			return utils.ErrorExit("Failed write used queries to cache memory.", err)
 		}
 
-		fmt.Println("Finished building project.")
+		if partialBuild {
+			fmt.Println("Finished partial build, rendered " + fmt.Sprint(renderedPages) + " page(s).")
+		} else {
+			fmt.Println("Finished building project.")
+		}
 		return nil
 	},
 }

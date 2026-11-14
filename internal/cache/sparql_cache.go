@@ -3,8 +3,6 @@ package cache
 import (
 	"os"
 	"strings"
-
-	"github.com/glaciers-in-archives/snowman/internal/utils"
 )
 
 type SparqlCacheManager struct {
@@ -115,10 +113,8 @@ func (cm *SparqlCacheManager) SetCache(location string, query string, content st
 	return saveToCacheFile(queryCacheLocation, content)
 }
 
-func (cm *SparqlCacheManager) Teardown() error {
-	if err := utils.WriteLineSeperatedFile(cm.cacheHashesUsedInCurrentBuild, cm.SnowmanDirectoryPath+cm.cacheHistoryFile); err != nil {
-		return err
-	}
-
-	return nil
+// Teardown saves the cache items used in the current build to the cache history.
+// partialBuild should be set when only a part of the site was built.
+func (cm *SparqlCacheManager) Teardown(partialBuild bool) error {
+	return writeCacheHistory(cm.SnowmanDirectoryPath+cm.cacheHistoryFile, cm.cacheHashesUsedInCurrentBuild, partialBuild)
 }
