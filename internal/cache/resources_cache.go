@@ -3,8 +3,6 @@ package cache
 import (
 	"net/url"
 	"os"
-
-	"github.com/glaciers-in-archives/snowman/internal/utils"
 )
 
 var CurrentResourcesCacheManager *ResourcesCacheManager
@@ -115,10 +113,8 @@ func (cm *ResourcesCacheManager) SetCache(itemUrl string, content string) error 
 	return saveToCacheFile(itemPath, content)
 }
 
-func (cm *ResourcesCacheManager) Teardown() error {
-	if err := utils.WriteLineSeperatedFile(cm.cacheHashesUsedInCurrentBuild, cm.SnowmanDirectoryPath+cm.cacheHistoryFile); err != nil {
-		return err
-	}
-
-	return nil
+// Teardown saves the cache items used in the current build to the cache history.
+// partialBuild should be set when only a part of the site was built.
+func (cm *ResourcesCacheManager) Teardown(partialBuild bool) error {
+	return writeCacheHistory(cm.SnowmanDirectoryPath+cm.cacheHistoryFile, cm.cacheHashesUsedInCurrentBuild, partialBuild)
 }

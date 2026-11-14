@@ -264,6 +264,10 @@ To only build a part of the site, provide the output of a view as it's written i
 			return utils.ErrorExit("Failed write used queries to cache memory.", err)
 		}
 
+		if err := cache.CurrentResourcesCacheManager.Teardown(partialBuild); err != nil {
+			return utils.ErrorExit("Failed write used resources to cache memory.", err)
+		}
+
 		if partialBuild {
 			fmt.Println("Finished partial build, rendered " + fmt.Sprint(renderedPages) + " page(s).")
 		} else {

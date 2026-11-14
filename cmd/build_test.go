@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/glaciers-in-archives/snowman/internal/cache"
 	"github.com/glaciers-in-archives/snowman/internal/utils"
 )
 
@@ -242,6 +243,63 @@ func TestPartialBuildKeepsCacheHistory(t *testing.T) {
 	sort.Strings(historyAfterPartialBuild)
 	if !reflect.DeepEqual(historyAfterFullBuild, historyAfterPartialBuild) {
 		t.Errorf("Expected the partial build to keep the cache history %v, got %v", historyAfterFullBuild, historyAfterPartialBuild)
+	}
+}
+
+func TestBuildWritesResourcesCacheHistory(t *testing.T) {
+	setupProject(t)
+	// snowman.yaml holds the address of the test server
+	writeFile(t, "templates/index.html", `{{ $endpoint := (config).Client.Endpoint }}{{ $resource := get_remote (print $endpoint "/resource") }}index v1`)
+	writeFile(t, "templates/entity.html", `{{ $endpoint := (config).Client.Endpoint }}{{ $resource := get_remote (print $endpoint "/" .id) }}entity {{ .id }} v1`)
+	historyFilePath := ".snowman/last_build_resources.txt"
+
+	if err := runBuild(); err != nil {
+		t.Fatal(err)
+	}
+	history, err := utils.ReadLineSeperatedFile(historyFilePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(history) != 3 {
+		t.Fatalf("Expected the full build to use 3 cached resources, got %v", history)
+	}
+	assertNoUnusedResources(t)
+
+	// a partial build keeps the resources of the pages which weren't rebuilt
+	if err := runBuild("entities/{{id}}.html", "a"); err != nil {
+		t.Fatal(err)
+	}
+	history, err = utils.ReadLineSeperatedFile(historyFilePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(history) != 3 {
+		t.Errorf("Expected the partial build to keep the 3 used resources, got %v", history)
+	}
+	assertNoUnusedResources(t)
+
+	// a full build replaces the history
+	writeFile(t, "templates/entity.html", "entity {{ .id }} v2")
+	if err := runBuild(); err != nil {
+		t.Fatal(err)
+	}
+	history, err = utils.ReadLineSeperatedFile(historyFilePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(history) != 1 {
+		t.Errorf("Expected the full build to only use 1 cached resource, got %v", history)
+	}
+}
+
+func assertNoUnusedResources(t *testing.T) {
+	t.Helper()
+	unused, err := cache.CurrentResourcesCacheManager.GetUnusedCacheHashes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(unused) != 0 {
+		t.Errorf("Expected no unused cached resources, got %v", unused)
 	}
 }
 
